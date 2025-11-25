@@ -1,0 +1,103 @@
+PUT http://localhost:3000/api/usuarios/1
+Content-Type: application/json
+
+{
+  "nombreUsuario": "pepe2",
+  "email": "pepe@example.com"
+}
+################################################ Actividades
+###Crear actividad
+POST http://localhost:3000/api/actividades
+Content-Type: application/json
+
+{
+  "idCreador": 2,
+  "titulo": "Bicicleta",
+  "descripcion": "Una dia de bici.",
+  "fechaInicio": "2025-11-09T09:00:00.000Z",
+  "fechaFin": "2025-11-09T11:00:00.000Z",
+  "ubicacion": "Madrid, España",
+  "publica": true,
+  "participantesmax": 14,
+  "imagenes": [
+    "https://example.com/img/bc.jpg",
+    "https://example.com/img/fb2.jpg"
+  ],
+  "estado": "activa"
+}
+
+###Actualizar actividad
+PUT http://localhost:3000/api/actividades/8
+Content-Type: application/json
+
+{
+  "imagenes": [
+    "https://example.com/img/tenis.jpg",
+    "https://example.com/img/tenis2.jpg"
+  ]
+
+}
+
+###eliminar actividad
+DELETE http://localhost:3000/api/actividades/7
+
+
+
+
+#################################################### Participacion
+###actualizar el estadoetado
+PUT http://localhost:3000/api/participacion/
+Content-Type: application/json
+
+{
+  "idUsuario": 1,
+  "idActividad": 1,
+  "aceptada": true
+}
+
+###Crea participacion
+POST http://localhost:3000/api/participacion
+Content-Type: application/json
+
+{
+  "idUsuario": 3,
+  "idActividad": 8,
+  "aceptada": true
+}
+
+### Elimina participacion
+DELETE http://localhost:3000/api/participacion/
+Content-Type: application/json
+
+{
+  "idUsuario": 3,
+  "idActividad": 7
+}
+
+
+######################################################## Notificaciones
+###Crear notificacion
+POST http://localhost:3000/api/notificacion
+Content-Type: application/json
+
+{
+  "idUsuarioReceptor": 3,
+  "tipo": "actividad_cancelada",
+  "mensaje": "Se ha cancelado la actividad actividad llamada Cafe.",
+  "leida": false,
+  "idReferencia": 2
+}
+
+
+###Marcar notificacion como leida (actualizar)
+PUT http://localhost:3000/api/notificacion/2
+Content-Type: application/json
+
+{
+  "leida": true
+}
+
+###Eliminar notificacion
+DELETE http://localhost:3000/api/notificacion/2
+
+

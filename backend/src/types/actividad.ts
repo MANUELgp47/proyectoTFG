@@ -11,6 +11,7 @@ export interface Actividad {
     participantesmax?: number;
     imagenes?: string[];
     estado: 'activa' | 'finalizada' | 'cancelada';
+    //TODO añadir un campo de notificado boolean para evitar dupolicar notificaciones
 
 }
 export type CreaActividad = Omit<Actividad, 'idActividad' | 'fechaCreacion' | 'estado'>;

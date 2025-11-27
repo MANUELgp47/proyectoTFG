@@ -47,3 +47,9 @@ export const eliminarRecuerdo = async (idRecuerdo: number): Promise<boolean> => 
 
     return result.rowCount === 1;// Devuelve true si se eliminó una fila, false si no
 };
+
+// eliminar recuerdo por idRecuerdo
+export const deleteRecuerdoPorId = async (idRecuerdo: number): Promise<boolean> => {
+    const result = await pool.query("DELETE FROM recuerdo WHERE id_recuerdo = $1", [idRecuerdo]);
+    return result.rowCount === 1;
+};

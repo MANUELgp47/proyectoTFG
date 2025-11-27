@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import * as ActividadController from '../controllers/actividad.controller.js';
+import {finalizarActividad} from "../controllers/actividad.controller.js";
 
 const router = Router();
 
@@ -14,5 +15,8 @@ router.put('/:id', ActividadController.updateActividad);
 
 //Eliminar una actividad
 router.delete('/:id', ActividadController.deleteActividad);
+
+//finalizar una actividad
+router.post('/:id/finalizar', ActividadController.finalizarActividad);
 
 export default router;

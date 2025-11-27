@@ -6,6 +6,7 @@ import usuarioRoutes from './routes/usuario.routes.js';
 import actividadRoutes from './routes/actividad.routes.js';
 import participacionRoutes from './routes/participacion.routes.js';
 import notificacionRoutes from './routes/notificacion.routes.js';
+import recuerdoRoutes from './routes/recuerdo.routes.js';
 
 
 
@@ -19,6 +20,7 @@ app.use('/api/usuarios', usuarioRoutes);
 app.use('/api/actividades', actividadRoutes);
 app.use('/api/participacion', participacionRoutes);
 app.use('/api/notificacion', notificacionRoutes);
+app.use('/api/recuerdos', recuerdoRoutes);
 
 
 

@@ -54,6 +54,33 @@ export const actualizarActividad = async (idActividad: number, actividad: Partia
     return mapearActividad(result.rows[0]);
 };
 
+// actualizar estado de actividad
+export const actualizarEstadoActividad = async (idActividad: number, estado: 'activa' | 'finalizada' | 'cancelada'): Promise<Actividad | null> => {
+    const result = await pool.query(
+        `UPDATE actividad SET estado = $1 WHERE id_actividad = $2 RETURNING *`,
+        [estado, idActividad]
+    );
+    if (result.rows.length === 0) return null;
+    return mapearActividad(result.rows[0]);
+};
+
+//obtiene los participantes de una actividad
+export const getParticipantesDeActividad = async (idActividad: number): Promise<number[]> => {
+    const result = await pool.query(
+        `SELECT id_usuario FROM participacion WHERE id_actividad = $1 AND aceptada = true`,
+        [idActividad]
+    );
+    return result.rows.map(row => row.id_usuario);
+};
+
+//obtener id de actividades con fecha fin menor a la actual y estado 'activa'
+export const getActividadesCaducadas = async (): Promise<number[]> => {
+    const result = await pool.query(
+        `SELECT id_actividad FROM actividad WHERE fecha_fin < NOW() AND estado = 'activa'`
+    );
+    return result.rows.map(row => row.id_actividad);
+};
+
 
 export const eliminarActividad = async (idActividad: number): Promise<boolean> => {
     const result = await pool.query("DELETE FROM actividad WHERE id_actividad = $1", [idActividad]);

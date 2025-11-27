@@ -2,8 +2,9 @@ import type {Request, Response} from 'express';
 import * as ActividadModel from '../models/actividad.model.js';
 import * as NotificacionModel from '../models/notificacion.model.js';
 import type {CrearNotificacion} from "../types/notificacion.js";
-//importa el tipo notificacion
-
+import * as ParticipacionModel from '../models/participacion.model.js';
+//importa actividad.job.ts para usar la función de finalizar actividad
+import * as ActividadJob from '../jobs/actividad.job.js';
 
 export const getActividades = async (req: Request, res: Response) => {
     try {
@@ -25,7 +26,22 @@ export const createActividad = async (req: Request, res: Response) => {
         console.error('Error al crear actividad:', error);
         res.status(500).json({message: 'Error del servidor'});
     }
+    //Crea participacion del creador de la actividad
+    if (actividad !== undefined) {
+        try {
+            await ParticipacionModel.crearParticipacion({
+                idUsuario: actividad.idCreador,
+                idActividad: actividad.idActividad,
+                esCreador: true,
+                aceptada: true,
+            });
+        } catch (error) {
+            console.error('Error al crear participacion del creador de la actividad:', error);
+        }
+    }
 
+
+    // NOTIFICACION DE CREACION DE ACTIVIDAD
     if (actividad !== undefined) {
         const notificacion: CrearNotificacion = {
             idUsuarioReceptor: req.body.idCreador,
@@ -35,12 +51,9 @@ export const createActividad = async (req: Request, res: Response) => {
         };
 
         NotificacionModel.crearNotificacion(notificacion);
-    }else{
+    } else {
         console.error('No se pudo crear la notificación porque la actividad es undefined');
     }
-
-
-
 
 
 };
@@ -70,25 +83,82 @@ export const updateActividad = async (req: Request, res: Response) => {
         res.status(500).json({message: 'Error del servidor'});
     }
 
-    //NOTIFICACION DE ACTUALIZACION DE ACTIVIDAD
+    let actividadActualizada;
     if (idActividad !== undefined) {
-        const notificacion: CrearNotificacion = {
-            idUsuarioReceptor: req.body.idCreador,
-            tipo: 'actualizacion_actividad',
-            mensaje: `Se ha actualizado la actividad con nombre ${req.body.nombre}`,
-            idReferencia: idActividad, //id de la actividad creada actividad.idActividad
-        };
+        actividadActualizada = await ActividadModel.getActividadPorId(idActividad);
+    }
 
-        NotificacionModel.crearNotificacion(notificacion);
-    }else{
+    // NOTIFICACION DE ACTUALIZACION DE ACTIVIDAD
+    if (actividadActualizada !== undefined) {
+        const actividad = await actividadActualizada;//espera a que se resuelva la petición
+        if (actividad) {
+            const notificacion: CrearNotificacion = {
+                idUsuarioReceptor: actividad.idCreador,
+                tipo: 'actualizacion_actividad',
+                mensaje: `Se ha actualizado la actividad con nombre ${actividad.titulo}`,
+                idReferencia: actividad.idActividad,
+            };
+
+            NotificacionModel.crearNotificacion(notificacion);
+        } else {
+            console.error('No se pudo crear la notificación porque la actividad es null');
+        }
+    } else {
         console.error('No se pudo crear la notificación porque la actividad es undefined');
     }
 
 };
 
+//finalizar actividad cons actividad.job.ts
+export const finalizarActividad = async (req: Request, res: Response) => {
+    console.log("actividad a finalizar:", req.params.id);
+    try {
+        const idParam = req.params.id;
+
+        if (!idParam) {
+            return res.status(400).json({message: 'ID requerido'});
+        }
+        const idActividad = Number.parseInt(idParam, 10);
+        const miActividad = await ActividadModel.getActividadPorId(idActividad)
+        if (Number.isNaN(idActividad)) {
+            return res.status(400).json({message: 'ID inválido'});
+        }
+
+        // Verificar si la actividad es activa y si la fecha de fin es mayor a la fecha actual para evitar finalizar actividades ya finalizadas
+        if (
+            miActividad?.estado !== 'activa' ||
+            (miActividad.fechaFin && new Date(miActividad.fechaFin) < new Date())//si ya ha pasado la fecha fin
+        ) {
+            console.error('La actividad ya ha sido finalizada previamente');
+            return res.status(400).json({message: 'La actividad no puede ser finalizada'});
+        }
+
+
+        const finalizada = await ActividadJob.finalizarActividadesCaducadas([idActividad]);
+        if (finalizada) {
+            res.json({message: 'Actividad finalizada correctamente'});
+        } else {
+            res.status(404).json({message: 'Actividad no encontrada o no finalizada'});
+        }
+
+
+    } catch (error) {
+        console.error('Error al finalizar Actividad:', error);
+        res.status(500).json({message: 'Error del servidor'});
+    }
+};
+
+
 //Eliminar actividad
 export const deleteActividad = async (req: Request, res: Response) => {
+    let actividad_eliminar;
+    let eliminado;
+
     try {
+        if (req.params.id !== undefined) {//parte para notificación
+            actividad_eliminar = await ActividadModel.getActividadPorId(parseInt(req.params.id, 10));
+        }
+
         const idParam = req.params.id;
         if (!idParam) {// si no hay id en los parametros
             return res.status(400).json({message: 'ID requerido'});
@@ -98,7 +168,7 @@ export const deleteActividad = async (req: Request, res: Response) => {
             return res.status(400).json({message: 'ID inválido'});
         }
 
-        const eliminado = await ActividadModel.eliminarActividad(idActividad);
+        eliminado = await ActividadModel.eliminarActividad(idActividad);
         if (eliminado) {// si se elimino correctamente
             res.json({message: 'Actividad eliminada correctamente'});
         } else {
@@ -108,4 +178,27 @@ export const deleteActividad = async (req: Request, res: Response) => {
         console.error('Error al eliminar Actividad:', error);
         res.status(500).json({message: 'Error del servidor'});
     }
+
+    //TODO:
+    //Ver si es nesesario poner notificación de eliminación de actividad
+
+    // NOTIFICACION DE ELIMINACION DE ACTIVIDAD
+    /*if (eliminado){if (actividad_eliminar !== undefined) {
+        const actividad = await actividad_eliminar;//espera a que se resuelva la petición
+        if (actividad) {
+            const notificacion: CrearNotificacion = {
+                idUsuarioReceptor: actividad.idCreador,
+                tipo: 'actualizacion_actividad',
+                mensaje: `Se ha actualizado la actividad con nombre ${actividad.titulo}`,
+                idReferencia: actividad.idActividad,
+            };
+
+            NotificacionModel.crearNotificacion(notificacion);
+        } else {
+            console.error('No se pudo crear la notificación porque la actividad es null');
+        }
+    } else {
+        console.error('No se pudo crear la notificación porque la actividad es undefined');
+    }}
+*/
 };

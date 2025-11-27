@@ -1,5 +1,8 @@
 {
   "devDependencies": {
     "@types/pg": "^8.15.6"
+  },
+  "dependencies": {
+    "node-cron": "^4.2.1"
   }
 }

@@ -29,6 +29,8 @@ export const crearSolicitudAmistad = async (solicitud: CrearSolicitudAmistad): P
     return mapearSolicitudAmistad(result.rows[0]);
 };
 export const actualizarEstadoSolicitudAmistad = async (idEmisor: number, idReceptor: number, nuevoEstado: 'pendiente' | 'aceptada' | 'rechazada'): Promise<boolean> => {
+
+   // console.log('Actualizando estado de solicitud de amistad:', {idEmisor, idReceptor, nuevoEstado});
     const result = await pool.query(
         "UPDATE solicitud_amistad SET estado = $1 WHERE id_emisor = $2 AND id_receptor = $3",
         [nuevoEstado, idEmisor, idReceptor]

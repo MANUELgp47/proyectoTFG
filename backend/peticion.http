@@ -145,13 +145,13 @@ Content-Type: application/json
 
 {
   "idCreador": 2,
-  "titulo": "CS2",
+  "titulo": "test maximos",
   "descripcion": "Partida a las 14.",
   "fechaInicio": "2025-11-09T09:00:00.000Z",
-  "fechaFin": "2025-11-27T14:05:00.000Z",
+  "fechaFin": "2029-11-28T14:05:00.000Z",
   "ubicacion": "Madrid, España",
   "publica": true,
-  "participantesmax": 4,
+  "participantesmax": 2,
   "imagenes": [
     "https://example.com/img/padel.jpg"
   ],
@@ -163,10 +163,78 @@ POST http://localhost:3000/api/participacion
 Content-Type: application/json
 
 {
-  "idUsuario": 3,
-  "idActividad": 16
+  "idUsuario": 1,
+  "idActividad": 17
 }
-###
+
+
+#######################################################Amistad
+###crear amistad
+POST http://localhost:3000/api/amistad
+Content-Type: application/json
+
+{
+  "idUsuario1": 1,
+  "idUsuario2": 2
+}
+###eliminar amistad
+DELETE http://localhost:3000/api/amistad/1/3
+
+
+#####################################################solicitud de amistad
+###crear solicitud de amistad
+POST http://localhost:3000/api/solicitudAmistad
+Content-Type: application/json
+
+{
+  "idEmisor": 1,
+  "idReceptor": 3
+}
+
+###Aceptar solicitud de amistad
+PUT http://localhost:3000/api/solicitudAmistad/1/3
+Content-Type: application/json
+
+{
+  "estado": "aceptada"
+}
+
+###eliminar solicitud de amistad
+DELETE http://localhost:3000/api/solicitudAmistad/1/3
+
+#######################################################Comentarios
+###crear comentario
+POST http://localhost:3000/api/comentario
+Content-Type: application/json
+
+{
+  "idUsuario": 3,
+  "idRecuerdo": 2,
+  "mensaje": "¡SIIIII!"
+}
+
+###eliminar comentario
+DELETE http://localhost:3000/api/comentario/7
+
+
+######################################################## LIKES
+###crear like
+POST http://localhost:3000/api/likeMegusta
+Content-Type: application/json
+
+{
+  "idUsuario": 3,
+  "idRecuerdo": 2
+}
+
+###numero de likes de un comentario
+GET http://localhost:3000/api/likeMegusta/comentario/numero/5
+###numero de dislikes de un recuerdo
+GET http://localhost:3000/api/likeMegusta/recuerdo/numero/2
+
+###eliminar like idLike
+DELETE http://localhost:3000/api/likeMegusta/9
+
 
 
 

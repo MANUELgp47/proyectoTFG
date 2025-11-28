@@ -1,24 +1,61 @@
 import type {Request, Response} from 'express';
 import * as LikeModel from '../models/likeMegusta.model.js';
 
-//todos los likes de un recuerdo o comentario
-export const getNumeroLikesTotales = async (req: Request, res: Response) => {
+//obtiene todos los likes de la base de datos
+export const getLikesMegusta = async (req: Request, res: Response) => {
     try {
-        const { idRecuerdo, idComentario } = req.query;
+        const likesMegusta = await LikeModel.getAllLikeMegusta();
+        res.json(likesMegusta);
+    } catch (error) {
+        console.error('Error al obtener likes/megustas:', error);
+        res.status(500).json({ message: 'Error del servidor' });
+    }
+};
 
-        let numeroLikes: number;
+//todos los likes de un recuerdo
+export const getLikesMegustaPorIdRecuerdo = async (req: Request, res: Response) => {
+    try {
+        const idRecuerdo = Number(req.params.idRecuerdo);
+        const likesMegusta = await LikeModel.getLikesMegustaPorIdRecuerdo(idRecuerdo);
+        res.json(likesMegusta);
+    } catch (error) {
+        console.error('Error al obtener likes/megustas por idRecuerdo:', error);
+        res.status(500).json({ message: 'Error del servidor' });
+    }
+};
 
-        if (idRecuerdo) {
-            numeroLikes = await LikeModel.getNumeroLikesRecuerdo(Number(idRecuerdo));
-        } else if (idComentario) {
-            numeroLikes = await LikeModel.getNumeroLikesComentario(Number(idComentario));
-        } else {
-            return res.status(400).json({ message: 'Se requiere idRecuerdo o idComentario' });
-        }
+//todos los likes de un comentario
+export const getLikesMegustaPorIdComentario = async (req: Request, res: Response) => {
+    try {
+        const idComentario = Number(req.params.idComentario);
+        const likesMegusta = await LikeModel.getLikesMegustaPorIdComentario(idComentario);
+        res.json(likesMegusta);
+    } catch (error) {
+        console.error('Error al obtener likes/megustas por idComentario:', error);
+        res.status(500).json({ message: 'Error del servidor' });
+    }
+};
 
+//todos los likes de un comentario
+export const getNumeroLikesComentario = async (req: Request, res: Response) => {
+    try {
+        const idComentario = Number(req.params.idComentario);
+        const numeroLikes = await LikeModel.getNumeroLikesComentario(idComentario);
         res.json({ numeroLikes });
     } catch (error) {
-        console.error('Error al obtener likes:', error);
+        console.error('Error al obtener numero de likes/megustas por idComentario:', error);
+        res.status(500).json({ message: 'Error del servidor' });
+    }
+};
+
+//todos los likes de un recuerdo
+export const getNumeroLikesRecuerdo = async (req: Request, res: Response) => {
+    try {
+        const idRecuerdo = Number(req.params.idRecuerdo);
+        const numeroLikes = await LikeModel.getNumeroLikesRecuerdo(idRecuerdo);
+        res.json({ numeroLikes });
+    } catch (error) {
+        console.error('Error al obtener numero de likes/megustas por idRecuerdo:', error);
         res.status(500).json({ message: 'Error del servidor' });
     }
 };

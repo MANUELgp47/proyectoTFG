@@ -2,7 +2,7 @@ import pool from "../db.js";
 import type {LikeMegusta, CrearLikeMegusta} from "../types/likeMegusta.js";
 import {mapearLikeMegusta} from "../utils/mappers.js";
 
-export const getAllLikeMegustas = async (): Promise<LikeMegusta[]> => {
+export const getAllLikeMegusta = async (): Promise<LikeMegusta[]> => {
     const result = await pool.query("SELECT * FROM like_megusta");
     return result.rows.map(mapearLikeMegusta);
 };
@@ -10,6 +10,21 @@ export const getLikeMegustaPorId = async (idLike: number): Promise<LikeMegusta |
     const result = await pool.query("SELECT * FROM like_megusta WHERE id_like = $1", [idLike]);
     if (result.rows.length === 0) return null;
     return mapearLikeMegusta(result.rows[0]);
+};
+
+export const getLikesMegustaPorIdRecuerdo = async (idRecuerdo: number): Promise<LikeMegusta[]> => {
+    const result = await pool.query(
+        "SELECT * FROM like_megusta WHERE id_recuerdo = $1",
+        [idRecuerdo]
+    );
+    return result.rows.map(mapearLikeMegusta);
+};
+export const getLikesMegustaPorIdComentario = async (idComentario: number): Promise<LikeMegusta[]> => {
+    const result = await pool.query(
+        "SELECT * FROM like_megusta WHERE id_comentario = $1",
+        [idComentario]
+    );
+    return result.rows.map(mapearLikeMegusta);
 };
 
 export const getNumeroLikesRecuerdo = async (idRecuerdo: number): Promise<number> => {

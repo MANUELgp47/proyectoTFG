@@ -42,10 +42,10 @@ export const mapearActividad = (row: any): Actividad => {
 
 export const mapearAmistad = (row: any) => {
     return {
-        idUsuario1: row.id_usuario_1,
-        idUsuario2: row.id_usuario_2,
-        fechaAmistad: row.fecha_amistad,
-        estado: row.estado,
+        idUsuario1: row.id_usuario1,
+        idUsuario2: row.id_usuario2,
+        fechaAmistad: row.fecha_creacion
+
     };
 }
 

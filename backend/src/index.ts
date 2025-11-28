@@ -7,6 +7,10 @@ import actividadRoutes from './routes/actividad.routes.js';
 import participacionRoutes from './routes/participacion.routes.js';
 import notificacionRoutes from './routes/notificacion.routes.js';
 import recuerdoRoutes from './routes/recuerdo.routes.js';
+import amistadRoutes from "./routes/amistad.routes.js";
+import solicitudAmistadRoutes from "./routes/solicitudAmistad.routes.js";
+import comentarioRoutes from "./routes/comentario.routes.js";
+import likeRoutes from "./routes/likeMegusta.routes.js";
 
 
 
@@ -16,11 +20,15 @@ app.use(cors()); // Permite todas las conexiones CORS desde otros puertos y domi
 app.use(express.json());// Middleware para parsear JSON y que Express pueda entender los datos en formato
 
 //rutas
-app.use('/api/usuarios', usuarioRoutes);
-app.use('/api/actividades', actividadRoutes);
+app.use('/api/usuario', usuarioRoutes);
+app.use('/api/actividad', actividadRoutes);
 app.use('/api/participacion', participacionRoutes);
 app.use('/api/notificacion', notificacionRoutes);
-app.use('/api/recuerdos', recuerdoRoutes);
+app.use('/api/recuerdo', recuerdoRoutes);
+app.use('/api/amistad', amistadRoutes);
+app.use('/api/solicitudAmistad', solicitudAmistadRoutes);
+app.use('/api/comentario', comentarioRoutes);
+app.use('/api/likeMegusta', likeRoutes);
 
 
 

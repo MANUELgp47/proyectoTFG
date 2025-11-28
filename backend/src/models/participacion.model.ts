@@ -1,6 +1,7 @@
 import pool from "../db.js";
 import type {Participacion, Crearparticipacion} from "../types/participacion.js";
 import {mapearParticipacion} from "../utils/mappers.js";
+import * as ActividadModel from "./actividad.model.js";
 
 export const getAllParticipacions = async (): Promise<Participacion[]> => {
     const result = await pool.query("SELECT * FROM participacion");
@@ -18,6 +19,12 @@ export const getParticipacionesPorActividad = async (idActividad: number): Promi
     return result.rows.map(mapearParticipacion);
     ;
 };
+//devuelve el numero de participantes que participan en una actividad
+export const getNumeroParticipantesPorActividad = async (idActividad: number): Promise<number> => {
+    const result = await pool.query("SELECT COUNT(*) FROM participacion WHERE id_actividad = $1", [idActividad]);
+    return parseInt(result.rows[0].count, 10);
+};
+
 //todas las participaciones de un usuario
 export const getParticipacionesPorUsuario = async (idUsuario: number): Promise<Participacion[]> => {
     const result = await pool.query("SELECT * FROM participacion WHERE id_usuario = $1", [idUsuario]);
@@ -32,6 +39,19 @@ export const crearParticipacion = async (participacion: Crearparticipacion): Pro
         aceptada
 
     } = participacion;
+
+    //si el numero de participantes maximo es igual a actividadModel.getparticipantes() no se puede crear la participacion
+
+    const activida =await ActividadModel.getActividadPorId(idActividad);
+    const participantes = await getNumeroParticipantesPorActividad(idActividad);
+    let participantesMaximos = activida?.participantesmax ?? 0;
+
+
+    if (participantesMaximos <= participantes && participantesMaximos > 0) {
+        throw new Error(`No se puede crear la participación: se alcanzó el número máximo de participantes. ${participantes} de ${participantesMaximos}`);
+    }
+
+
 
     //si el id_usuario es igual al id_creador de la actividad esCreador=true
     //extraer el id_creador de la actividad

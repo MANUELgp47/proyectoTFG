@@ -40,10 +40,26 @@ export const getAmistadesPorUsuario = async (req: Request, res: Response) => {
 
 export const createAmistad = async (req: Request, res: Response) => {
     try {
-        const amistad = await AmistadModel.crearAmistad(req.body);
+        const amistad = await AmistadModel.crearAmistad(req.body.idUsuario1, req.body.idUsuario2);
         res.status(201).json(amistad);
     } catch (error) {
         console.error('Error al crear amistad:', error);
+        res.status(500).json({ message: 'Error del servidor' });
+    }
+};
+
+//elimina una amistad por los ids de los usuarios
+export const deleteAmistad = async (req: Request, res: Response) => {
+    const {idUsuario1, idUsuario2} = req.params;
+    try {
+        const eliminado = await AmistadModel.eliminarAmistad(Number(idUsuario1), Number(idUsuario2));
+        if (eliminado) {
+            res.json({ message: 'Amistad eliminada correctamente' });
+        } else {
+            res.status(404).json({ message: 'Amistad no encontrada' });
+        }
+    } catch (error) {
+        console.error('Error al eliminar amistad:', error);
         res.status(500).json({ message: 'Error del servidor' });
     }
 };

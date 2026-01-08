@@ -115,7 +115,7 @@ CREATE TABLE Mensaje(
 	id_emisor INT NOT NULL,
 	contenido TEXT,
 	fecha_envio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-	leido BOOLEAN NOT NULL,
+	leido BOOLEAN DEFAULT FALSE,
 
 	FOREIGN KEY (id_emisor)
     REFERENCES Usuario(id_usuario)
@@ -151,7 +151,8 @@ CREATE TABLE Solicitud_Amistad (
     id_emisor INT REFERENCES Usuario(id_usuario) ON DELETE CASCADE,
     id_receptor INT REFERENCES Usuario(id_usuario) ON DELETE CASCADE,
 	fecha_envio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-	estado VARCHAR(20) NOT NULL CHECK (estado IN ('pendiente', 'aceptada', 'rechazada')) DEFAULT 'pendiente'
+	estado VARCHAR(20) NOT NULL CHECK (estado IN ('pendiente', 'aceptada', 'rechazada')) DEFAULT 'pendiente',
+
 );
 
 CREATE TABLE Amistad(

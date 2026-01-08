@@ -11,6 +11,9 @@ import amistadRoutes from "./routes/amistad.routes.js";
 import solicitudAmistadRoutes from "./routes/solicitudAmistad.routes.js";
 import comentarioRoutes from "./routes/comentario.routes.js";
 import likeRoutes from "./routes/likeMegusta.routes.js";
+import mensajeRoutes from "./routes/mensaje.routes.js";
+import chatIndividualRoutes from "./routes/chatIndividual.routes.js";
+import chatActividadRoutes from "./routes/chatActividad.routes.js";
 
 
 
@@ -29,8 +32,9 @@ app.use('/api/amistad', amistadRoutes);
 app.use('/api/solicitudAmistad', solicitudAmistadRoutes);
 app.use('/api/comentario', comentarioRoutes);
 app.use('/api/likeMegusta', likeRoutes);
-
-
+app.use('/api/mensaje', mensajeRoutes);
+app.use('/api/chatIndividual', chatIndividualRoutes);
+app.use('/api/chatActividad', chatActividadRoutes);
 
 
 

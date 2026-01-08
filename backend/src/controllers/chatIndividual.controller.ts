@@ -1,5 +1,5 @@
 import type {Request, Response} from 'express';
-import * as ChatIndividualModel from '../models/chatIndividual.model.js.model.js';
+import * as ChatIndividualModel from '../models/chatIndividual.model.js';
 
 export const getChatsIndividual = async (req: Request, res: Response) => {
     try {
@@ -12,7 +12,7 @@ export const getChatsIndividual = async (req: Request, res: Response) => {
 };
 
 export const getChatIndividualPorId = async (req: Request, res: Response) => {
-    const idChatIndividual = parseInt(req.params.id, 10);
+    const idChatIndividual = Number(req.params.id);
 
     try {
         const chatIndividual = await ChatIndividualModel.getChatIndividualPorId(idChatIndividual);
@@ -28,8 +28,8 @@ export const getChatIndividualPorId = async (req: Request, res: Response) => {
 
 //get chat individual por id de usuario1 y id de usuario2
 export const getChatIndividualPorUsuarios = async (req: Request, res: Response) => {
-    const idUsuario1 = parseInt(req.params.idUsuario1, 10);
-    const idUsuario2 = parseInt(req.params.idUsuario2, 10);
+    const idUsuario1 = Number(req.params.idUsuario1);
+    const idUsuario2 = Number(req.params.idUsuario2);
     try {
         const chatIndividual = await ChatIndividualModel.getChatIndividualPorUsuarios(idUsuario1, idUsuario2);
         if (!chatIndividual) {
@@ -42,6 +42,8 @@ export const getChatIndividualPorUsuarios = async (req: Request, res: Response) 
     }
 };
 
+
+
 export const createChatIndividual = async (req: Request, res: Response) => {
     try {
         const chatIndividual = await ChatIndividualModel.crearChatIndividual(req.body);
@@ -51,3 +53,20 @@ export const createChatIndividual = async (req: Request, res: Response) => {
         res.status(500).json({ message: 'Error del servidor' });
     }
 };
+
+
+// Eliminar un chat individual por ID
+export const deleteChatIndividual = async (req: Request, res: Response) => {
+    const idChatIndividual = Number(req.params.id);
+
+    try {
+        const eliminado = await ChatIndividualModel.eliminarChatIndividual(idChatIndividual);
+        if (!eliminado) {
+            return res.status(404).json({ message: 'Chat individual no encontrado' });
+        }
+        res.json({ message: 'Chat individual eliminado correctamente' });
+    } catch (error) {
+        console.error('Error al eliminar chat individual:', error);
+        res.status(500).json({ message: 'Error del servidor' });
+    }
+}

@@ -38,6 +38,35 @@ export const crearMensaje = async (mensaje: CrearMensaje): Promise<Mensaje> => {
 
     return mapearMensaje(result.rows[0]);
 };
+
+//marcar como leído el mensaje
+export const marcarMensajeLeido = async (idMensaje: number): Promise<Mensaje | null> => {
+    const result = await pool.query(
+        `UPDATE mensaje
+         SET leido = TRUE
+         WHERE id_mensaje = $1
+         RETURNING *`,
+        [idMensaje]
+    );
+    if (result.rows.length === 0) return null;
+    return mapearMensaje(result.rows[0]);;
+};
+
+
+//actualiza el contenido del mensaje
+export const actualizarMensaje = async (idMensaje: number, nuevoContenido: string): Promise<Mensaje | null> => {
+    const result = await pool.query(
+        `UPDATE mensaje
+         SET contenido = $1
+         WHERE id_mensaje = $2
+         RETURNING *`,
+        [nuevoContenido, idMensaje]
+    );
+    if (result.rows.length === 0) return null;
+    return mapearMensaje(result.rows[0]);
+};
+
+
 export const eliminarMensaje = async (idMensaje: number): Promise<boolean> => {
     const result = await pool.query("DELETE FROM mensaje WHERE id_mensaje = $1", [idMensaje]);
 

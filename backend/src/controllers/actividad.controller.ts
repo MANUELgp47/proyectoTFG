@@ -5,6 +5,7 @@ import type {CrearNotificacion} from "../types/notificacion.js";
 import * as ParticipacionModel from '../models/participacion.model.js';
 //importa actividad.job.ts para usar la función de finalizar actividad
 import * as ActividadJob from '../jobs/actividad.job.js';
+import * as ChatActividadModel from '../models/chatActividad.model.js';
 
 export const getActividades = async (req: Request, res: Response) => {
     try {
@@ -40,6 +41,15 @@ export const createActividad = async (req: Request, res: Response) => {
         }
     }
 
+    //crea el chat de la actividad
+
+    if (actividad !== undefined) {
+        try {
+            await ChatActividadModel.crearChatActividad({ idActividad: actividad.idActividad });
+        } catch (error) {
+            console.error('Error al crear chat de la actividad:', error);
+        }
+    }
 
     // NOTIFICACION DE CREACION DE ACTIVIDAD
     if (actividad !== undefined) {
@@ -133,6 +143,8 @@ export const finalizarActividad = async (req: Request, res: Response) => {
             return res.status(400).json({message: 'La actividad no puede ser finalizada'});
         }
 
+
+        //todo: Se puede seguir usando el chat?
 
         const finalizada = await ActividadJob.finalizarActividadesCaducadas([idActividad]);
         if (finalizada) {

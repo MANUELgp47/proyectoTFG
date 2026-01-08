@@ -1,7 +1,11 @@
 // notificacion.service.ts
-import type { CrearNotificacion } from '../types/notificacion.js';
+import type {CrearNotificacion} from '../types/notificacion.js';
 import * as NotificacionModel from '../models/notificacion.model.js';
-import type { Request } from 'express';
+import type {Request} from 'express';
+import {ActividadService} from "./actividad.service.js";
+import {UsuarioService} from "./usuario.service.js";
+import {ChatActividadService} from "./chatActividad.service.js";
+import {ChatIndividualService} from "./chatIndividual.service.js";
 
 export class NotificacionService {
     static crearNotificacionCreacionActividad(actividad: any, req: Request) {
@@ -18,7 +22,7 @@ export class NotificacionService {
         NotificacionModel.crearNotificacion(notificacion);
     }
 
-    static creaNotificacionPorParametros(idUsuarioReceptor : number, tipo: CrearNotificacion['tipo'], mensaje: string, idReferencia: number) {
+    static creaNotificacionPorParametros(idUsuarioReceptor: number, tipo: CrearNotificacion['tipo'], mensaje: string, idReferencia: number) {
         const notificacion: CrearNotificacion = {
             idUsuarioReceptor,
             tipo,
@@ -26,5 +30,53 @@ export class NotificacionService {
             idReferencia,
         };
         NotificacionModel.crearNotificacion(notificacion);
+    }
+
+    //notificación chat mensaje
+    static async crearNotificacionNuevoMensaje(body: any) {
+        const NombreEmisor = await UsuarioService.getNombreUsuarioPorId(body.idEmisor);
+
+        //comprobar si es chat individual o de actividad
+        if (body.idChatActividad) {
+            const idActividad = await ChatActividadService.getIdActividadPorIdChatActividad(body.idChatActividad);
+            if (idActividad === undefined || idActividad === null) {
+                console.error('No se pudo crear la notificación porque el idActividad es undefined');
+                return;
+            }
+            const NombreActividad = await ActividadService.getNombreActividad(idActividad);
+
+            //for que notifica a todos los participantes de la actividad menos al emisor
+            for (const participante of await ActividadService.getUsuariosParticipantes(idActividad)) {
+                if (participante !== body.idEmisor) {
+                    const notificacion: CrearNotificacion = {
+                        idUsuarioReceptor: participante,
+                        tipo: 'chat',
+                        mensaje: `Tienes un nuevo mensaje de usuario ${NombreEmisor} en el chat de la actividad ${NombreActividad}`,
+                        idReferencia: body.idChatActividad,
+                    };
+                    NotificacionModel.crearNotificacion(notificacion);
+                }
+            }
+
+        } else if (body.idChatIndividual) {
+
+            //obtener el id del otro usuario del chat individual
+            const usuariosChat = await ChatIndividualService.getUsuariosPorIdChatIndividual(body.idChatIndividual);
+            if (!usuariosChat) {
+                console.error('No se pudo crear la notificación porque no se encontraron los usuarios del chat individual');
+                return;
+            }
+            const idUsuarioReceptor = usuariosChat.idUsuario1 === body.idEmisor ? usuariosChat.idUsuario2 : usuariosChat.idUsuario1;
+
+            const notificacion: CrearNotificacion = {
+                idUsuarioReceptor,
+                tipo: 'chat',
+                mensaje: `Tienes un nuevo mensaje de usuario ${NombreEmisor}`,
+                idReferencia: body.idChatIndividual,
+            };
+            NotificacionModel.crearNotificacion(notificacion);
+
+        }
+
     }
 }

@@ -12,6 +12,21 @@ export const getChatActividadPorId = async (idChatActividad: number): Promise<Ch
     if (result.rows.length === 0) return null;
     return mapearChatActividad(result.rows[0]);
 };
+
+//get id actividad por id de chat de actividad
+export const getIdActividadPorIdChatActividad = async (idChatActividad: number): Promise<number | null> => {
+    const result = await pool.query("SELECT id_actividad FROM chat_actividad WHERE id_chat_actividad = $1", [idChatActividad]);
+    if (result.rows.length === 0) return null;
+    return result.rows[0].id_actividad;
+};
+
+//get id chat de actividad por id de actividad
+export const getIdChatActividadPorIdActividad = async (idActividad: number): Promise<number | null> => {
+    const result = await pool.query("SELECT id_chat_actividad FROM chat_actividad WHERE id_actividad = $1", [idActividad]);
+    if (result.rows.length === 0) return null;
+    return result.rows[0].id_chat_actividad;;
+};
+
 export const crearChatActividad = async (chatActividad: CrearChatActividad): Promise<ChatActividad> => {
     const {
         idActividad,
@@ -26,6 +41,26 @@ export const crearChatActividad = async (chatActividad: CrearChatActividad): Pro
 
     return mapearChatActividad(result.rows[0]);
 };
+
+//obtiene todos los chats
+export const getChatsActividad = async (): Promise<ChatActividad[]> => {
+    const result = await pool.query("SELECT * FROM chat_actividad");
+    return result.rows.map(mapearChatActividad);
+};
+
+
+
+//establece el ultimo mensaje del chat de actividad
+export const establecerUltimoMensaje = async (idChatActividad: number, idMensaje: number): Promise<void> => {
+    await pool.query(
+        `UPDATE chat_actividad
+         SET ultimo_mensaje = $1
+         WHERE id_chat_actividad = $2`,
+        [idMensaje, idChatActividad]
+    );
+};
+
+
 export const eliminarChatActividad = async (idChatActividad: number): Promise<boolean> => {
     const result = await pool.query("DELETE FROM chat_actividad WHERE id_chat_actividad = $1", [idChatActividad]);
 

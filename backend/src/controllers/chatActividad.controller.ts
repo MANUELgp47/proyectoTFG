@@ -1,6 +1,5 @@
 import type {Request, Response} from 'express';
 import * as ChatActividadModel from '../models/chatActividad.model.js';
-import {getChatActividadPorId} from "../models/chatActividad.model.js";
 
 export const getChatPorActividad = async (req: Request, res: Response) => {
     const  idActividad: number = req.body.idActividad;
@@ -9,6 +8,17 @@ export const getChatPorActividad = async (req: Request, res: Response) => {
         res.json(chats);
     } catch (error) {
         console.error('Error al obtener chats de la actividad:', error);
+        res.status(500).json({message: 'Error del servidor'});
+    }
+};
+
+//obtiene todos los chats de actividad
+export const getChatsActividad = async (req: Request, res: Response) => {
+    try {
+        const chatsActividad = await ChatActividadModel.getChatsActividad();
+        res.json(chatsActividad);
+    } catch (error) {
+        console.error('Error al obtener chats de actividad:', error);
         res.status(500).json({message: 'Error del servidor'});
     }
 };

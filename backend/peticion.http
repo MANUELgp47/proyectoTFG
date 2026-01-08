@@ -15,7 +15,7 @@ Content-Type: application/json
 }
 ################################################ Actividades
 ###Crear actividad
-POST http://localhost:3000/api/actividades
+POST http://localhost:3000/api/actividad
 Content-Type: application/json
 
 {
@@ -29,6 +29,25 @@ Content-Type: application/json
   "participantesmax": 4,
   "imagenes": [
     "https://example.com/img/padel.jpg"
+  ],
+  "estado": "activa"
+}
+
+### crea otra actividad
+POST http://localhost:3000/api/actividad
+Content-Type: application/json
+
+{
+  "idCreador": 2,
+  "titulo": "alpinismo",
+  "descripcion": " 8 personas.",
+  "fechaInicio": "2026-11-09T09:00:00.000Z",
+  "fechaFin": "2026-11-12T11:00:00.000Z",
+  "ubicacion": "Alpes",
+  "publica": false,
+  "participantesmax": 16,
+  "imagenes": [
+    "https://example.com/img/alp.jpg"
   ],
   "estado": "activa"
 }
@@ -75,8 +94,8 @@ POST http://localhost:3000/api/participacion
 Content-Type: application/json
 
 {
-  "idUsuario": 1,
-  "idActividad": 2
+  "idUsuario": 3,
+  "idActividad": 18
 
 }
 
@@ -175,7 +194,7 @@ Content-Type: application/json
 
 {
   "idUsuario1": 1,
-  "idUsuario2": 2
+  "idUsuario2": 1
 }
 ###eliminar amistad
 DELETE http://localhost:3000/api/amistad/1/3
@@ -188,11 +207,11 @@ Content-Type: application/json
 
 {
   "idEmisor": 1,
-  "idReceptor": 3
+  "idReceptor": 1
 }
 
 ###Aceptar solicitud de amistad
-PUT http://localhost:3000/api/solicitudAmistad/1/3
+PUT http://localhost:3000/api/solicitudAmistad/1/1
 Content-Type: application/json
 
 {
@@ -238,3 +257,61 @@ DELETE http://localhost:3000/api/likeMegusta/9
 
 
 
+#######################################################Chats individuales
+###crear chat individual
+POST http://localhost:3000/api/chatIndividual
+Content-Type: application/json
+
+{
+  "idUsuario1": 3,
+  "idUsuario2": 2
+}
+
+###eliminar chat individual
+DELETE http://localhost:3000/api/chatIndividual/4
+
+
+######################################################## Mensajes
+###crear mensaje
+POST http://localhost:3000/api/mensaje
+Content-Type: application/json
+
+{
+  "idEmisor": 3,
+  "idChatIndividual": 2,
+  "contenido": "Mensaje de 3 para 2"
+}
+
+###eliminar mensaje
+DELETE http://localhost:3000/api/mensaje/4
+
+### actualizar mensaje
+PUT http://localhost:3000/api/mensaje/3
+Content-Type: application/json
+
+{
+  "contenido": "Mensaje actualizado"
+}
+
+###crea mensaje en chat actividad
+POST http://localhost:3000/api/mensaje
+Content-Type: application/json
+
+{
+  "idEmisor": 1,
+  "idChatActividad": 2,
+  "contenido": "¡Prueba mensaje para todos de 2"
+}
+
+
+######################################################## Chats de actividad
+
+###crear chat de actividad
+POST http://localhost:3000/api/chatActividad
+Content-Type: application/json
+
+{
+  "idActividad": 2
+}
+
+####

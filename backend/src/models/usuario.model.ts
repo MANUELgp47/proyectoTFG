@@ -46,6 +46,23 @@ export const crearUsuario = async (usuario: CrearUsuario): Promise<Usuario> => {
     return mapearUsuario(result.rows[0]);// Retorna el usuario creado y mapeado para que los atributos coincidan con la interfaz Usuario
 };
 
+
+//verificar si existe usuario por email
+export const existeUsuarioPorEmail = async (email: string): Promise<boolean> => {
+    const result = await pool.query("SELECT 1 FROM usuario WHERE email = $1", [email]);
+    return result.rows.length > 0;
+};
+//verificar si existe usuario por nombre de usuario
+export const existeUsuarioPorNombreUsuario = async (nombreUsuario: string): Promise<boolean> => {
+    const result = await pool.query("SELECT 1 FROM usuario WHERE nombre_usuario = $1", [nombreUsuario]);
+    return result.rows.length > 0;
+};
+//verificar si existe usuario por id
+export const existeUsuarioPorId = async (idUsuario: number): Promise<boolean> => {
+    const result = await pool.query("SELECT 1 FROM usuario WHERE id_usuario = $1", [idUsuario]);
+    return result.rows.length > 0;
+};
+
 //actualizar usuario
 export const actualizarUsuario = async (idUsuario: number, usuario: Partial<CrearUsuario>): Promise<Usuario | null> => {
     // Construir la consulta dinámicamente según los campos proporcionados

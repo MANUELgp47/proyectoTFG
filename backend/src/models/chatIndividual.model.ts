@@ -41,6 +41,17 @@ export const crearChatIndividual = async (chatIndividual: CrearChatIndividual): 
     return mapearChatIndividual(result.rows[0]);
 };
 
+//esteblece el ultimo mensaje del chat individual
+export const establecerUltimoMensaje = async (idChatIndividual: number, idMensaje: number): Promise<void> => {
+    await pool.query(
+        `UPDATE chat_individual
+         SET ultimo_mensaje = $1
+         WHERE id_chat_individual = $2`,
+        [idMensaje, idChatIndividual]
+    );
+};
+
+
 export const eliminarChatIndividual = async (idChatIndividual: number): Promise<boolean> => {
     const result = await pool.query("DELETE FROM chat_individual WHERE id_chat_individual = $1", [idChatIndividual]);
 

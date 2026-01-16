@@ -48,9 +48,13 @@ export class NotificacionService {
             //for que notifica a todos los participantes de la actividad menos al emisor
             for (const participante of await ActividadService.getUsuariosParticipantes(idActividad)) {
                 if (participante !== body.idEmisor) {
+
+
+
+                    //notificación
                     const notificacion: CrearNotificacion = {
                         idUsuarioReceptor: participante,
-                        tipo: 'chat',
+                        tipo: 'chat_actividad',
                         mensaje: `Tienes un nuevo mensaje de usuario ${NombreEmisor} en el chat de la actividad ${NombreActividad}`,
                         idReferencia: body.idChatActividad,
                     };
@@ -68,9 +72,18 @@ export class NotificacionService {
             }
             const idUsuarioReceptor = usuariosChat.idUsuario1 === body.idEmisor ? usuariosChat.idUsuario2 : usuariosChat.idUsuario1;
 
+
+            /*
+            TODO: comprueba si el buzon está lleno
+                1. Servicio mensje que cuente los mensajes de un chat sin leer por el usuario
+                2. Si el el numero supera el umbral establecido no crea notificación
+                3. si no tiene notificación de buzon crea la notificación "tiene mas de X mensajes sin leer" de tipo chat_individual_lleno
+             */
+
+            //notificación
             const notificacion: CrearNotificacion = {
                 idUsuarioReceptor,
-                tipo: 'chat',
+                tipo: 'chat_individual',
                 mensaje: `Tienes un nuevo mensaje de usuario ${NombreEmisor}`,
                 idReferencia: body.idChatIndividual,
             };

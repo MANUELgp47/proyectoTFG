@@ -1,10 +1,44 @@
-import type { CrearUsuario } from '../types/usuario.js';
+import type {CrearUsuario} from '../types/usuario.js';
 import * as UsuarioModel from '../models/usuario.model.js';
+import bcrypt from 'bcrypt';
 
 export class UsuarioService {
+
+    /*
+    Todo: crear usuario
+    hashear contraseña
+    validar email / usuario (que no exista)
+    llamar al model
+     */
     static async crearUsuario(usuarioData: CrearUsuario): Promise<CrearUsuario> {
-        const nuevoUsuario = await UsuarioModel.crearUsuario(usuarioData);
-        return nuevoUsuario;
+
+        try {
+            //Comprueba que no exista el email
+            const existeEmail = await this.existeUsuarioPorEmail(usuarioData.email);
+            if (existeEmail) {
+                throw new Error('El email ya está en uso');
+            }
+            //Comprueba que no exista el nombre de usuario
+            const existeNombreUsuario = await this.existeUsuarioPorNombreUsuario(usuarioData.nombreUsuario);
+            if (existeNombreUsuario) {
+                throw new Error('El nombre de usuario ya está en uso');
+            }
+
+            //TODO: hashear la contraseña antes de guardarla (pendiente de implementar)
+
+            const hash = await bcrypt.hash(usuarioData.contrasena, 10);//usar 10 rondas porque es el estándar
+            usuarioData.contrasena = hash;
+
+
+            //crear usuario llamando al model
+            const nuevoUsuario = await UsuarioModel.crearUsuario(usuarioData);
+            return nuevoUsuario;
+
+        } catch (error) {
+            throw new Error('Error al crear el usuario');
+        }
+
+
     }
 
     static async obtenerUsuarioPorId(idUsuario: number): Promise<CrearUsuario | null> {
@@ -12,10 +46,22 @@ export class UsuarioService {
         return usuario;
     }
 
+    //obtiene usuario por email
+    static async obtenerUsuarioPorEmail(email: string): Promise<CrearUsuario | null> {
+        const usuario = await UsuarioModel.getUsuarioPorEmail(email);
+        return usuario;
+    }
+
     //existe usuario por email
     static async existeUsuarioPorEmail(email: string): Promise<boolean> {
         const existe = await UsuarioModel.existeUsuarioPorEmail(email);
         return existe;
+    }
+
+    //obtiene usuario por nombre de usuario
+    static async obtenerUsuarioPorNombreUsuario(nombreUsuario: string): Promise<CrearUsuario | null> {
+        const usuario = await UsuarioModel.getUsuarioPorNombreUsuario(nombreUsuario);
+        return usuario;
     }
 
     //existe usuario por nombre de usuario

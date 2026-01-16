@@ -1,7 +1,21 @@
 ################################################ Usuarios
 ###crear usuario
-POST http://localhost:3000/api/usuarios
+POST http://localhost:3000/api/usuario
 Content-Type: application/json
+
+
+{
+    "nombreUsuario": "manuelHash",
+    "nombre": "man",
+    "apellidos": "Gil",
+    "email": "man@example.com",
+    "contrasena": "MiPasswordSegura123",
+    "fechaNac": "2001-05-11T22:00:00.000Z",
+    "sexo": true,
+    "fotoPerfil": "https://miservidor.com/perfiles/marcos99.png",
+    "biografia": " quedadas.",
+    "ubicacion": "Madrid, España"
+}
 
 
 
@@ -10,8 +24,8 @@ PUT http://localhost:3000/api/usuarios/1
 Content-Type: application/json
 
 {
-  "nombreUsuario": "pepe2",
-  "email": "pepe@example.com"
+  "nombreUsuario": "Juan67",
+  "email": "juanito67@example.com"
 }
 ################################################ Actividades
 ###Crear actividad
@@ -298,9 +312,9 @@ POST http://localhost:3000/api/mensaje
 Content-Type: application/json
 
 {
-  "idEmisor": 1,
+  "idEmisor": 2,
   "idChatActividad": 2,
-  "contenido": "¡Prueba mensaje para todos de 2"
+  "contenido": "¡Prueba de tipo"
 }
 
 
@@ -314,4 +328,11 @@ Content-Type: application/json
   "idActividad": 2
 }
 
-####
+##################################################### Autenticacion
+POST http://localhost:3000/api/auth/login/
+Content-Type: application/json
+
+{
+  "nombre_email": "manuelHash",
+  "contrasena": "MiPasswordSegura123"
+}

@@ -1,5 +1,6 @@
 import type {Request, Response} from 'express';
 import * as UsuarioModel from '../models/usuario.model.js';
+import * as UsuarioService from '../services/usuario.service.js';
 
 export const getUsuarios = async (req: Request, res: Response) => {//async para manejar operaciones asincrónicas y await para esperar la respuesta de la base de datos
     try {
@@ -13,7 +14,7 @@ export const getUsuarios = async (req: Request, res: Response) => {//async para 
 
 export const createUsuario = async (req: Request, res: Response) => {
     try {
-        const usuario = await UsuarioModel.crearUsuario(req.body);
+        const usuario = await UsuarioService.UsuarioService.crearUsuario(req.body);
         res.status(201).json(usuario);
     } catch (error) {
         console.error('Error al crear usuario:', error);

@@ -1,5 +1,4 @@
-
-import express, { type Request, type Response } from 'express';
+import express, {type Request, type Response} from 'express';
 import cors from 'cors';
 import pool from './db.js'; // usa .js para importar el archivo db.ts porque es un módulo de Node.js
 import usuarioRoutes from './routes/usuario.routes.js';
@@ -14,6 +13,8 @@ import likeRoutes from "./routes/likeMegusta.routes.js";
 import mensajeRoutes from "./routes/mensaje.routes.js";
 import chatIndividualRoutes from "./routes/chatIndividual.routes.js";
 import chatActividadRoutes from "./routes/chatActividad.routes.js";
+import authRoutes from "./auth/auth.routes.js";
+
 
 
 
@@ -35,8 +36,7 @@ app.use('/api/likeMegusta', likeRoutes);
 app.use('/api/mensaje', mensajeRoutes);
 app.use('/api/chatIndividual', chatIndividualRoutes);
 app.use('/api/chatActividad', chatActividadRoutes);
-
-
+app.use('/api/auth/', authRoutes);
 
 
 //get para probar la conexión a la base de datos

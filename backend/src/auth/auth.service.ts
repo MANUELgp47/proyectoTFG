@@ -4,6 +4,8 @@ import {UsuarioService} from "../services/usuario.service.js";
 import jwt from 'jsonwebtoken';
 
 
+//TODO en este archivo se está ingnorando un rerror de jwt.sign
+
 export class AuthService {
     /*
     Devuelve el id del usuario si la autenticación es exitosa, -1 si falla
@@ -26,7 +28,7 @@ export class AuthService {
              //   throw new Error('Contraseña o usuario incorrecta');
                 return -1; // Contraseña incorrecta
             }
-            return usuario.idUsuario; // Autenticación exitosa
+            return (usuario as any).idUsuario; // Autenticación exitosa
         } catch (error) {
             throw new Error('Error al autenticar el usuario');
         }
@@ -36,6 +38,7 @@ export class AuthService {
       //  console.log('Generando token para usuario ID:', process.env.JWT_SECRET);
         const secretKey =  process.env.JWT_SECRET as string;
         const caducidad = { expiresIn: process.env.JWT_EXPIRES_IN };
+        // @ts-ignore
         const token = jwt.sign({id: usuarioId}, secretKey, caducidad);
         return token;
     }

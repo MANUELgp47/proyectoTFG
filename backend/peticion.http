@@ -5,11 +5,11 @@ Content-Type: application/json
 
 
 {
-    "nombreUsuario": "manuelHash",
-    "nombre": "man",
+    "nombreUsuario": "pep",
+    "nombre": "pepeeee",
     "apellidos": "Gil",
-    "email": "man@example.com",
-    "contrasena": "MiPasswordSegura123",
+    "email": "pep@example.com",
+    "contrasena": "hoalpass",
     "fechaNac": "2001-05-11T22:00:00.000Z",
     "sexo": true,
     "fotoPerfil": "https://miservidor.com/perfiles/marcos99.png",

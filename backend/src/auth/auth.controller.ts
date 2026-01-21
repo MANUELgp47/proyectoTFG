@@ -11,7 +11,7 @@ export const login = async (req: Request, res: Response) => {
         const exito = await AuthService.AuthService.login(nombre_email, contrasena);
 
         if (exito) {
-            console.log({message: 'Autenticación exitosa'});
+           // console.log({message: 'Autenticación exitosa'});
            // res.status()
             const token = AuthService.AuthService.generarToken(exito);
              res.json(token);

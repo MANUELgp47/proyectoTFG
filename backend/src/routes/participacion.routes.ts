@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import * as ParticipaciónController from '../controllers/participacion.controller.js';
+import {authMiddleware} from "../middleware/auth.middleware.js";
 
 const router = Router();
 
@@ -7,13 +8,12 @@ const router = Router();
 router.get('/', ParticipaciónController.getParticipaciones);
 
 //Crear una nueva participacion
-router.post('/', ParticipaciónController.createParticipacion);
+router.post('/', authMiddleware, ParticipaciónController.createParticipacion);
 
-//actualiza estado participacion usamos idUsuario e idActividad en el body
-router.put('/', ParticipaciónController.aceptarParticipacion);
-
+//actualiza estado participacion usamos idUsuario e idActividad en el body y El token del usuario que acepta (idCreador)
+router.put('/', authMiddleware, ParticipaciónController.actualizaEstado);
 
 //eliminar participacion
-router.delete('/', ParticipaciónController.eliminarParticipacion);
+router.delete('/', authMiddleware, ParticipaciónController.eliminarParticipacion);
 
 export default router;

@@ -78,6 +78,7 @@ export const existeUsuarioPorId = async (idUsuario: number): Promise<boolean> =>
 };
 
 //actualizar usuario
+//falla al crear contraseña porque en la db se escribe "contraseña" y en el modelo "contrasena"
 export const actualizarUsuario = async (idUsuario: number, usuario: Partial<CrearUsuario>): Promise<Usuario | null> => {
     // Construir la consulta dinámicamente según los campos proporcionados
     const campos = [];

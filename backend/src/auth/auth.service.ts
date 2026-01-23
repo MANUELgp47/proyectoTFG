@@ -39,7 +39,7 @@ export class AuthService {
         const secretKey =  process.env.JWT_SECRET as string;
         const caducidad = { expiresIn: process.env.JWT_EXPIRES_IN };
         // @ts-ignore
-        const token = jwt.sign({id: usuarioId}, secretKey, caducidad);
+        const token = jwt.sign({idUsuario: usuarioId}, secretKey, caducidad);
         return token;
     }
 }

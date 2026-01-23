@@ -1,0 +1,118 @@
+############### Inicio de sención ###############################
+POST http://localhost:3000/api/auth/login/
+Content-Type: application/json
+
+{
+  "nombre_email": "pep@example.com",
+  "contrasena": "hoalpass"
+}
+
+###
+POST http://localhost:3000/api/auth/login/
+Content-Type: application/json
+
+{
+  "nombre_email": "manF@example.com",
+  "contrasena": "hoalpass"
+}
+
+###
+
+
+###eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc2OTE2NTQ0MywiZXhwIjoxNzY5MTY5MDQzfQ.U2Cb07JakEtrvICKd-Ch3J8xS1_4vRJ_5EqXZZdvda0
+POST http://localhost:3000/api/auth/login/
+Content-Type: application/json
+
+{
+"nombre_email": "juanF@example.com",
+"contrasena": "hoalpass"
+}
+
+############### ACTIVIDAD ###############################
+### Crear actividad
+POST http://localhost:3000/api/actividad
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjUsImlhdCI6MTc2OTE2OTAzNiwiZXhwIjoxNzY5MTcyNjM2fQ.h7rpHS1g9sQT0v6rjTe9zmo9i32ShFNaTt1J-ixCiDY
+Content-Type: application/json
+
+{
+  "titulo": "Montar bici",
+  "descripcion": " 2 personas.",
+  "fechaInicio": "2026-11-09T09:00:00.000Z",
+  "fechaFin": "2026-11-12T11:00:00.000Z",
+  "ubicacion": "Alpes",
+  "publica": true,
+  "participantesmax": 2,
+  "imagenes": [
+    "https://example.com/img/alp.jpg"
+  ],
+  "estado": "activa"
+}
+###Actualizar actividad
+PUT http://localhost:3000/api/actividad/10
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjUsImlhdCI6MTc2OTE2OTAzNiwiZXhwIjoxNzY5MTcyNjM2fQ.h7rpHS1g9sQT0v6rjTe9zmo9i32ShFNaTt1J-ixCiDY
+Content-Type: application/json
+
+{
+ "publica": false
+
+}
+### Finalizar actividad
+POST http://localhost:3000/api/actividad/9/finalizar
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjUsImlhdCI6MTc2OTE2NTc2NiwiZXhwIjoxNzY5MTY5MzY2fQ.SG4_eS53Iupr-aXjaXa6a9BB5oPs_oWzZMNCpWW2ZT8
+
+###eliminar actividad
+DELETE http://localhost:3000/api/actividad/9
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjUsImlhdCI6MTc2OTE2NTc2NiwiZXhwIjoxNzY5MTY5MzY2fQ.SG4_eS53Iupr-aXjaXa6a9BB5oPs_oWzZMNCpWW2ZT8
+
+
+
+
+
+
+
+#######################USUARIO
+### Actualizar usuario
+PUT http://localhost:3000/api/usuario
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjQsImlhdCI6MTc2OTE2MjgwNiwiZXhwIjoxNzY5MTY2NDA2fQ.mPk0nMxA_YtibLJm38fADBpW3ZrrrMip3TFIPnsQfio
+Content-Type: application/json
+
+{
+  "nombre": "juan F Modificado",
+  "contrasena": "miNuevaPass"
+}
+### Borrar usuario
+DELETE http://localhost:3000/api/usuario
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjQsImlhdCI6MTc2OTE2MzE1OSwiZXhwIjoxNzY5MTY2NzU5fQ.RGKRaDof7neN_maM0kkagSYwgE2MAOYJMBEqqAa69b4
+
+
+
+#################################################### Participacion
+###Crea participacion
+POST http://localhost:3000/api/participacion
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsImlhdCI6MTc2OTE2OTkyNiwiZXhwIjoxNzY5MTczNTI2fQ.1C-oXSsIXGk46OVkP_hfURqHs4zWT0bojCt25Y2BakM
+Content-Type: application/json
+
+{
+  "idActividad": 10
+}
+###Actualizar el estadoetado juan #eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjUsImlhdCI6MTc2OTE2OTAzNiwiZXhwIjoxNzY5MTcyNjM2fQ.h7rpHS1g9sQT0v6rjTe9zmo9i32ShFNaTt1J-ixCiDY
+PUT http://localhost:3000/api/participacion/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjUsImlhdCI6MTc2OTE2OTk2MywiZXhwIjoxNzY5MTczNTYzfQ.yXmUu8AyLALzTAAjhIaY2t5NWgibX6_fkDP6e-slRNw
+Content-Type: application/json
+
+{
+  "idUsuario": 3,
+  "idActividad": 10,
+  "aceptada": true
+}
+
+### Elimina participacion NO implemantado aun hasta que encontremos una utilidad real
+DELETE http://localhost:3000/api/participacion/
+Content-Type: application/json
+
+{
+  "idUsuario": 3,
+  "idActividad": 12
+}
+
+

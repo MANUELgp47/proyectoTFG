@@ -29,17 +29,24 @@ export const createUsuario = async (req: Request, res: Response) => {
 //establecer campos no actualizables
 export const updateUsuario = async (req: Request, res: Response) => {
     try {
-        const idParam = req.params.id;
-        if (!idParam) {
+
+        if (!req.userId) {
             return res.status(400).json({ message: 'ID requerido' });
         }
-        const idUsuario = Number.parseInt(idParam, 10);
-        if (Number.isNaN(idUsuario)) {
+        if (Number.isNaN(req.userId)) {//asegura que el id es un número
             return res.status(400).json({ message: 'ID inválido' });
         }
 
-        const usuarioActualizado = await UsuarioModel.actualizarUsuario(idUsuario, req.body);
+        //si contiene contraseña, la hashea antes de actualizar
+        if (req.body.contrasena) {
+            const hash = await UsuarioService.UsuarioService.generarContrasenaHasheada(req.body.contrasena);
+            req.body.contrasena = hash;
+            console.log(req.body.contrasena);
+        }
+
+        const usuarioActualizado = await UsuarioModel.actualizarUsuario(req.userId, req.body);
         if (usuarioActualizado) {
+            //TODO. Notificar al usuario que su perfil ha sido actualizado
             res.json(usuarioActualizado);
         } else {
             res.status(404).json({ message: 'Usuario no encontrado' });
@@ -53,11 +60,11 @@ export const updateUsuario = async (req: Request, res: Response) => {
 //Eliminar usuario
 export const deleteUsuario = async (req: Request, res: Response) => {
     try {
-        const idParam = req.params.id;
+        const idParam = req.userId;
         if (!idParam) {
             return res.status(400).json({ message: 'ID requerido' });
         }
-        const idUsuario = Number.parseInt(idParam, 10);
+        const idUsuario = idParam;
         if (Number.isNaN(idUsuario)) {
             return res.status(400).json({ message: 'ID inválido' });
         }

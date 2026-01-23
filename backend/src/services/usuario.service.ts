@@ -26,6 +26,8 @@ export class UsuarioService {
 
             //TODO: hashear la contraseña antes de guardarla (pendiente de implementar)
 
+           // const hash:string = this.generarContrasenaHasheada(usuarioData.contrasena);
+
             const hash = await bcrypt.hash(usuarioData.contrasena, 10);//usar 10 rondas porque es el estándar
             usuarioData.contrasena = hash;
 
@@ -40,11 +42,18 @@ export class UsuarioService {
 
 
     }
+    //genera contraseña hasheada
+    static async generarContrasenaHasheada(contrasena: string): Promise<string> {
+        const hash = await bcrypt.hash(contrasena, 10);
+        return hash;
+    }
 
     static async obtenerUsuarioPorId(idUsuario: number): Promise<CrearUsuario | null> {
         const usuario = await UsuarioModel.getUsuarioPorId(idUsuario);
         return usuario;
     }
+
+
 
     //obtiene usuario por email
     static async obtenerUsuarioPorEmail(email: string): Promise<CrearUsuario | null> {

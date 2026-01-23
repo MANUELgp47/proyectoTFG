@@ -5,10 +5,10 @@ Content-Type: application/json
 
 
 {
-    "nombreUsuario": "pep",
-    "nombre": "pepeeee",
+    "nombreUsuario": "manuel",
+    "nombre": "manuel Fran",
     "apellidos": "Gil",
-    "email": "pep@example.com",
+    "email": "manF@example.com",
     "contrasena": "hoalpass",
     "fechaNac": "2001-05-11T22:00:00.000Z",
     "sexo": true,
@@ -67,7 +67,7 @@ Content-Type: application/json
 }
 
 ###Actualizar actividad
-PUT http://localhost:3000/api/actividades/8
+PUT http://localhost:3000/api/actividade/8
 Content-Type: application/json
 
 {
@@ -80,13 +80,13 @@ Content-Type: application/json
 
 
 ### Finalizar actividad
-POST http://localhost:3000/api/actividades/2/finalizar
+POST http://localhost:3000/api/actividade/2/finalizar
 
 
 
 
 ###eliminar actividad
-DELETE http://localhost:3000/api/actividades/7
+DELETE http://localhost:3000/api/actividade/7
 
 
 

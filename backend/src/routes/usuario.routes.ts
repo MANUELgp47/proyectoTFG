@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import * as UsuarioController from '../controllers/usuario.controller.js';
+import {authMiddleware} from "../middleware/auth.middleware.js";
 
 const router = Router();
 
@@ -10,11 +11,11 @@ router.get('/', UsuarioController.getUsuarios);
 router.post('/', UsuarioController.createUsuario);
 
 //Actualizar un usuario existente
-//http://localhost:3000/api/usuarios/NUMERO_ID
-router.put('/:id', UsuarioController.updateUsuario);
+//router.put('/:id', UsuarioController.updateUsuario);
+router.put('/', authMiddleware, UsuarioController.updateUsuario);
 
 //eliminar un usuario
-router.delete('/:id', UsuarioController.deleteUsuario);
+router.delete('/', authMiddleware, UsuarioController.deleteUsuario);
 
 
 export default router;

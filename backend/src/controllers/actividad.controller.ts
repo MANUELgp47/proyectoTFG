@@ -6,6 +6,7 @@ import * as ParticipacionModel from '../models/participacion.model.js';
 //importa actividad.job.ts para usar la función de finalizar actividad
 import * as ActividadJob from '../jobs/actividad.job.js';
 import * as ChatActividadModel from '../models/chatActividad.model.js';
+import * as ActividadService from '../services/actividad.service.js';
 
 export const getActividades = async (req: Request, res: Response) => {
     try {
@@ -21,11 +22,17 @@ export const getActividades = async (req: Request, res: Response) => {
 export const createActividad = async (req: Request, res: Response) => {
     let actividad;
     try {
+        console.log("Valor de req.userId en createActividad:", req.userId);
+        req.body.idCreador= req.userId;//asigna el id del usuario logueado como creador de la actividad
+        if (!req.body.idCreador) {
+            return res.status(400).json({message: 'ID del creador es requerido'});
+        }
         actividad = await ActividadModel.crearActividad(req.body);
         res.status(201).json(actividad);
     } catch (error) {
         console.error('Error al crear actividad:', error);
         res.status(500).json({message: 'Error del servidor'});
+
     }
     //Crea participacion del creador de la actividad
     if (actividad !== undefined) {
@@ -54,7 +61,7 @@ export const createActividad = async (req: Request, res: Response) => {
     // NOTIFICACION DE CREACION DE ACTIVIDAD
     if (actividad !== undefined) {
         const notificacion: CrearNotificacion = {
-            idUsuarioReceptor: req.body.idCreador,
+            idUsuarioReceptor: actividad.idCreador,
             tipo: 'creacion_actividad',
             mensaje: `Se ha creado la actividad con nombre ${req.body.titulo}`,
             idReferencia: actividad.idActividad, //id de la actividad creada actividad.idActividad
@@ -73,13 +80,33 @@ export const createActividad = async (req: Request, res: Response) => {
 export const updateActividad = async (req: Request, res: Response) => {
     let idActividad;
     try {
+        //si no es la sesión del creador no puede actualizar ciertos campos
+
         const idParam = req.params.id;
+
         if (!idParam) {
             return res.status(400).json({message: 'ID requerido'});
         }
         idActividad = Number.parseInt(idParam, 10);
         if (Number.isNaN(idActividad)) {
             return res.status(400).json({message: 'ID inválido'});
+        }
+
+        const esCreador: boolean = await  ActividadService.ActividadService.esCreadorActividad(idActividad, req.userId!);
+        if (esCreador==false)
+        {
+            return res.status(400).json({menssage: 'No eres el creador de la actividad'});
+        }
+
+       /* const actividadVieja = await ActividadService.ActividadService.getIdCreadorActividad(idActividad);
+        if (actividadVieja !== req.userId) {
+            //el usuario no es el creador de la actividad
+            return res.status(400).json({menssage: 'No eres el creador de la actividad'});
+        }*/
+
+        const estadoActividad = await ActividadService.ActividadService.getEstadoActividad(idActividad);
+        if (estadoActividad === 'finalizada') {
+            return res.status(400).json({message: 'No se puede actualizar una actividad finalizada'});
         }
 
         const actividadActualizado = await ActividadModel.actualizarActividad(idActividad, req.body);
@@ -119,6 +146,7 @@ export const updateActividad = async (req: Request, res: Response) => {
 
 };
 
+
 //finalizar actividad cons actividad.job.ts
 export const finalizarActividad = async (req: Request, res: Response) => {
     console.log("actividad a finalizar:", req.params.id);
@@ -128,6 +156,7 @@ export const finalizarActividad = async (req: Request, res: Response) => {
         if (!idParam) {
             return res.status(400).json({message: 'ID requerido'});
         }
+
         const idActividad = Number.parseInt(idParam, 10);
         const miActividad = await ActividadModel.getActividadPorId(idActividad)
         if (Number.isNaN(idActividad)) {
@@ -143,9 +172,14 @@ export const finalizarActividad = async (req: Request, res: Response) => {
             return res.status(400).json({message: 'La actividad no puede ser finalizada'});
         }
 
+        const esCreador: boolean = await  ActividadService.ActividadService.esCreadorActividad(idActividad, req.userId!);
+        if (esCreador==false)
+        {
+            return res.status(400).json({menssage: 'No eres el creador de la actividad'});
+        }
+
 
         //todo: Se puede seguir usando el chat?
-
         const finalizada = await ActividadJob.finalizarActividadesCaducadas([idActividad]);
         if (finalizada) {
             res.json({message: 'Actividad finalizada correctamente'});
@@ -179,6 +213,20 @@ export const deleteActividad = async (req: Request, res: Response) => {
         if (Number.isNaN(idActividad)) {
             return res.status(400).json({message: 'ID inválido'});
         }
+
+        //si la actividad está finalizada no se puede eliminar TODO ver si es necesario
+        const estadoActividad = await ActividadService.ActividadService.getEstadoActividad(idActividad);
+        if (estadoActividad === 'finalizada') {
+            return res.status(400).json({message: 'No se puede eliminar una actividad finalizada'});
+        }
+
+        //si no es la sesión del creador no puede eliminar la actividad
+        const esCreador: boolean = await  ActividadService.ActividadService.esCreadorActividad(idActividad, req.userId!);
+        if (esCreador==false)
+        {
+            return res.status(400).json({menssage: 'No eres el creador de la actividad'});
+        }
+
 
         eliminado = await ActividadModel.eliminarActividad(idActividad);
         if (eliminado) {// si se elimino correctamente

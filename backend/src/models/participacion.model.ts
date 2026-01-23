@@ -19,9 +19,9 @@ export const getParticipacionesPorActividad = async (idActividad: number): Promi
     return result.rows.map(mapearParticipacion);
     ;
 };
-//devuelve el numero de participantes que participan en una actividad
+//devuelve el numero de participantes que participan en una actividad con estado aceptada o esCreador=true
 export const getNumeroParticipantesPorActividad = async (idActividad: number): Promise<number> => {
-    const result = await pool.query("SELECT COUNT(*) FROM participacion WHERE id_actividad = $1", [idActividad]);
+    const result = await pool.query("SELECT COUNT(*) FROM participacion WHERE id_actividad = $1 AND (aceptada = true OR es_creador = true)", [idActividad]);
     return parseInt(result.rows[0].count, 10);
 };
 

@@ -4,6 +4,8 @@ import {actualizaEstadoParticipacion} from "../models/participacion.model.js";
 import * as ActividadModel from '../models/actividad.model.js';
 import type {CrearNotificacion} from "../types/notificacion.js";
 import * as NotificacionModel from "../models/notificacion.model.js";
+import {ActividadService} from "../services/actividad.service.js";
+import * as UsuarioService from "../services/usuario.service.js";
 
 export const getParticipaciones = async (req: Request, res: Response) => {
     try {
@@ -76,9 +78,34 @@ export const getParticipacionesPorUsuario = async (req: Request, res: Response) 
 
 export const createParticipacion = async (req: Request, res: Response) => {
     let participacion;
+    //comprueba que existe la actividad
+    const actividadExiste = await ActividadService.existeActividad(req.body.idActividad);
+    if (!actividadExiste) {
+        return res.status(404).json({message: 'La actividad no existe'});
+    }
+
+    //comprueba que el usuario no es ya participante
+    const esParticipante = await ActividadService.esUsuarioParticipante(req.body.idActividad, req.userId!);
+    if (esParticipante) {
+        return res.status(400).json({message: 'El usuario ya es participante de la actividad'});
+    }
+
+    //el usuario no existe
+    req.body.idUsuario = req.userId;
+    const usuarioExiste = await UsuarioService.UsuarioService.existeUsuarioPorId(req.body.idUsuario);
+    if (!usuarioExiste) {
+        return res.status(404).json({message: 'El usuario no existe'});
+    }
+
     //si la actividad es publica, la participacion se crea como aceptada=true
-    const actividad = await ActividadModel.getActividadPorId(req.body.idActividad);
+    const actividad = await ActividadService.getActividadPorId(req.body.idActividad);
     if (actividad && actividad.publica) {
+        //comprobar cupo disponible
+        const cupoDisponible = await ActividadService.getCupoDisponible(req.body.idActividad);
+        if (cupoDisponible === 0) {
+            return res.status(400).json({message: 'La actividad ha alcanzado el máximo de participantes'});
+        }
+
         req.body.aceptada = true;
     } else {
         req.body.aceptada = false;
@@ -94,7 +121,7 @@ export const createParticipacion = async (req: Request, res: Response) => {
     //notifica la creacion de la participacion al participante. distinguir entre publica y privada
     if (participacion !== undefined) {
         //obtener actividad
-        const actividad = await ActividadModel.getActividadPorId(participacion.idActividad);
+        const actividad = await ActividadService.getActividadPorId(participacion.idActividad);
         if (actividad) {
             let aceptada: string;
             let tipoNot: 'solicitud_union_actividad' | 'union_actividad' = 'solicitud_union_actividad';
@@ -128,9 +155,28 @@ export const createParticipacion = async (req: Request, res: Response) => {
 
 };
 
-//Aceptar una participacion
-export const aceptarParticipacion = async (req: Request, res: Response) => {
+//Actualizar el estado de una participacion (aceptar o rechazar)
+export const actualizaEstado = async (req: Request, res: Response) => {
     const {idUsuario, idActividad, aceptada} = req.body;
+
+    //TODO comprobar que el usuario que acepta es el creador de la actividad
+    const idCreador = await ActividadService.getIdCreadorActividad(idActividad);
+    if (aceptada){
+        //comprueba que la actividad no ha alcanzado el maximo de participantes y que es el creador quien acepta
+
+        if (idCreador !== req.userId) {
+            return res.status(403).json({message: 'Solo el creador de la actividad puede aceptar participaciones'});
+        }
+        const cupoDisponible = await ActividadService.getCupoDisponible(idActividad);
+        if (cupoDisponible === 0) {
+            return res.status(400).json({message: 'La actividad ha alcanzado el máximo de participantes'});
+        }
+    }else{
+        //comprobar que quien rechaza es el creador o el propio usuario
+        if (idCreador !== req.userId && idUsuario !== req.userId) {
+            return res.status(403).json({message: 'Solo el creador de la actividad o el propio usuario pueden rechazar participaciones'});
+        }
+    }
 
     try {
         await ParticipacionModel.actualizaEstadoParticipacion(idUsuario, idActividad, aceptada);
@@ -155,9 +201,12 @@ export const aceptarParticipacion = async (req: Request, res: Response) => {
     }
 };
 
+//TODO . pensar si es necesario eliminar participacion
 //Eliminar una participacion
 export const eliminarParticipacion = async (req: Request, res: Response) => {
     const {idUsuario, idActividad} = req.body;
+
+    //TODO comprobar que el usuario que elimina es el creador de la actividad o el propio usuario
 
     try {
         await ParticipacionModel.eliminarParticipacion(idUsuario, idActividad);

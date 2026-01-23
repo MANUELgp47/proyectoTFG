@@ -1,4 +1,4 @@
-import {Request, Response, NextFunction} from 'express';
+import type {Request, Response, NextFunction} from 'express';
 import jwt from 'jsonwebtoken';
 
 interface JwtPayload {
@@ -20,7 +20,7 @@ export const authMiddleware = (
     next: NextFunction
 ) => {
     const authHeader = req.headers.authorization;
-
+console.log(" ejecutando authMiddleware " + authHeader);
     if (!authHeader) {
         return res.status(401).json({mensaje: 'Token no proporcionado'});
     }
@@ -38,6 +38,7 @@ export const authMiddleware = (
         ) as JwtPayload;
 
         req.userId = decoded.idUsuario;
+        console.log("req.userId en authMiddleware: " + req.userId);
         next();
     } catch (error) {
         return res.status(401).json({mensaje: 'Token inválido o expirado'});

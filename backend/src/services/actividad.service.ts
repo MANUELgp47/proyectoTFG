@@ -14,6 +14,12 @@ export class ActividadService {
         const actualizarEstadoActividad = await ActividadModel.actualizarEstadoActividad(idActividad, estado);
         return actualizarEstadoActividad;
     }
+    //devuelve el estado de una actividad
+    static async getEstadoDeActividad(idActividad: number): Promise<string | null> {
+        const actividad = await ActividadModel.getActividadPorId(idActividad);
+        return actividad ? actividad.estado : null;
+    }
+
 
     //existe actividad
     static async existeActividad(idActividad: number): Promise<boolean> {

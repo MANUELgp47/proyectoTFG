@@ -23,6 +23,8 @@ export const getRecuerdosPorActividad = async (idActividad: number): Promise<Rec
     return result.rows.map(mapearRecuerdo);
 };
 
+
+
 export const crearRecuerdo = async (recuerdo: CrearRecuerdo): Promise<Recuerdo> => {
     const {
         idUsuario,

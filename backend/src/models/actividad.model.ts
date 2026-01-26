@@ -67,7 +67,7 @@ export const actualizarEstadoActividad = async (idActividad: number, estado: 'ac
 //obtiene los participantes de una actividad
 export const getParticipantesDeActividad = async (idActividad: number): Promise<number[]> => {
     const result = await pool.query(
-        `SELECT id_usuario FROM participacion WHERE id_actividad = $1 AND aceptada = true`,
+        `SELECT id_usuario FROM Participacion WHERE id_actividad = $1 AND aceptada = true`,
         [idActividad]
     );
     return result.rows.map(row => row.id_usuario);

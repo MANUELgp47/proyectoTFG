@@ -115,4 +115,34 @@ Content-Type: application/json
   "idActividad": 12
 }
 
+######################################Recuerdos
+POST http://localhost:3000/api/auth/login/
+Content-Type: application/json
+
+{
+  "nombre_email": "manuel",
+  "contrasena": "hoalpass"
+}
+
+###manuel eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsImlhdCI6MTc2OTQyNzA5MCwiZXhwIjoxNzY5NDMwNjkwfQ.e4XZkarkfeCxX3nKSJjtVk45IbGthdY7T7RX_1ZZSYE
+### pep eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc2OTQyNjQ4MywiZXhwIjoxNzY5NDMwMDgzfQ.VkB1L6WonFeg7KxZOrzeNMpmh2yUyQ--ekSl5Vk5YAY
+
+### Crear recuerdo
+POST http://localhost:3000/api/recuerdo
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsImlhdCI6MTc2OTQyNzA5MCwiZXhwIjoxNzY5NDMwNjkwfQ.e4XZkarkfeCxX3nKSJjtVk45IbGthdY7T7RX_1ZZSYE
+Content-Type: application/json
+
+{
+  "idActividad": 1,
+  "titulo": "Gran dia en la montaña",
+  "descripcion": "Lo pasamos genial",
+  "imagenes": [
+    "https://example.com/img/playa1.jpg",
+    "https://example.com/img/playa2.jpg"
+  ]
+}
+
+### Eliminar recuerdo
+DELETE http://localhost:3000/api/recuerdo/7
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsImlhdCI6MTc2OTQyNzA5MCwiZXhwIjoxNzY5NDMwNjkwfQ.e4XZkarkfeCxX3nKSJjtVk45IbGthdY7T7RX_1ZZSYE
 

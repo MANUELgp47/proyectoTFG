@@ -10,7 +10,7 @@ router.get('/', NotificaciónController.getNotificaciones);
 //http://localhost:3000/api/notificacion/usuario/1
 router.get('/usuario/:idUsuario', NotificaciónController.getNotificacionesPorUsuario);
 
-//Crear una nueva notificación
+//Crear una nueva notificación TODO: ver si es necesario
 router.post('/', NotificaciónController.createNotificacion);
 
 //Actualizar una notificación por id

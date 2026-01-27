@@ -55,12 +55,12 @@ export const getMensajesPorChatActividad = async (req: Request, res: Response) =
 
 //función para comprobar si el emisor existe y si el chat individual o de actividad existe
 const comprobarEmisorChat = async (idEmisor: number, idChatIndividual?: number, idChatActividad?: number): Promise<boolean> => {
-    //comprobar emisor
+    //comprobar emisor existe
     if (!(await ServicioUsuario.UsuarioService.existeUsuarioPorId(idEmisor))) {
         console.log({message: 'Emisor no encontrado'});
         return false;
     }
-    //comprobar chat individual o de actividad
+    //comprobar chat individual o de actividad existe y que el emisor pertenece al chat
     if (idChatIndividual) {
         //comprobar que existe el chat individual
         const chatIndividual = await ChatIndividualModel.getChatIndividualPorId(idChatIndividual);

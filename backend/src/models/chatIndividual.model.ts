@@ -41,6 +41,18 @@ export const crearChatIndividual = async (chatIndividual: CrearChatIndividual): 
     return mapearChatIndividual(result.rows[0]);
 };
 
+//crea chat con los ids de los usuarios
+export const crearChatIndividualPorUsuarios = async (idUsuario1: number,  idUsuario2: number): Promise<ChatIndividual> => {
+    const result = await pool.query(
+        `INSERT INTO chat_individual
+             (id_usuario1, id_usuario2)
+         VALUES ($1, $2) RETURNING *`,
+        [idUsuario1, idUsuario2]
+    );
+
+    return mapearChatIndividual(result.rows[0]);
+}
+
 //esteblece el ultimo mensaje del chat individual
 export const establecerUltimoMensaje = async (idChatIndividual: number, idMensaje: number): Promise<void> => {
     await pool.query(

@@ -124,8 +124,8 @@ Content-Type: application/json
   "contrasena": "hoalpass"
 }
 
-###manuel eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsImlhdCI6MTc2OTQyNzA5MCwiZXhwIjoxNzY5NDMwNjkwfQ.e4XZkarkfeCxX3nKSJjtVk45IbGthdY7T7RX_1ZZSYE
-### pep eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc2OTQyNjQ4MywiZXhwIjoxNzY5NDMwMDgzfQ.VkB1L6WonFeg7KxZOrzeNMpmh2yUyQ--ekSl5Vk5YAY
+###manuel eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsImlhdCI6MTc2OTUzODk5MywiZXhwIjoxNzY5NTQyNTkzfQ.zhJQEgTEI54hb_MLRiRQbmqBgl0h86eKdsP7CmuCBDM
+### pep eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc2OTUzODYyMCwiZXhwIjoxNzY5NTQyMjIwfQ.oAYWiPYoZmOAQFdXk55vTtk3kkvS8uDc7K_FlhwRaQo
 
 ### Crear recuerdo
 POST http://localhost:3000/api/recuerdo
@@ -146,3 +146,55 @@ Content-Type: application/json
 DELETE http://localhost:3000/api/recuerdo/7
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsImlhdCI6MTc2OTQyNzA5MCwiZXhwIjoxNzY5NDMwNjkwfQ.e4XZkarkfeCxX3nKSJjtVk45IbGthdY7T7RX_1ZZSYE
 
+
+
+######################################################## Amistades
+### crea amistad
+POST http://localhost:3000/api/amistad/6
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc2OTUzNDcyNSwiZXhwIjoxNzY5NTM4MzI1fQ.7lzW6EbKVySaJYghKOcsHcU6LuNCtZ8fXDGV4CDN0JM
+Content-Type: application/json
+
+###Elimina amistad
+DELETE http://localhost:3000/api/amistad/6
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc2OTUzNDcyNSwiZXhwIjoxNzY5NTM4MzI1fQ.7lzW6EbKVySaJYghKOcsHcU6LuNCtZ8fXDGV4CDN0JM
+Content-Type: application/json
+
+
+
+
+######################################################## Solicitudes de amistad
+### crea solicitud de amistad
+POST http://localhost:3000/api/solicitudAmistad/6
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc2OTUzNDcyNSwiZXhwIjoxNzY5NTM4MzI1fQ.7lzW6EbKVySaJYghKOcsHcU6LuNCtZ8fXDGV4CDN0JM
+Content-Type: application/json
+
+###Actualiza solicitud de amistad (aceptar/rechazar)
+PUT http://localhost:3000/api/solicitudAmistad/3
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsImlhdCI6MTc2OTUzNDcwNSwiZXhwIjoxNzY5NTM4MzA1fQ.l93Cvmb5ruZQEBWEij2AesuuE-0PpyM3R6VzxhneZPM
+Content-Type: application/json
+
+{
+  "estado": "aceptada"
+}
+
+###Elimina solicitud de amistad
+DELETE http://localhost:3000/api/solicitudAmistad/6
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc2OTUzNDcyNSwiZXhwIjoxNzY5NTM4MzI1fQ.7lzW6EbKVySaJYghKOcsHcU6LuNCtZ8fXDGV4CDN0JM
+
+########################################################Chats y Mensajes
+### Crear chat individual
+POST http://localhost:3000/api/chatIndividual/3
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsImlhdCI6MTc2OTUzODk5MywiZXhwIjoxNzY5NTQyNTkzfQ.zhJQEgTEI54hb_MLRiRQbmqBgl0h86eKdsP7CmuCBDM
+Content-Type: application/json
+
+
+
+### Envia mensaje a un chat existente
+POST http://localhost:3000/api/mensaje
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc2OTUzNDcyNSwiZXhwIjoxNzY5NTM4MzI1fQ.7lzW6EbKVySaJYghKOcsHcU6LuNCtZ8fXDGV4CDN0JM
+Content-Type: application/json
+
+{
+  "idChatIndividual": 1,
+  "mensaje": "¡Hola a man!"
+}

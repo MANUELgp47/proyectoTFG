@@ -31,7 +31,12 @@ export const crearAmistad = async (idUsuario1: number, idUsuario2: number): Prom
 };
 
 export const eliminarAmistad = async (idUsuario1: number, idUsuario2: number): Promise<boolean> => {
-    const result = await pool.query("DELETE FROM amistad WHERE id_usuario1 = $1 AND id_usuario2 = $2", [idUsuario1, idUsuario2]);
+    const result = await pool.query(
+        `DELETE FROM amistad
+         WHERE (id_usuario1 = $1 AND id_usuario2 = $2)
+            OR (id_usuario1 = $2 AND id_usuario2 = $1)`,
+        [idUsuario1, idUsuario2]
+    );
 
-    return result.rowCount === 1;// Devuelve true si se eliminó una fila, false si no
+    return result.rowCount === 1;
 };

@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import * as SolicitudAmistadController from '../controllers/solicitudAmistad.controller.js';
+import {authMiddleware} from "../middleware/auth.middleware.js";
 
 const router = Router();
 
@@ -10,13 +11,13 @@ router.get('/', SolicitudAmistadController.getAllSolicitudesAmistad);
 router.get('/receptor/:idReceptor', SolicitudAmistadController.getSolicitudesPorReceptor);
 
 //crear una nueva solicitud de amistad
-router.post('/', SolicitudAmistadController.crearSolicitudAmistad);
+router.post('/:idReceptor', authMiddleware, SolicitudAmistadController.crearSolicitudAmistad);
 
 //actualizar el estado de una solicitud de amistad
-router.put('/:idEmisor/:idReceptor', SolicitudAmistadController.actualizarEstadoSolicitudAmistad);
+router.put('/:idUsuarioEmisor', authMiddleware, SolicitudAmistadController.actualizarEstadoSolicitudAmistad);
 
 //eliminar una solicitud de amistad
-router.delete('/:idEmisor/:idReceptor', SolicitudAmistadController.eliminarSolicitudAmistad);
+router.delete('/:idUsuarioEmisor', authMiddleware, SolicitudAmistadController.eliminarSolicitudAmistad);
 
 
 export default router;

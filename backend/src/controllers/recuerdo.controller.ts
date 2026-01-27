@@ -159,19 +159,19 @@ export const createRecuerdo = async (req: Request, res: Response) => {
 };
 
 export const deleteRecuerdoPorId = async (req: Request, res: Response) => {
-
-    //comprueba que existe el recuerdo
-    const existeRecuerdo = await RecuerdoService.existeRecuerdo(parseInt(req.params.id, 10));
-    if (!existeRecuerdo) {
-        return res.status(404).json({message: 'Recuerdo no encontrado'});
-    }
-
     const idUsuario = req.userId;
 
     const idRecuerdo = req.params.id ? parseInt(req.params.id, 10) : NaN;
     if (isNaN(idRecuerdo)) {
         return res.status(400).json({message: 'ID inválido'});
     }
+
+    //comprueba que existe el recuerdo
+    const existeRecuerdo = await RecuerdoService.existeRecuerdo(idRecuerdo);
+    if (!existeRecuerdo) {
+        return res.status(404).json({message: 'Recuerdo no encontrado'});
+    }
+
     //comprobar que el recuerdo pertenece al usuario (esCreador)
     const idCreador = await RecuerdoService.getIdCreadorRecuerdo(idRecuerdo);
     if (idCreador !== idUsuario) {

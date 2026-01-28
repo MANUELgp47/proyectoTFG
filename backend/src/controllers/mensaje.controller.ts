@@ -53,7 +53,7 @@ export const getMensajesPorChatActividad = async (req: Request, res: Response) =
     }
 };
 
-//función para comprobar si el emisor existe y si el chat individual o de actividad existe
+//función para comprobar si el emisor existe y si el chat individual o de actividad existe TODO: Hacer en servicio
 const comprobarEmisorChat = async (idEmisor: number, idChatIndividual?: number, idChatActividad?: number): Promise<boolean> => {
     //comprobar emisor existe
     if (!(await ServicioUsuario.UsuarioService.existeUsuarioPorId(idEmisor))) {
@@ -101,12 +101,24 @@ export const createMensaje = async (req: Request, res: Response) => {
     try {
         //TODO: Funciona? : comprobar que exsite el chat y que existe el emisor (hace una función)
 
+        const idEmisor = req.userId;
+        //valida idEmisor
+        if (!idEmisor) {
+            return res.status(400).json({message: 'ID de emisor inválido'});
+        }
+
         //comprobar emisor
-        const esValido = await comprobarEmisorChat(req.body.idEmisor, req.body.idChatIndividual, req.body.idChatActividad);
+        const esValido = await comprobarEmisorChat(idEmisor, req.body.idChatIndividual, req.body.idChatActividad);
         if (!esValido) {
             return res.status(400).json({message: 'Datos inválidos: emisor o chat no encontrado'});
         }
 
+        //valida contenido no vacío
+        if (req.body.contenido == null || req.body.contenido.trim() === '') {
+            return res.status(400).json({ message: 'El contenido del mensaje no puede estar vacío' });
+        }
+
+        req.body.idEmisor = idEmisor;
         const mensaje = await MensajedModel.crearMensaje(req.body);
 
         /*
@@ -153,6 +165,25 @@ export const createMensaje = async (req: Request, res: Response) => {
 export const updateMensaje = async (req: Request, res: Response) => {
     const idMensaje = Number(req.params.id);
     const {contenido, leido} = req.body;
+    const idEmisor = req.userId;
+    //comprueba que el idEmisor es válido
+    if (!idEmisor) {
+        return res.status(400).json({message: 'ID de emisor inválido'});
+    }
+    //solo puede actualizar el mensaje el emisor
+    const mensaje = await MensajedModel.getMensajePorId(idMensaje);
+    if (!mensaje) {
+        return res.status(404).json({message: 'Mensaje no encontrado'});
+    }
+    if (mensaje.idEmisor !== idEmisor) {
+        return res.status(403).json({message: 'No tienes permiso para actualizar este mensaje'});
+    }
+    //solo se puede eliminar el mensaje si no está leído
+    if (mensaje.leido) {
+        return res.status(400).json({message: 'No se puede eliminar un mensaje ya leído'});
+    }
+
+
     try {
         const mensajeExistente = await MensajedModel.getMensajePorId(idMensaje);
         if (!mensajeExistente) {
@@ -180,12 +211,36 @@ export const updateMensaje = async (req: Request, res: Response) => {
 
 export const deleteMensaje = async (req: Request, res: Response) => {
     const idMensaje = Number(req.params.id);
+
+    //comprueba que el idEmisor es válido
+    const idEmisor = req.userId;
+    if (!idEmisor) {
+        return res.status(400).json({message: 'ID de emisor inválido'});
+    }
+
+    //solo puede eliminar el mensaje el emisor
+    const mensaje = await MensajedModel.getMensajePorId(idMensaje);
+    if (!mensaje) {
+        return res.status(404).json({message: 'Mensaje no encontrado'});
+    }
+    if (mensaje.idEmisor !== idEmisor) {
+        return res.status(403).json({message: 'No tienes permiso para eliminar este mensaje'});
+    }
+
+
+    //solo se puede eliminar el mensaje si no está leído
+    if (mensaje.leido) {
+        return res.status(400).json({message: 'No se puede eliminar un mensaje ya leído'});
+    }
+
     try {
         const exito = await MensajedModel.eliminarMensaje(idMensaje);
         if (!exito) {
+
+            //TODO cuando se borra se actualiza el chart ultimo mensaje | implementar un servicio que busque el mensaje mas reciente por fecha
             return res.status(404).json({message: 'Mensaje no encontrado'});
         }
-        res.status(204).send();
+        res.status(204).json({message: 'Mensaje eliminado correctamente'});
     } catch (error) {
         console.error('Error al eliminar mensaje:', error);
         res.status(500).json({message: 'Error del servidor'});

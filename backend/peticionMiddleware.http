@@ -31,11 +31,11 @@ Content-Type: application/json
 ############### ACTIVIDAD ###############################
 ### Crear actividad
 POST http://localhost:3000/api/actividad
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjUsImlhdCI6MTc2OTE2OTAzNiwiZXhwIjoxNzY5MTcyNjM2fQ.h7rpHS1g9sQT0v6rjTe9zmo9i32ShFNaTt1J-ixCiDY
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsImlhdCI6MTc2OTYyNTU0NywiZXhwIjoxNzY5NjI5MTQ3fQ.vY9dKMd2EIEx0zxR832lfCh8xzEX1tO3_lCYCrmWTds
 Content-Type: application/json
 
 {
-  "titulo": "Montar bici",
+  "titulo": "Montar bici 4x4",
   "descripcion": " 2 personas.",
   "fechaInicio": "2026-11-09T09:00:00.000Z",
   "fechaFin": "2026-11-12T11:00:00.000Z",
@@ -48,12 +48,12 @@ Content-Type: application/json
   "estado": "activa"
 }
 ###Actualizar actividad
-PUT http://localhost:3000/api/actividad/10
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjUsImlhdCI6MTc2OTE2OTAzNiwiZXhwIjoxNzY5MTcyNjM2fQ.h7rpHS1g9sQT0v6rjTe9zmo9i32ShFNaTt1J-ixCiDY
+PUT http://localhost:3000/api/actividad/9
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc2OTYyMTkwOCwiZXhwIjoxNzY5NjI1NTA4fQ.a9J9vm9fIY2sQyb8wmWybHGScolUpeUC299N9wiG5v0
 Content-Type: application/json
 
 {
- "publica": false
+ "estado": "activa"
 
 }
 ### Finalizar actividad
@@ -61,8 +61,8 @@ POST http://localhost:3000/api/actividad/9/finalizar
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjUsImlhdCI6MTc2OTE2NTc2NiwiZXhwIjoxNzY5MTY5MzY2fQ.SG4_eS53Iupr-aXjaXa6a9BB5oPs_oWzZMNCpWW2ZT8
 
 ###eliminar actividad
-DELETE http://localhost:3000/api/actividad/9
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjUsImlhdCI6MTc2OTE2NTc2NiwiZXhwIjoxNzY5MTY5MzY2fQ.SG4_eS53Iupr-aXjaXa6a9BB5oPs_oWzZMNCpWW2ZT8
+DELETE http://localhost:3000/api/actividad/11
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc2OTYyMTkwOCwiZXhwIjoxNzY5NjI1NTA4fQ.a9J9vm9fIY2sQyb8wmWybHGScolUpeUC299N9wiG5v0
 
 
 
@@ -89,11 +89,11 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjQsI
 #################################################### Participacion
 ###Crea participacion
 POST http://localhost:3000/api/participacion
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsImlhdCI6MTc2OTE2OTkyNiwiZXhwIjoxNzY5MTczNTI2fQ.1C-oXSsIXGk46OVkP_hfURqHs4zWT0bojCt25Y2BakM
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc2OTYyNTg4NywiZXhwIjoxNzY5NjI5NDg3fQ.W1uN9dxjduGRHzTcjBmA-0El9sfsT91jh7GlIHpDb0o
 Content-Type: application/json
 
 {
-  "idActividad": 10
+  "idActividad": 12
 }
 ###Actualizar el estadoetado juan #eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjUsImlhdCI6MTc2OTE2OTAzNiwiZXhwIjoxNzY5MTcyNjM2fQ.h7rpHS1g9sQT0v6rjTe9zmo9i32ShFNaTt1J-ixCiDY
 PUT http://localhost:3000/api/participacion/
@@ -116,16 +116,6 @@ Content-Type: application/json
 }
 
 ######################################Recuerdos
-POST http://localhost:3000/api/auth/login/
-Content-Type: application/json
-
-{
-  "nombre_email": "manuel",
-  "contrasena": "hoalpass"
-}
-
-###manuel eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsImlhdCI6MTc2OTUzODk5MywiZXhwIjoxNzY5NTQyNTkzfQ.zhJQEgTEI54hb_MLRiRQbmqBgl0h86eKdsP7CmuCBDM
-### pep eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc2OTUzODYyMCwiZXhwIjoxNzY5NTQyMjIwfQ.oAYWiPYoZmOAQFdXk55vTtk3kkvS8uDc7K_FlhwRaQo
 
 ### Crear recuerdo
 POST http://localhost:3000/api/recuerdo
@@ -191,10 +181,49 @@ Content-Type: application/json
 
 ### Envia mensaje a un chat existente
 POST http://localhost:3000/api/mensaje
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc2OTUzNDcyNSwiZXhwIjoxNzY5NTM4MzI1fQ.7lzW6EbKVySaJYghKOcsHcU6LuNCtZ8fXDGV4CDN0JM
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsImlhdCI6MTc2OTYyNjQ5MCwiZXhwIjoxNzY5NjMwMDkwfQ.obwd13dCY4miq0kal3H04UawqFpIVqLLIbnbhBDMHvQ
 Content-Type: application/json
 
 {
   "idChatIndividual": 1,
-  "mensaje": "¡Hola a man!"
+  "contenido": "Hola, ¿cómo estás hoy 22?"
 }
+
+### Elimina mensaje
+DELETE http://localhost:3000/api/mensaje/6
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc2OTYyMTkwOCwiZXhwIjoxNzY5NjI1NTA4fQ.a9J9vm9fIY2sQyb8wmWybHGScolUpeUC299N9wiG5v0
+
+
+### Actualiza mensaje
+PUT http://localhost:3000/api/mensaje/3
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc2OTYyMTkwOCwiZXhwIjoxNzY5NjI1NTA4fQ.a9J9vm9fIY2sQyb8wmWybHGScolUpeUC299N9wiG5v0
+Content-Type: application/json
+
+{
+  "contenido": "Hola, ACTUALIZADO?"
+}
+
+############################################Chat actividad
+### mensaje en chat de actividad
+POST http://localhost:3000/api/mensaje
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc2OTYyNTg4NywiZXhwIjoxNzY5NjI5NDg3fQ.W1uN9dxjduGRHzTcjBmA-0El9sfsT91jh7GlIHpDb0o
+Content-Type: application/json
+
+{
+  "idChatActividad": 10,
+  "contenido": "Hola, soy pep"
+}
+
+
+
+#########################Auth
+POST http://localhost:3000/api/auth/login/
+Content-Type: application/json
+
+{
+  "nombre_email": "manuel",
+  "contrasena": "hoalpass"
+}
+
+###manuel eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsImlhdCI6MTc2OTYyNjQ5MCwiZXhwIjoxNzY5NjMwMDkwfQ.obwd13dCY4miq0kal3H04UawqFpIVqLLIbnbhBDMHvQ
+### pep eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc2OTYyNTg4NywiZXhwIjoxNzY5NjI5NDg3fQ.W1uN9dxjduGRHzTcjBmA-0El9sfsT91jh7GlIHpDb0o

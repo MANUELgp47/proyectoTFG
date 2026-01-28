@@ -47,7 +47,6 @@ export const getChatIndividualPorUsuarios = async (req: Request, res: Response) 
 
 export const createChatIndividual = async (req: Request, res: Response) => {
     try {
-        console.log('req.params.idReceptor', req.params.idReceptor);
         const idReceptor = Number(req.params.idReceptor);
         const idEmisor = req.userId;
         //valida idEmisor y idReceptor

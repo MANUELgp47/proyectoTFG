@@ -8,14 +8,14 @@ const router = Router();
 router.get('/', MensajeController.getMensajes);
 
 //crear un mensaje
-router.post('/', MensajeController.createMensaje);
+router.post('/', authMiddleware, MensajeController.createMensaje);
 
 
 //eliminar un mensaje por id
-router.delete('/:id', MensajeController.deleteMensaje);
+router.delete('/:id', authMiddleware, MensajeController.deleteMensaje);
 
 //actualizar un mensaje por id TODO: implementar en el controlador
-router.put('/:id', MensajeController.updateMensaje);
+router.put('/:id', authMiddleware, MensajeController.updateMensaje);
 
 
 export default router;

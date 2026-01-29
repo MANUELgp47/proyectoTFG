@@ -39,7 +39,7 @@ export const crearNotificacion = async (notificacion: CrearNotificacion): Promis
 
 //actualizar una notificación por id para marcarla como leida o no leida
 
-export const actualizarNotificacion = async (idNotificacion: number, leida: boolean): Promise<Notificacion | null> => {
+export const marcaLeidaNotificacion = async (idNotificacion: number, leida: boolean): Promise<Notificacion | null> => {
   //  console.log("Leida en el modelo:", leida);
     leida= Boolean(leida)
     const result = await pool.query(

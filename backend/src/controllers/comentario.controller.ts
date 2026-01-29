@@ -1,5 +1,6 @@
 import type {Request, Response} from 'express';
 import * as ComentarioModel from '../models/comentario.model.js';
+import {RecuerdoService} from "../services/recuerdo.service.js";
 
 export const getComentarios = async (req: Request, res: Response) => {
     try {
@@ -50,6 +51,22 @@ export const getComentariosPorUsuario = async (req: Request, res: Response) => {
 }
 export const createComentario = async (req: Request, res: Response) => {
     try {
+        req.body.idUsuario = req.userId;
+
+        //validar que el contenido no esté vacío
+        if (!req.body.mensaje || req.body.mensaje.trim() === '') {
+            return res.status(400).json({message: 'El contenido del comentario no puede estar vacío'});
+        }
+        //validar que existe el recuerdo
+        if (!req.body.idRecuerdo) {
+            return res.status(400).json({message: 'El ID del recuerdo es obligatorio'});
+        }
+        const existeRecuerdo = await RecuerdoService.existeRecuerdo(req.body.idRecuerdo);
+        if (!existeRecuerdo) {
+            return res.status(404).json({message: 'El recuerdo al que se quiere comentar no existe'});
+        }
+
+
         const comentario = await ComentarioModel.crearComentario(req.body);
 
         res.status(201).json(comentario);
@@ -60,6 +77,18 @@ export const createComentario = async (req: Request, res: Response) => {
 };
 export const deleteComentario = async (req: Request, res: Response) => {
     const idComentario = Number(req.params.idComentario);
+    const idUsuario = req.userId;
+
+    //verificar que el comentario existe
+    //el creador del comentario es el mismo que lo quiere eliminar
+    const comentario = await ComentarioModel.getComentarioPorId(idComentario);
+    if (!comentario) {
+        return res.status(404).json({message: 'Comentario no encontrado'});
+    }
+    if (comentario.idUsuario !== idUsuario) {
+        return res.status(403).json({message: 'No tienes permiso para eliminar este comentario'});
+    }
+
     try {
         const eliminado = await ComentarioModel.eliminarComentario(idComentario);
         if (eliminado) {

@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import * as LikeMegustaController from '../controllers/likeMegusta.controller.js';
+import {authMiddleware} from "../middleware/auth.middleware.js";
 
 const router = Router();
 // Obtener NUMERO TOTAL de likes de un recuerdo
@@ -18,10 +19,10 @@ router.get('/recuerdo/:idRecuerdo', LikeMegustaController.getLikesMegustaPorIdRe
 router.get('/comentario/:idComentario', LikeMegustaController.getLikesMegustaPorIdComentario);
 
 //crear un like
-router.post('/', LikeMegustaController.createLikeMegusta);
+router.post('/', authMiddleware, LikeMegustaController.createLikeMegusta);
 
 //eliminar un like
-router.delete('/:idLike', LikeMegustaController.deleteLikeMegusta);
+router.delete('/:idLike', authMiddleware, LikeMegustaController.deleteLikeMegusta);
 
 
 

@@ -214,6 +214,50 @@ Content-Type: application/json
   "contenido": "Hola, soy pep"
 }
 
+################################ Comentario
+### Crear comentario
+POST http://localhost:3000/api/comentario
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc2OTY4Mzk4MywiZXhwIjoxNzY5Njg3NTgzfQ.lXRmdgk2DyFKu9x4BtauTjYWDS1Gc14otffwVmdGoI4
+Content-Type: application/json
+
+{
+  "idRecuerdo": 5,
+  "mensaje": "¡mu bueno!"
+}
+### Eliminar comentario
+DELETE http://localhost:3000/api/comentario/4
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc2OTY4Mzk4MywiZXhwIjoxNzY5Njg3NTgzfQ.lXRmdgk2DyFKu9x4BtauTjYWDS1Gc14otffwVmdGoI4
+
+
+############################### Megusta
+### Crear like a rcuerdo
+POST http://localhost:3000/api/likeMegusta
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc2OTY4Mzk4MywiZXhwIjoxNzY5Njg3NTgzfQ.lXRmdgk2DyFKu9x4BtauTjYWDS1Gc14otffwVmdGoI4
+Content-Type: application/json
+
+{
+  "idComentario": 4
+}
+### Eliminar like
+DELETE http://localhost:3000/api/likeMegusta/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsImlhdCI6MTc2OTY4Mzk5NiwiZXhwIjoxNzY5Njg3NTk2fQ.MrIL13SmGEN5Zimwqx_D6YAEY5BXd6NVZM9OwFe4xeM
+
+
+###################NOtificaciones
+### Marcar notificacion como leida
+PUT http://localhost:3000/api/notificacion/50
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc2OTY4Mzk4MywiZXhwIjoxNzY5Njg3NTgzfQ.lXRmdgk2DyFKu9x4BtauTjYWDS1Gc14otffwVmdGoI4
+
+
+### Eliminar notificacion
+DELETE http://localhost:3000/api/notificacion/51
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc2OTY4Mzk4MywiZXhwIjoxNzY5Njg3NTgzfQ.lXRmdgk2DyFKu9x4BtauTjYWDS1Gc14otffwVmdGoI4
+
+
+
+
+
+
 
 
 #########################Auth
@@ -225,5 +269,7 @@ Content-Type: application/json
   "contrasena": "hoalpass"
 }
 
-###manuel eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsImlhdCI6MTc2OTYyNjQ5MCwiZXhwIjoxNzY5NjMwMDkwfQ.obwd13dCY4miq0kal3H04UawqFpIVqLLIbnbhBDMHvQ
-### pep eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc2OTYyNTg4NywiZXhwIjoxNzY5NjI5NDg3fQ.W1uN9dxjduGRHzTcjBmA-0El9sfsT91jh7GlIHpDb0o
+###manuel eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsImlhdCI6MTc2OTY4Mzk5NiwiZXhwIjoxNzY5Njg3NTk2fQ.MrIL13SmGEN5Zimwqx_D6YAEY5BXd6NVZM9OwFe4xeM
+### pep eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc2OTY4Mzk4MywiZXhwIjoxNzY5Njg3NTgzfQ.lXRmdgk2DyFKu9x4BtauTjYWDS1Gc14otffwVmdGoI4
+
+

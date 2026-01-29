@@ -1,6 +1,8 @@
 import type {Request, Response} from 'express';
 import * as NotificacionModel from '../models/notificacion.model.js';
 
+//marcar notificación como leída
+
 export const getNotificaciones = async (req: Request, res: Response) => {
     try {
         const notificacions = await NotificacionModel.getAllNotificacions();
@@ -63,12 +65,23 @@ export const createNotificacion = async (req: Request, res: Response) => {
 // Actualizar una notificación por id
 export const updateNotificacion = async (req: Request, res: Response) => {
     const idNotificacion = req.params.idNotificacion;
-  // console.log(' Recibido :', req.body);
+    const idUsuario = req.userId;
+
     if (idNotificacion === undefined) {
         return res.status(400).json({ message: 'idNotificacion es requerido' });
     }
+    //existe la notificación
+    const existe = await NotificacionModel.getNotificacionPorId(parseInt(idNotificacion, 10));
+    if (!existe) {
+        return res.status(404).json({ message: 'Notificación no encontrada' });
+    }
+    //la notificación pertenece al usuario
+    if (existe.idUsuarioReceptor !== idUsuario) {
+        return res.status(403).json({ message: 'No tienes permiso para marcar esta notificación como leída' });
+    }
+
     try {
-        const notificacionActualizada = await NotificacionModel.actualizarNotificacion(parseInt(idNotificacion, 10), req.body);
+        const notificacionActualizada = await NotificacionModel.marcaLeidaNotificacion(parseInt(idNotificacion, 10), true);
         if (notificacionActualizada) {
             res.json(notificacionActualizada);
         } else {
@@ -82,10 +95,23 @@ export const updateNotificacion = async (req: Request, res: Response) => {
 
 export const deleteNotificacion = async (req: Request, res: Response) => {
     const idNotificacion = req.params.idNotificacion;
+    const idUsuario = req.userId;
 
     if (idNotificacion === undefined) {
         return res.status(400).json({ message: 'idNotificacion es requerido' });
     }
+
+    //existe la notificación
+    const existe = await NotificacionModel.getNotificacionPorId(parseInt(idNotificacion, 10));
+    if (!existe) {
+        return res.status(404).json({ message: 'Notificación no encontrada' });
+    }
+    //la notificación pertenece al usuario
+    if (existe.idUsuarioReceptor !== idUsuario) {
+        return res.status(403).json({ message: 'No tienes permiso para eliminar esta notificación ' });
+    }
+
+
     try {
         const exito = await NotificacionModel.eliminarNotificacion(parseInt(idNotificacion, 10));
         if (exito) {

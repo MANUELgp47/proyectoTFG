@@ -14,8 +14,8 @@ import mensajeRoutes from "./routes/mensaje.routes.js";
 import chatIndividualRoutes from "./routes/chatIndividual.routes.js";
 import chatActividadRoutes from "./routes/chatActividad.routes.js";
 import authRoutes from "./auth/auth.routes.js";
-
-
+import tagRoutes from "./routes/tag.routes.js";
+import actividadTagRoutes from "./routes/actividadTag.routes.js";
 
 
 const app = express();
@@ -36,6 +36,8 @@ app.use('/api/likeMegusta', likeRoutes);
 app.use('/api/mensaje', mensajeRoutes);
 app.use('/api/chatIndividual', chatIndividualRoutes);
 app.use('/api/chatActividad', chatActividadRoutes);
+app.use('/api/tag',tagRoutes);
+app.use('/api/actividadtag', actividadTagRoutes);
 app.use('/api/auth/', authRoutes);
 
 

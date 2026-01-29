@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import * as ComentarioController from '../controllers/comentario.controller.js';
+import {authMiddleware} from "../middleware/auth.middleware.js";
 
 const router = Router();
 
@@ -13,9 +14,9 @@ router.get('/usuario/:idUsuario', ComentarioController.getComentariosPorUsuario)
 router.get('/recuerdo/:idRecuerdo', ComentarioController.getComentariosPorRecuerdo);
 
 // Crear un nuevo comentario
-router.post('/', ComentarioController.createComentario);
+router.post('/', authMiddleware, ComentarioController.createComentario);
 
 // Borrar un comentario por su ID
-router.delete('/:idComentario', ComentarioController.deleteComentario);
+router.delete('/:idComentario', authMiddleware, ComentarioController.deleteComentario);
 
 export default router;

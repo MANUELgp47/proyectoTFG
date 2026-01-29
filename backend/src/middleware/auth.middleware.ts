@@ -1,5 +1,6 @@
 import type {Request, Response, NextFunction} from 'express';
 import jwt from 'jsonwebtoken';
+import {UsuarioService} from "../services/usuario.service.js";
 
 interface JwtPayload {
     idUsuario: number;
@@ -31,6 +32,7 @@ console.log(" ejecutando authMiddleware " + authHeader);
         return res.status(401).json({mensaje: 'Token mal formado'});
     }
 
+
     try {
         const decoded = jwt.verify(
             token,
@@ -38,6 +40,10 @@ console.log(" ejecutando authMiddleware " + authHeader);
         ) as JwtPayload;
 
         req.userId = decoded.idUsuario;
+        //comprueba que exista el usuario
+       // const existeUsuario = await UsuarioService.existeUsuarioPorId(req.userId);
+
+
         console.log("req.userId en authMiddleware: " + req.userId);
         next();
     } catch (error) {

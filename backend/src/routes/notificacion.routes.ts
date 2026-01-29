@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import * as NotificaciónController from '../controllers/notificacion.controller.js';
+import {authMiddleware} from "../middleware/auth.middleware.js";
 
 const router = Router();
 
@@ -14,9 +15,9 @@ router.get('/usuario/:idUsuario', NotificaciónController.getNotificacionesPorUs
 router.post('/', NotificaciónController.createNotificacion);
 
 //Actualizar una notificación por id
-router.put('/:idNotificacion', NotificaciónController.updateNotificacion);
+router.put('/:idNotificacion',authMiddleware, NotificaciónController.updateNotificacion);
 
 //Eliminar notificación por id
-router.delete('/:idNotificacion', NotificaciónController.deleteNotificacion);
+router.delete('/:idNotificacion', authMiddleware, NotificaciónController.deleteNotificacion);
 
 export default router;

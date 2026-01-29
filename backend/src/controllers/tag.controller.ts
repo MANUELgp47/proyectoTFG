@@ -13,7 +13,7 @@ export const getTags = async (req: Request, res: Response) => {
 
 export const getTagById = async (req: Request, res: Response) => {
     try {
-        const idTag = parseInt(req.params.idTag, 10);
+        const idTag = Number(req.params.idTag);
         const tag = await TagModel.getTagPorId(idTag);
         if (tag) {
             res.json(tag);
@@ -28,6 +28,11 @@ export const getTagById = async (req: Request, res: Response) => {
 export const getTagByNombre = async (req: Request, res: Response) => {
     try {
         const nombre = req.params.nombre;
+
+        if (!nombre) {
+            return res.status(400).json({message: 'El nombre del tag es requerido'});
+        }
+
         const tag = await TagModel.getTagPorNombre(nombre);
         if (tag) {
             res.json(tag);
@@ -41,7 +46,7 @@ export const getTagByNombre = async (req: Request, res: Response) => {
 };
 export const getTagsByActividad = async (req: Request, res: Response) => {
     try {
-        const idActividad = parseInt(req.params.idActividad, 10);
+        const idActividad = Number(req.params.idActividad);
         const tags = await TagModel.getTagsPorActividad(idActividad);
         res.json(tags);
     } catch (error) {
@@ -51,6 +56,12 @@ export const getTagsByActividad = async (req: Request, res: Response) => {
 };
 
 export const createTag = async (req: Request, res: Response) => {
+    //No existe un tag igual
+    const existeTag = await TagModel.getTagPorNombre(req.body.nombre);
+    if (existeTag) {
+        return res.status(400).json({message: 'Ya existe un tag con ese nombre'});
+    }
+
     try {
         const tag = await TagModel.crearTag(req.body);
         res.status(201).json(tag);
@@ -60,8 +71,14 @@ export const createTag = async (req: Request, res: Response) => {
     }
 };
 export const deleteTag = async (req: Request, res: Response) => {
+    //el tag existe
+    const existeTag = await TagModel.getTagPorId(Number(req.params.idTag));
+    if (!existeTag) {
+        return res.status(404).json({message: 'Tag no encontrado'});
+    }
+
     try {
-        const idTag = parseInt(req.params.idTag, 10);
+        const idTag = Number(req.params.idTag);
         const eliminado = await TagModel.eliminarTag(idTag);
         if (eliminado) {
             res.status(200).json({message: 'Tag eliminado correctamente'});

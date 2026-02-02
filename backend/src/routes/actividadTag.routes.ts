@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import * as ActividadTagController from '../controllers/actividadTag.controller.js';
+import {authMiddleware} from "../middleware/auth.middleware.js";
 
 const router = Router();
 
@@ -7,9 +8,9 @@ const router = Router();
 router.get('/', ActividadTagController.getTodosActividadTags);
 
 //asignar un tag a una actividad
-router.post('/', ActividadTagController.createActividadTag);
+router.post('/',authMiddleware, ActividadTagController.createActividadTag);
 
 //eliminar un tag de una actividad
-router.delete('/', ActividadTagController.deleteActividadTag);
+router.delete('/',authMiddleware, ActividadTagController.deleteActividadTag);
 
 export default router;

@@ -61,8 +61,8 @@ POST http://localhost:3000/api/actividad/9/finalizar
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjUsImlhdCI6MTc2OTE2NTc2NiwiZXhwIjoxNzY5MTY5MzY2fQ.SG4_eS53Iupr-aXjaXa6a9BB5oPs_oWzZMNCpWW2ZT8
 
 ###eliminar actividad
-DELETE http://localhost:3000/api/actividad/11
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc2OTYyMTkwOCwiZXhwIjoxNzY5NjI1NTA4fQ.a9J9vm9fIY2sQyb8wmWybHGScolUpeUC299N9wiG5v0
+DELETE http://localhost:3000/api/actividad/12
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsImlhdCI6MTc2OTcwODcxMSwiZXhwIjoxNzY5NzEyMzExfQ.MrRu-SwGerxTYjPFH6FfC1UtfB37cB1EGILWPA1p4PQ
 
 
 
@@ -254,8 +254,37 @@ DELETE http://localhost:3000/api/notificacion/51
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc2OTY4Mzk4MywiZXhwIjoxNzY5Njg3NTgzfQ.lXRmdgk2DyFKu9x4BtauTjYWDS1Gc14otffwVmdGoI4
 
 
+##############################Crea un tag (administrador)
+POST http://localhost:3000/api/tag
+Content-Type: application/json
 
+{
+  "nombre": "Aventura"
+}
 
+###Elimina un tag (administrador)
+DELETE http://localhost:3000/api/tag/7
+
+##############################Actividad tag
+###Asocia un tag a una actividad
+POST http://localhost:3000/api/actividadTag
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsImlhdCI6MTc2OTcwODcxMSwiZXhwIjoxNzY5NzEyMzExfQ.MrRu-SwGerxTYjPFH6FfC1UtfB37cB1EGILWPA1p4PQ
+Content-Type: application/json
+
+{
+  "idActividad": 12,
+  "idTag": 6
+}
+
+###Desasocia un tag a una actividad
+DELETE http://localhost:3000/api/actividadTag
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsImlhdCI6MTc2OTcwODcxMSwiZXhwIjoxNzY5NzEyMzExfQ.MrRu-SwGerxTYjPFH6FfC1UtfB37cB1EGILWPA1p4PQ
+Content-Type: application/json
+
+{
+  "idActividad": 12,
+  "idTag": 6
+}
 
 
 
@@ -269,7 +298,7 @@ Content-Type: application/json
   "contrasena": "hoalpass"
 }
 
-###manuel eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsImlhdCI6MTc2OTY4Mzk5NiwiZXhwIjoxNzY5Njg3NTk2fQ.MrIL13SmGEN5Zimwqx_D6YAEY5BXd6NVZM9OwFe4xeM
-### pep eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc2OTY4Mzk4MywiZXhwIjoxNzY5Njg3NTgzfQ.lXRmdgk2DyFKu9x4BtauTjYWDS1Gc14otffwVmdGoI4
+###manuel eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsImlhdCI6MTc2OTcwODcxMSwiZXhwIjoxNzY5NzEyMzExfQ.MrRu-SwGerxTYjPFH6FfC1UtfB37cB1EGILWPA1p4PQ
+### pep eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc2OTcwNzg2NSwiZXhwIjoxNzY5NzExNDY1fQ.NLkGpmFstvsFHiBsGleyHp1rCwNz3vvZIP0nStiISdM
 
 

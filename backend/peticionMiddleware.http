@@ -302,3 +302,5 @@ Content-Type: application/json
 ### pep eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc2OTcwNzg2NSwiZXhwIjoxNzY5NzExNDY1fQ.NLkGpmFstvsFHiBsGleyHp1rCwNz3vvZIP0nStiISdM
 
 
+####FONTEND
+### localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsImlhdCI6MTc3MDAzMTMwNSwiZXhwIjoxNzcwMDM0OTA1fQ.NXhkIYivky9goy39w5DV4pe1umO46oRpfuRmqd943SE');

@@ -298,9 +298,11 @@ Content-Type: application/json
   "contrasena": "hoalpass"
 }
 
-###manuel eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsImlhdCI6MTc2OTcwODcxMSwiZXhwIjoxNzY5NzEyMzExfQ.MrRu-SwGerxTYjPFH6FfC1UtfB37cB1EGILWPA1p4PQ
+###manuel eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsImlhdCI6MTc3MTkyNzU1MCwiZXhwIjoxNzcxOTMxMTUwfQ.RiPaP1M75vYOirJzwo0Llb2A7QzddRLHZ1cM1TrwAMU
 ### pep eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc2OTcwNzg2NSwiZXhwIjoxNzY5NzExNDY1fQ.NLkGpmFstvsFHiBsGleyHp1rCwNz3vvZIP0nStiISdM
 
 
 ####FONTEND
-### localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsImlhdCI6MTc3MDAzMTMwNSwiZXhwIjoxNzcwMDM0OTA1fQ.NXhkIYivky9goy39w5DV4pe1umO46oRpfuRmqd943SE');
+### localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsImlhdCI6MTc3MTkyNzU1MCwiZXhwIjoxNzcxOTMxMTUwfQ.RiPaP1M75vYOirJzwo0Llb2A7QzddRLHZ1cM1TrwAMU');
+
+###localStorage.setItem("token", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsImlhdCI6MTc3MTg0ODM5NywiZXhwIjoxNzcxODUxOTk3fQ.ZnnwqZpw3zcj9ur9Q0XblfZfe_-ddJGtFP9HKJJ1UO0");

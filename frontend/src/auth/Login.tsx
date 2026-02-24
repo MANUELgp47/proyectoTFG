@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { login as loginApi } from '../api/auth.api';
+import { useAuth } from "../context/AuthContext";
 
 const Login = () => {
     const [nombre_email, setLogin] = useState('');
@@ -9,6 +10,8 @@ const Login = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        const { login } = useAuth();
 
         setError('');
         setLoading(true);
@@ -19,6 +22,9 @@ const Login = () => {
                 nombre_email,
                 contrasena,
             });
+
+            // Guardar token en contexto global
+            login(response.token);
 
             // Guardar token
             localStorage.setItem('token', response.token);

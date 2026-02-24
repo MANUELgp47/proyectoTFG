@@ -1,32 +1,23 @@
-//import {useEffect} from 'react'
-import './App.css'
-//import api from './api/axios';
-//import Login from './auth/Login';
-import Register from './auth/Register';
+import { Routes, Route } from "react-router-dom";
+//import PrivateRoute from "./routes/PrivateRoute";
+
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+//import Registro from "./pages/Registro";
 
 
-function App() {
-    const token = localStorage.getItem('token');
-    console.log('Token almacenado:', token);
-
-    /*useEffect(() => {//TEST axios
-        console.log('App montada, ejecutando petición...');
-
-        api.put('/notificacion/48')
-            .then(res => {
-                console.log('Respuesta backend:', res.data);
-            })
-            .catch(err => {
-                console.error('Error:', err);
-            });
-    }, []);
-*/
-
+export default function App() {
     return (
-        <div>
-            <Register />
-        </div>
+
+        <Routes>
+            {/*  Rutas públicas */}
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+
+
+            {/* Rutas privadas */}
+
+
+        </Routes>
     );
 }
-
-export default App

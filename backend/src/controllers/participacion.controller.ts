@@ -61,14 +61,14 @@ export const getParticipacionesPorActividad = async (req: Request, res: Response
 };
 //todas las participaciones de un usuario
 export const getParticipacionesPorUsuario = async (req: Request, res: Response) => {
-    const idUsuario = req.params.idUsuario;
+    const idUsuario = req.userId;
 
     if (idUsuario === undefined) {
         return res.status(400).json({message: 'idUsuario es requerido'});
     }
 
     try {
-        const participacions = await ParticipacionModel.getParticipacionesPorUsuario(parseInt(idUsuario, 10));
+        const participacions = await ParticipacionModel.getParticipacionesPorUsuario(Number(idUsuario));
         res.json(participacions);
     } catch (error) {
         console.error('Error al obtener participacions por usuario:', error);

@@ -1,12 +1,18 @@
 import { Router } from 'express';
 import * as ActividadController from '../controllers/actividad.controller.js';
-import {finalizarActividad} from "../controllers/actividad.controller.js";
+import {finalizarActividad, getActividadesPorUsuario} from "../controllers/actividad.controller.js";
 import {authMiddleware} from "../middleware/auth.middleware.js";
 
 const router = Router();
 
 //Obtener todas las actividades
 router.get('/', ActividadController.getActividades);
+
+//Obtener actividades en las que participo un usuario
+router.get('/misActividades', authMiddleware, ActividadController.getActividadesQueParticipo);
+
+//Obtener actividades de un usuario
+router.get('/usuario/:idUsuario', authMiddleware, ActividadController.getActividadesPorUsuario);
 
 //Crear una nueva actividad
 router.post('/', authMiddleware, ActividadController.createActividad);

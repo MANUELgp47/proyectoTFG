@@ -7,6 +7,8 @@ import * as ParticipacionModel from '../models/participacion.model.js';
 import * as ActividadJob from '../jobs/actividad.job.js';
 import * as ChatActividadModel from '../models/chatActividad.model.js';
 import * as ActividadService from '../services/actividad.service.js';
+import {UsuarioService} from "../services/usuario.service.js";
+
 
 export const getActividades = async (req: Request, res: Response) => {
     try {
@@ -17,13 +19,58 @@ export const getActividades = async (req: Request, res: Response) => {
         res.status(500).json({message: 'Error del servidor'});
     }
 };
-//TODO.
-// ver como pasarle el id creador
+
+//get actividades por id de usuario (las actividades que ha creado un usuario)
+export const getActividadesPorUsuario = async (req: Request, res: Response) => {
+    try {
+        //comprueba que el usuario que hace la petición exsiste
+
+        const idSolicitante = req.userId;
+
+        if (!idSolicitante) {
+
+
+            return res.status(400).json({message: 'ID de usuario solicitane requerido'});
+        }
+
+
+        if (!await UsuarioService.existeUsuarioPorId(Number(idSolicitante))) {
+            return res.status(400).json({message: 'Usuario solicitane no encontrado'});
+        }
+
+
+        //comprueba que el id de usuario en los parametros es un numero y existe
+
+        const idUsuario = req.params.idUsuario;
+
+
+        if (!idUsuario) {
+
+            return res.status(400).json({message: 'ID de usuario requerido '+ idUsuario});
+        }
+
+        //idUsuario es un usuario existente
+        if (!await UsuarioService.existeUsuarioPorId(Number(idUsuario))) {
+            return res.status(400).json({message: 'Usuario no encontrado'+Number(idUsuario)});
+        }
+
+
+        //TODO si queremos podemos poner que solo lo vea si son amigos. Y pasar como parametro el nombre y no el id
+
+
+        const actividades = await ActividadService.ActividadService.getActividadesDeUsuario(Number(idUsuario));
+        res.json(actividades);
+    } catch (error) {
+        console.error('Error al obtener actividades por usuario:', error);
+        res.status(500).json({message: 'Error del servidor'});
+    }
+}
+
 export const createActividad = async (req: Request, res: Response) => {
     let actividad;
     try {
         console.log("Valor de req.userId en createActividad:", req.userId);
-        req.body.idCreador= req.userId;//asigna el id del usuario logueado como creador de la actividad
+        req.body.idCreador = req.userId;//asigna el id del usuario logueado como creador de la actividad
         if (!req.body.idCreador) {
             return res.status(400).json({message: 'ID del creador es requerido'});
         }
@@ -52,7 +99,7 @@ export const createActividad = async (req: Request, res: Response) => {
 
     if (actividad !== undefined) {
         try {
-            await ChatActividadModel.crearChatActividad({ idActividad: actividad.idActividad });
+            await ChatActividadModel.crearChatActividad({idActividad: actividad.idActividad});
         } catch (error) {
             console.error('Error al crear chat de la actividad:', error);
         }
@@ -92,17 +139,16 @@ export const updateActividad = async (req: Request, res: Response) => {
             return res.status(400).json({message: 'ID inválido'});
         }
 
-        const esCreador: boolean = await  ActividadService.ActividadService.esCreadorActividad(idActividad, req.userId!);
-        if (esCreador==false)
-        {
+        const esCreador: boolean = await ActividadService.ActividadService.esCreadorActividad(idActividad, req.userId!);
+        if (esCreador == false) {
             return res.status(400).json({menssage: 'No eres el creador de la actividad'});
         }
 
-       /* const actividadVieja = await ActividadService.ActividadService.getIdCreadorActividad(idActividad);
-        if (actividadVieja !== req.userId) {
-            //el usuario no es el creador de la actividad
-            return res.status(400).json({menssage: 'No eres el creador de la actividad'});
-        }*/
+        /* const actividadVieja = await ActividadService.ActividadService.getIdCreadorActividad(idActividad);
+         if (actividadVieja !== req.userId) {
+             //el usuario no es el creador de la actividad
+             return res.status(400).json({menssage: 'No eres el creador de la actividad'});
+         }*/
 
         const estadoActividad = await ActividadService.ActividadService.getEstadoActividad(idActividad);
         if (estadoActividad === 'finalizada') {
@@ -172,9 +218,8 @@ export const finalizarActividad = async (req: Request, res: Response) => {
             return res.status(400).json({message: 'La actividad no puede ser finalizada'});
         }
 
-        const esCreador: boolean = await  ActividadService.ActividadService.esCreadorActividad(idActividad, req.userId!);
-        if (esCreador==false)
-        {
+        const esCreador: boolean = await ActividadService.ActividadService.esCreadorActividad(idActividad, req.userId!);
+        if (esCreador == false) {
             return res.status(400).json({menssage: 'No eres el creador de la actividad'});
         }
 
@@ -221,9 +266,8 @@ export const deleteActividad = async (req: Request, res: Response) => {
         }
 
         //si no es la sesión del creador no puede eliminar la actividad
-        const esCreador: boolean = await  ActividadService.ActividadService.esCreadorActividad(idActividad, req.userId!);
-        if (esCreador==false)
-        {
+        const esCreador: boolean = await ActividadService.ActividadService.esCreadorActividad(idActividad, req.userId!);
+        if (esCreador == false) {
             return res.status(400).json({menssage: 'No eres el creador de la actividad'});
         }
 
@@ -262,3 +306,19 @@ export const deleteActividad = async (req: Request, res: Response) => {
     }}
 */
 };
+
+//get actividades en las que participa un usuario
+export const getActividadesQueParticipo = async (req: Request, res: Response) => {
+    try {
+        const idUsuario = req.userId;
+        if (!idUsuario) {
+            return res.status(400).json({message: 'ID de usuario requerido'});
+        }
+
+        const actividades = await ActividadService.ActividadService.getActividadesQueParticipo(Number(idUsuario));
+        res.json(actividades);
+    } catch (error) {
+        console.error('Error al obtener actividades en las que participa el usuario:', error);
+        res.status(500).json({message: 'Error del servidor'});
+    }
+}

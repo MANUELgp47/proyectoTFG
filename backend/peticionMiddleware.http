@@ -31,17 +31,17 @@ Content-Type: application/json
 ############### ACTIVIDAD ###############################
 ### Crear actividad
 POST http://localhost:3000/api/actividad
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsImlhdCI6MTc2OTYyNTU0NywiZXhwIjoxNzY5NjI5MTQ3fQ.vY9dKMd2EIEx0zxR832lfCh8xzEX1tO3_lCYCrmWTds
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc3MjAxMzg4OSwiZXhwIjoxNzcyMDE3NDg5fQ.NJ7gm1aec42kl9YqgMSoXsJk4rFaa5cqecryRsC_Rf4
 Content-Type: application/json
 
 {
-  "titulo": "Montar bici 4x4",
-  "descripcion": " 2 personas.",
+  "titulo": "Pico Malaga",
+  "descripcion": " subir y subir.",
   "fechaInicio": "2026-11-09T09:00:00.000Z",
   "fechaFin": "2026-11-12T11:00:00.000Z",
   "ubicacion": "Alpes",
   "publica": true,
-  "participantesmax": 2,
+  "participantesmax": 0,
   "imagenes": [
     "https://example.com/img/alp.jpg"
   ],
@@ -294,15 +294,23 @@ POST http://localhost:3000/api/auth/login/
 Content-Type: application/json
 
 {
-  "nombre_email": "manuel",
+  "nombre_email": "pep",
   "contrasena": "hoalpass"
 }
 
 ###manuel eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsImlhdCI6MTc3MTkyNzU1MCwiZXhwIjoxNzcxOTMxMTUwfQ.RiPaP1M75vYOirJzwo0Llb2A7QzddRLHZ1cM1TrwAMU
-### pep eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc2OTcwNzg2NSwiZXhwIjoxNzY5NzExNDY1fQ.NLkGpmFstvsFHiBsGleyHp1rCwNz3vvZIP0nStiISdM
+### pep eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc3MjAxMzg4OSwiZXhwIjoxNzcyMDE3NDg5fQ.NJ7gm1aec42kl9YqgMSoXsJk4rFaa5cqecryRsC_Rf4
 
 
 ####FONTEND
-### localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsImlhdCI6MTc3MTkyNzU1MCwiZXhwIjoxNzcxOTMxMTUwfQ.RiPaP1M75vYOirJzwo0Llb2A7QzddRLHZ1cM1TrwAMU');
+### localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc3MjAxODM3NSwiZXhwIjoxNzcyMDIxOTc1fQ.4wiBmlcQX0KJmatkhQbKPg0tC9rV3VUyUak81duAMb4');
 
 ###localStorage.setItem("token", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsImlhdCI6MTc3MTg0ODM5NywiZXhwIjoxNzcxODUxOTk3fQ.ZnnwqZpw3zcj9ur9Q0XblfZfe_-ddJGtFP9HKJJ1UO0");
+
+
+
+### obtener las actividades de un usuario estando logueado como otro usuario
+GET http://localhost:3000/api/actividad/misActividades
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc3MjAxODM3NSwiZXhwIjoxNzcyMDIxOTc1fQ.4wiBmlcQX0KJmatkhQbKPg0tC9rV3VUyUak81duAMb4
+
+

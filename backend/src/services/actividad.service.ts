@@ -2,12 +2,15 @@ import type { CreaActividad } from '../types/actividad.js';
 import * as ActividadModel from '../models/actividad.model.js';
 import type { Request } from 'express';
 import {actualizarEstadoActividad, getParticipantesDeActividad} from "../models/actividad.model.js";
+import * as ParticipacionModel from "../models/participacion.model.js";
 
 export class ActividadService {
     static async getActividadesCaducadas(): Promise<number[]> {
         const actividadesCaducadas = await ActividadModel.getActividadesCaducadas();
         return actividadesCaducadas;
     }
+
+
 
     static async marcarActividadComoFinalizada(idActividad: number): Promise<CreaActividad | null> {
         const estado : 'finalizada' = 'finalizada';
@@ -50,6 +53,27 @@ export class ActividadService {
             return true;
         }
         return false;
+    }
+
+
+    //get actividades de un usuario
+    static async getActividadesDeUsuario(idUsuario: number): Promise<CreaActividad[]> {
+        const actividades = await ActividadModel.getActividadesDeUsuario(idUsuario);
+        return actividades;
+    }
+
+    //actividades en las que participa un usuario
+    static async getActividadesQueParticipo(idUsuario: number): Promise<CreaActividad[]> {
+        const actividades = await ParticipacionModel.getParticipacionesPorUsuario(idUsuario);
+        const actividadesParticipadas = actividades.map(participacion => participacion.idActividad);
+        const actividadesParticipadasDetalles = [];
+        for (const idActividad of actividadesParticipadas) {
+            const actividad = await ActividadModel.getActividadPorId(idActividad);
+            if (actividad) {
+                actividadesParticipadasDetalles.push(actividad);
+            }
+        }
+        return actividadesParticipadasDetalles;
     }
 
 

@@ -15,6 +15,14 @@ export const getActividadesPorUsuario = async (id: number) => {
     return response.data;
 };
 
+export const updateActividad = async (id: number, data: any) => {
+    const response = await api.put(`/actividad/${id}`, data);
+    return response.data;
+};
+
+//cancelar actividad
+
+
 //obtener los participantes de una actividad
 export const getActividadesQueParticipo = async () => {
     //obtengo mis participaciones

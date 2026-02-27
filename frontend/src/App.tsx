@@ -2,6 +2,7 @@ import {Routes, Route} from "react-router-dom";
 //import PrivateRoute from "./routes/PrivateRoute";
 import ActividadesCreadas from "./pages/ActividadesCreadas";
 import CrearActividad from "./pages/CrearActividad";
+import EditarActividad from "./pages/EditarActividad.tsx";
 import MisActividades from "./pages/MisActividades";
 
 import Home from "./pages/Home";
@@ -31,6 +32,10 @@ export default function App() {
             <Route
                 path="misActividades"
                 element={<MisActividades/>}
+            />
+            <Route
+                path="/ActualizarActividad/:id"
+                element={<EditarActividad/>}
             />
 
 

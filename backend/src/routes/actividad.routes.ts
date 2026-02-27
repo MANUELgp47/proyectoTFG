@@ -11,6 +11,9 @@ router.get('/', ActividadController.getActividades);
 //Obtener actividades en las que participo un usuario
 router.get('/misActividades', authMiddleware, ActividadController.getActividadesQueParticipo);
 
+//Obtener una actividad por ID
+router.get('/:id', authMiddleware, ActividadController.getActividadPorId);
+
 //Obtener actividades de un usuario
 router.get('/usuario/:idUsuario', authMiddleware, ActividadController.getActividadesPorUsuario);
 

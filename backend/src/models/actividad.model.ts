@@ -17,6 +17,8 @@ export const getActividadPorId = async (idActividad: number): Promise<Actividad 
 export const getActividadesDeUsuario = async (idUsuario: number): Promise<Actividad[]> => {
     const result = await pool.query("SELECT * FROM actividad WHERE id_creador = $1", [idUsuario]);
     return result.rows.map(mapearActividad);
+
+    //se puede actualizar todos los campos
 };
 
 export const crearActividad = async (actividad: CreaActividad): Promise<Actividad> => {

@@ -48,13 +48,12 @@ Content-Type: application/json
   "estado": "activa"
 }
 ###Actualizar actividad
-PUT http://localhost:3000/api/actividad/9
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc2OTYyMTkwOCwiZXhwIjoxNzY5NjI1NTA4fQ.a9J9vm9fIY2sQyb8wmWybHGScolUpeUC299N9wiG5v0
+PUT http://localhost:3000/api/actividad/13
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc3MjE4OTg5MSwiZXhwIjoxNzcyMjc2MjkxfQ.awp1ZPrnPZqPaJoHyJIhgJwfNpd4hlhgKoPNRypFu0A
 Content-Type: application/json
 
 {
- "estado": "activa"
-
+ "descripcion": "subir, bajar y despues comer"
 }
 ### Finalizar actividad
 POST http://localhost:3000/api/actividad/9/finalizar
@@ -298,12 +297,12 @@ Content-Type: application/json
   "contrasena": "hoalpass"
 }
 
-###manuel eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsImlhdCI6MTc3MTkyNzU1MCwiZXhwIjoxNzcxOTMxMTUwfQ.RiPaP1M75vYOirJzwo0Llb2A7QzddRLHZ1cM1TrwAMU
-### pep eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc3MjAxMzg4OSwiZXhwIjoxNzcyMDE3NDg5fQ.NJ7gm1aec42kl9YqgMSoXsJk4rFaa5cqecryRsC_Rf4
+###manuel eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc3MjA0Njk2NywiZXhwIjoxNzcyMTMzMzY3fQ.ITOQh6TrFBw9bVwugARqU-WIuU_MSvtI3Yy99vvaa3o
+### pep eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc3MjE4OTg5MSwiZXhwIjoxNzcyMjc2MjkxfQ.awp1ZPrnPZqPaJoHyJIhgJwfNpd4hlhgKoPNRypFu0A
 
 
 ####FONTEND
-### localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc3MjAxODM3NSwiZXhwIjoxNzcyMDIxOTc1fQ.4wiBmlcQX0KJmatkhQbKPg0tC9rV3VUyUak81duAMb4');
+### localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc3MjE4OTg5MSwiZXhwIjoxNzcyMjc2MjkxfQ.awp1ZPrnPZqPaJoHyJIhgJwfNpd4hlhgKoPNRypFu0A');
 
 ###localStorage.setItem("token", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsImlhdCI6MTc3MTg0ODM5NywiZXhwIjoxNzcxODUxOTk3fQ.ZnnwqZpw3zcj9ur9Q0XblfZfe_-ddJGtFP9HKJJ1UO0");
 

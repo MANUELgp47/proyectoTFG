@@ -10,6 +10,12 @@ export const createActividad = async (data: any) => {
     return response.data;
 };
 
+//obtener una actividad por id
+export const getActividadPorId = async (id: number) => {
+    const response = await api.get(`/actividad/${id}`);
+    return response.data;
+};
+
 export const getActividadesPorUsuario = async (id: number) => {
     const response = await api.get(`/actividad/usuario/${id}`);
     return response.data;

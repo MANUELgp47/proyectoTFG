@@ -16,12 +16,17 @@ export const getNotificaciones = async (req: Request, res: Response) => {
 export const getNotificacionById = async (req: Request, res: Response) => {
     const idNotificacion = req.params.idNotificacion;
 
-    if (idNotificacion === undefined) {
+    //TODO: validar que el idNotificacion sea un número y que pertenezca al usuario autenticado
+
+
+
+
+    if (idNotificacion === undefined || isNaN(Number(idNotificacion))) {
         return res.status(400).json({ message: 'idNotificacion es requerido' });
     }
 
     try {
-        const notificacion = await NotificacionModel.getNotificacionPorId(parseInt(idNotificacion, 10) );
+        const notificacion = await NotificacionModel.getNotificacionPorId(Number(idNotificacion) );
         if (notificacion) {
             res.json(notificacion);
         } else {
@@ -34,7 +39,9 @@ export const getNotificacionById = async (req: Request, res: Response) => {
 };
 
 export const getNotificacionesPorUsuario = async (req: Request, res: Response) => {
-    const idUsuarioReceptor = req.params.idUsuario;
+    const idUsuarioReceptor = req.userId;
+
+
 
     if (idUsuarioReceptor === undefined) {
         return res.status(400).json({ message: 'idUsuarioReceptor es requerido' });
@@ -42,7 +49,7 @@ export const getNotificacionesPorUsuario = async (req: Request, res: Response) =
 
 
     try {
-        const notificacions = await NotificacionModel.getNotificacionesPorUsuario(parseInt(idUsuarioReceptor, 10));
+        const notificacions = await NotificacionModel.getNotificacionesPorUsuario(Number(idUsuarioReceptor));
         res.json(notificacions);
     } catch (error) {
         console.error('Error al obtener notificaciones por usuario:', error);

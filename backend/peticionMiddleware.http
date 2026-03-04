@@ -293,18 +293,18 @@ POST http://localhost:3000/api/auth/login/
 Content-Type: application/json
 
 {
-  "nombre_email": "pep",
+  "nombre_email": "manuel",
   "contrasena": "hoalpass"
 }
 
-###manuel eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc3MjA0Njk2NywiZXhwIjoxNzcyMTMzMzY3fQ.ITOQh6TrFBw9bVwugARqU-WIuU_MSvtI3Yy99vvaa3o
-### pep eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc3MjE4OTg5MSwiZXhwIjoxNzcyMjc2MjkxfQ.awp1ZPrnPZqPaJoHyJIhgJwfNpd4hlhgKoPNRypFu0A
+###manuel eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsImlhdCI6MTc3MjYyNzA4MCwiZXhwIjoxNzcyNzEzNDgwfQ.B2tpl10Tzua3dHexNote5stKSgWOWs8Ktruc6-WHSAs
+### pep eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc3MjYyNDA1MywiZXhwIjoxNzcyNzEwNDUzfQ.JqOfpsHfYFxoBKH7Wdgl55Guiw1hdjPIsGb3CVjwx1o
 
 
 ####FONTEND
-### localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc3MjE4OTg5MSwiZXhwIjoxNzcyMjc2MjkxfQ.awp1ZPrnPZqPaJoHyJIhgJwfNpd4hlhgKoPNRypFu0A');
+### localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc3MjYyNDA1MywiZXhwIjoxNzcyNzEwNDUzfQ.JqOfpsHfYFxoBKH7Wdgl55Guiw1hdjPIsGb3CVjwx1o');
 
-###localStorage.setItem("token", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsImlhdCI6MTc3MTg0ODM5NywiZXhwIjoxNzcxODUxOTk3fQ.ZnnwqZpw3zcj9ur9Q0XblfZfe_-ddJGtFP9HKJJ1UO0");
+###localStorage.setItem("token", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc3MjUzNzQyNywiZXhwIjoxNzcyNjIzODI3fQ.lifugbBdc69UEa51Ns6Hg12dv2Q8_VnU4Sdpie715gA");
 
 
 

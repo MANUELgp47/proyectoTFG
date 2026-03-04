@@ -1,0 +1,18 @@
+import api from "../api/axios";
+
+export const getNotificaciones = async () => {
+    const response = await api.get("/notificacion/mias");
+    return response.data;
+};
+
+//get not por id
+export const getNotificacionPorId = async (idNotificacion: number) => {
+    const response = await api.get(`/notificacion/${idNotificacion}`);
+    return response.data;
+}
+
+//marca como leida una notificacion
+export const marcarNotificacionComoLeida = async (idNotificacion: number) => {
+    const response = await api.put(`/notificacion/${idNotificacion}`, {leida: true});
+    return response.data;
+};

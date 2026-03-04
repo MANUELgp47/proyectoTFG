@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import * as ParticipaciónController from '../controllers/participacion.controller.js';
 import {authMiddleware} from "../middleware/auth.middleware.js";
+import {getNumeroParticipantesActividad} from "../controllers/participacion.controller.js";
 
 const router = Router();
 
@@ -9,6 +10,12 @@ router.get('/', ParticipaciónController.getParticipaciones);
 
 //Obtener participaciones por usuario
 //router.get('/misParticipaciones/', authMiddleware, ParticipaciónController.getParticipacionesPorUsuario);
+
+//Obtener numero de participantes de una actividad
+router.get('/actividad/:id/numero', authMiddleware, ParticipaciónController.getNumeroParticipantesActividad);
+
+//obtiene participacion especifica de un usuario en una actividad
+router.get('/:idActividad', authMiddleware, ParticipaciónController.getParticipacionPorId);
 
 //Crear una nueva participacion
 router.post('/', authMiddleware, ParticipaciónController.createParticipacion);

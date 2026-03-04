@@ -18,14 +18,17 @@ export const getParticipaciones = async (req: Request, res: Response) => {
 };
 
 export const getParticipacionPorId = async (req: Request, res: Response) => {
-    const {idUsuario: idUsuarioStr, idActividad: idActividadStr} = req.params;
+   /* const {idActividad: idActividad} = req.params;
+    const idUsuario = req.userId?.toString();*/
 
-    if (!idUsuarioStr || !idActividadStr) {
+    const idActividad = Number(req.params.idActividad) ;//
+    const idUsuario = req.userId;
+
+    if (!idUsuario || !idActividad) {
         return res.status(400).json({message: 'idUsuario e idActividad son requeridos'});
     }
 
-    const idUsuario = parseInt(idUsuarioStr, 10);//
-    const idActividad = parseInt(idActividadStr, 10);
+
 
     if (Number.isNaN(idUsuario) || Number.isNaN(idActividad)) {
         return res.status(400).json({message: 'IDs inválidos'});
@@ -43,17 +46,24 @@ export const getParticipacionPorId = async (req: Request, res: Response) => {
     }
 };
 
-export const getParticipacionesPorActividad = async (req: Request, res: Response) => {
-    const idActividad = req.params.idActividad;
+export const getNumeroParticipantesActividad = async (req: Request, res: Response) => {
+    const idActividad = req.params.id;
 
+    //comprobar que el usuario que solicita existe
+    const idUsuario = req.userId;
+    if (idUsuario === undefined) {
+        return res.status(400).json({message: 'idUsuario es requerido'});
+    } else if (!await UsuarioService.UsuarioService.existeUsuarioPorId(Number(idUsuario))) {
+        return res.status(404).json({message: 'El usuario no existe'});
+    }
 
     if (idActividad === undefined) {
         return res.status(400).json({message: 'idUsuario e idActividad son requeridos'});
     }
 
     try {
-        const participacions = await ParticipacionModel.getParticipacionesPorActividad(parseInt(idActividad, 10));
-        res.json(participacions);
+        const nparticipaciones = await ParticipacionModel.getNumeroParticipantesPorActividad(parseInt(idActividad, 10));
+        res.json(nparticipaciones);
     } catch (error) {
         console.error('Error al obtener participacions por actividad:', error);
         res.status(500).json({message: 'Error del servidor'});

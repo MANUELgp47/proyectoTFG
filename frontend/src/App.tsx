@@ -4,6 +4,9 @@ import ActividadesCreadas from "./pages/ActividadesCreadas";
 import CrearActividad from "./pages/CrearActividad";
 import EditarActividad from "./pages/EditarActividad.tsx";
 import MisActividades from "./pages/MisActividades";
+import {ActividadDetalle} from "./pages/ActividadDetalle";
+import Notificaciones from "./pages/Notificaciones";
+import VistaNotificacion from "./pages/VistaNotificacion.tsx";
 
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -37,6 +40,20 @@ export default function App() {
                 path="/ActualizarActividad/:id"
                 element={<EditarActividad/>}
             />
+
+            <Route
+                path="/actividad/:id"
+                element={<ActividadDetalle/>}
+            />
+            <Route
+                path="/notificaciones"
+                element={<Notificaciones/>}
+            />
+            <Route
+                path="/notificaciones/:idNotificacion"
+                element={<VistaNotificacion/>}
+            />
+
 
 
         </Routes>

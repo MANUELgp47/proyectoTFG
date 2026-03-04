@@ -9,7 +9,10 @@ router.get('/', NotificaciónController.getNotificaciones);
 
 //Obtener notificaciones por id de usuario
 //http://localhost:3000/api/notificacion/usuario/1
-router.get('/usuario/:idUsuario', NotificaciónController.getNotificacionesPorUsuario);
+router.get('/mias', authMiddleware, NotificaciónController.getNotificacionesPorUsuario);
+
+//Obtener una notificación por id
+router.get('/:idNotificacion', authMiddleware, NotificaciónController.getNotificacionById);
 
 //Crear una nueva notificación TODO: ver si es necesario
 router.post('/', NotificaciónController.createNotificacion);

@@ -17,7 +17,13 @@ export const getAmistades = async (req: Request, res: Response) => {
 export const getAmistadPorUsuarios = async (req: Request, res: Response) => {
     const {idUsuario1, idUsuario2} = req.params;
     try {
+
+        if (!AmistadService.existeAmistad(Number(idUsuario1), Number(idUsuario2))) {
+            return res.status(400).json({ message: 'La amistad no existe' });
+        }
         const amistad = await AmistadModel.getAmistadPorUsuarios(Number(idUsuario1), Number(idUsuario2));
+
+
         if (amistad) {
             res.json(amistad);
         } else {

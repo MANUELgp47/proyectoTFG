@@ -4,6 +4,9 @@ import {authMiddleware} from "../middleware/auth.middleware.js";
 
 const router = Router();
 
+//Obtener un usuario por id
+router.get('/:idUsuario', authMiddleware, UsuarioController.getUsuarioID);
+
 //Obtener todos los usuarios
 router.get('/', UsuarioController.getUsuarios);
 

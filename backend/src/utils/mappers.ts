@@ -111,6 +111,7 @@ export const mapearNotificacion = (row: any) => {
         mensaje: row.mensaje,
         fechaCreacion: row.fecha_creacion,
         leida: row.leida,
+        idUsuarioEmisor: row.id_usuarioemisor,
         idReferencia: row.id_referencia,
     };
 };

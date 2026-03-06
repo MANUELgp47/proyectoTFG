@@ -2,6 +2,7 @@ import type {Request, Response} from 'express';
 import * as UsuarioModel from '../models/usuario.model.js';
 import * as UsuarioService from '../services/usuario.service.js';
 
+
 export const getUsuarios = async (req: Request, res: Response) => {//async para manejar operaciones asincrónicas y await para esperar la respuesta de la base de datos
     try {
         const usuarios = await UsuarioModel.getAllUsuarios();
@@ -11,6 +12,31 @@ export const getUsuarios = async (req: Request, res: Response) => {//async para 
         res.status(500).json({ message: 'Error del servidor' });
     }
 };
+
+//obtener usuario por id
+export const getUsuarioID = async (req: Request, res: Response) => {
+    try {
+        const idParam = req.params.idUsuario;
+        if (!idParam) {
+            return res.status(400).json({ message: 'ID requerido' });
+        }
+        const idUsuario = parseInt(idParam, 10);
+        if (Number.isNaN(idUsuario)) {
+            return res.status(400).json({ message: 'ID inválido' });
+        }
+
+        const usuario = await UsuarioService.UsuarioService.obtenerUsuarioPorId(idUsuario);
+        if (usuario) {
+            res.json(usuario);
+        } else {
+            res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+    } catch (error) {
+        console.error('Error al obtener usuario por ID:', error);
+        res.status(500).json({ message: 'Error del servidor' });
+    }
+};
+
 
 export const createUsuario = async (req: Request, res: Response) => {
     try {

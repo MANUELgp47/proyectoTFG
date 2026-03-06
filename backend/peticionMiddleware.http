@@ -297,12 +297,13 @@ Content-Type: application/json
   "contrasena": "hoalpass"
 }
 
-###manuel eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsImlhdCI6MTc3MjYyNzA4MCwiZXhwIjoxNzcyNzEzNDgwfQ.B2tpl10Tzua3dHexNote5stKSgWOWs8Ktruc6-WHSAs
-### pep eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc3MjYyNDA1MywiZXhwIjoxNzcyNzEwNDUzfQ.JqOfpsHfYFxoBKH7Wdgl55Guiw1hdjPIsGb3CVjwx1o
+###manuel eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc3MjY0NTQyMCwiZXhwIjoxNzcyNzMxODIwfQ._BiHYgLpB_kOh4r2Dz_6ylnorPbmK5SMoSz5SMzYkBE
+### pep eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc3Mjc5Mjk0MSwiZXhwIjoxNzcyODc5MzQxfQ.G1PBlYG6rVt-6_tyLnKRX4tVxzOMk6kulX17uvahBLI
 
 
 ####FONTEND
-### localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc3MjYyNDA1MywiZXhwIjoxNzcyNzEwNDUzfQ.JqOfpsHfYFxoBKH7Wdgl55Guiw1hdjPIsGb3CVjwx1o');
+###manuel localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsImlhdCI6MTc3Mjc5Mjk2NSwiZXhwIjoxNzcyODc5MzY1fQ.hl5LRjIbgB2JQvCSjVhzTDg2m89FSEzpxpucNgRICzM');
+###pep localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc3Mjc5Mjk0MSwiZXhwIjoxNzcyODc5MzQxfQ.G1PBlYG6rVt-6_tyLnKRX4tVxzOMk6kulX17uvahBLI');
 
 ###localStorage.setItem("token", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc3MjUzNzQyNywiZXhwIjoxNzcyNjIzODI3fQ.lifugbBdc69UEa51Ns6Hg12dv2Q8_VnU4Sdpie715gA");
 
@@ -313,3 +314,16 @@ GET http://localhost:3000/api/actividad/misActividades
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc3MjAxODM3NSwiZXhwIjoxNzcyMDIxOTc1fQ.4wiBmlcQX0KJmatkhQbKPg0tC9rV3VUyUak81duAMb4
 
 
+### eliminar participacion
+DELETE http://localhost:3000/api/participacion/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc3MjY0NTQyMCwiZXhwIjoxNzcyNzMxODIwfQ._BiHYgLpB_kOh4r2Dz_6ylnorPbmK5SMoSz5SMzYkBE
+Content-Type: application/json
+
+{
+  "idUsuario": 3,
+  "idActividad": 16
+}
+
+### mostrar usuario 6
+GET http://localhost:3000/api/usuario/6
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc3MjY0NTQyMCwiZXhwIjoxNzcyNzMxODIwfQ._BiHYgLpB_kOh4r2Dz_6ylnorPbmK5SMoSz5SMzYkBE

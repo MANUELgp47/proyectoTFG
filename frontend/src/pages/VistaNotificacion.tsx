@@ -1,13 +1,29 @@
 //Muestra los datos de una notificación y la marca como leida al abrirla
 import {useEffect, useState} from 'react';
-import {getNotificacionPorId, marcarNotificacionComoLeida} from '../services/notificacionService';
+import {getNotificacionPorId, marcarNotificacionComoLeida, eliminarNotificacion} from '../services/notificacionService';
 import {useParams} from 'react-router-dom';
-import {aceptarParticipacion} from "../services/participacionService.ts";
+import {aceptarParticipacion, rechazarParticipacion, eliminarParticipacion} from "../services/participacionService";
+import { useIdSesionActual } from "../services/sesionService";
+import {aceptarSolicitudAmistad, rechazarSolicitudAmistad} from '../services/solicitudAmistadService';
+
+
+
+interface Notificacion {
+    idNotificacion?: number;
+    mensaje?: string;
+    fecha?: string;
+    tipo?: string;
+    idReferencia?: number | string;
+    idUsuarioEmisor?: number | string;
+    [key: string]: unknown;
+}
 
 export default function VistaNotificacion() {
     const {idNotificacion} = useParams<{ idNotificacion: string }>();
-    const [notificacion, setNotificacion] = useState<any>(null);
+    const [notificacion, setNotificacion] = useState<Notificacion | null>(null);
     const [error, setError] = useState<string | null>(null);
+
+    const idUsuarioSesion = useIdSesionActual();
 
     useEffect(() => {
         const fetchNotificacion = async () => {
@@ -19,6 +35,7 @@ export default function VistaNotificacion() {
                 await marcarNotificacionComoLeida(Number(idNotificacion));
 
             } catch (err) {
+                console.error('Error fetching notificacion:', err);
                 setError('Error al cargar la notificación');
             }
         };
@@ -35,29 +52,89 @@ export default function VistaNotificacion() {
     }
 
     //TODO: si es de tipo solicitud_union_actividad el usuario tendra un boton para aceptar o rechazar la solicitud,
-    const handleAceptarSolicitudParticipacion = () => {
-        const idActividad = notificacion.idReferencia;
+    const handleAceptarSolicitudParticipacion = async () => {
+        const idActividad = Number(notificacion.idReferencia);
+        const idUsuario = Number(notificacion.idUsuarioEmisor);
         await aceptarParticipacion(idUsuario, idActividad);
+        if (notificacion.idNotificacion != null) {
+            await eliminarNotificacion(Number(notificacion.idNotificacion));
+        } else {
+            console.warn('No hay idNotificacion para eliminar');
+        }
         alert('Solicitud aceptada');
     }
 
+    const handleRechazarSolicitudParticipacion = async () => {
+        const idActividad = Number(notificacion.idReferencia);
+        const idUsuario = Number(notificacion.idUsuarioEmisor);
+        await rechazarParticipacion(idUsuario, idActividad);
+        await eliminarParticipacion(idUsuario, idActividad); // Elimina la participación para que no quede pendiente
+        if (notificacion.idNotificacion != null) {
+            await eliminarNotificacion(Number(notificacion.idNotificacion));
+        } else {
+            console.warn('No hay idNotificacion para eliminar');
+        }
+        alert('Solicitud rechazada');
+
+
+    }
+
+    const handleAceptarSolicitudAmistad = async () => {
+        const idReferencia = Number(notificacion.idReferencia);
+        await aceptarSolicitudAmistad(idReferencia);
+
+        if (notificacion.idNotificacion != null) {
+            await eliminarNotificacion(Number(notificacion.idNotificacion));
+        } else {
+            console.warn('No hay idNotificacion para eliminar');
+        }
+        alert('Solicitud de amistad aceptada');
+    }
+    const handlerechazarSolicitudAmistad = async () => {
+        const idReferencia = Number(notificacion.idReferencia);
+        await rechazarSolicitudAmistad(idReferencia);
+
+        if (notificacion.idNotificacion != null) {
+            await eliminarNotificacion(Number(notificacion.idNotificacion));
+        } else {
+            console.warn('No hay idNotificacion para eliminar');
+        }
+        alert('Solicitud de amistad rechazada');
+    }
+
+
+    const fechaTexto = notificacion.fecha ? new Date(notificacion.fecha).toLocaleString() : 'Fecha no disponible';
     return (
         <div>
             <h1>Notificación</h1>
             <p><strong>Mensaje:</strong> {notificacion.mensaje}</p>
-            <p><strong>Fecha:</strong> {new Date(notificacion.fecha).toLocaleString()}</p>
+            <p><strong>Fecha:</strong> {fechaTexto}</p>
+            <p>id {idUsuarioSesion}</p>
 
-            {notificacion.tipo === 'solicitud_union_actividad' && (
+            {notificacion.tipo === 'solicitud_union_actividad' &&
+                Number(notificacion.idUsuarioEmisor) !== idUsuarioSesion && (
 
                 <>
                     <button onClick={handleAceptarSolicitudParticipacion}>Aceptar
                         solicitud
                     </button>
-                    <button onClick={() => alert('Funcionalidad de rechazar solicitud aún no implementada')}>Rechazar
+                    <button onClick={handleRechazarSolicitudParticipacion}>Rechazar
                         solicitud
                     </button>
                 </>
             )}
+            {notificacion.tipo === 'solicitud_amistad' &&
+                Number(notificacion.idUsuarioEmisor) !== idUsuarioSesion && (
+
+                    <>
+                        <button onClick={handleAceptarSolicitudAmistad}>Aceptar
+                            solicitud
+                        </button>
+                        <button onClick={handlerechazarSolicitudAmistad}>Rechazar
+                            solicitud
+                        </button>
+                    </>
+                )}
 
         </div>
     );

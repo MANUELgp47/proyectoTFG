@@ -29,6 +29,7 @@ export function ActividadDetalle() {
     const [numeroParticipantes, setNumeroParticipantes] = useState(0);
     const [miParticipacion, setParticipacion] = useState<Participacion | null>(null);
 
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -41,6 +42,8 @@ export function ActividadDetalle() {
 
                     const miParticipacion = await getParticipacionPorId(Number(id));
                     setParticipacion(miParticipacion);
+
+
 
                 }
             } catch (error) {
@@ -76,6 +79,9 @@ export function ActividadDetalle() {
         }
     };
 
+
+
+
     return (
         <div>
             <h1>{actividad.titulo}</h1>
@@ -104,8 +110,6 @@ export function ActividadDetalle() {
                     >
                         Editar actividad
                     </button>
-
-
                 ) : miParticipacion.aceptada ? ( /* Participo aprobado */
                     <button
                         onClick={handleDejarParticipar}
@@ -116,12 +120,16 @@ export function ActividadDetalle() {
                 ) : (/* Participación pendiente */
                     <p>Tu participación está pendiente de aprobación.</p>
                 )
-            ) : (/* No participo */
-                <button onClick={handleParticipar}>
-                    Participar
-                </button>
-
+            ) : (
+                Number(actividad.participantesmax) > numeroParticipantes ? (/* No participo */
+                    <button onClick={handleParticipar}>
+                        Participar
+                    </button>
+                ) : (
+                    <p>No hay plazas disponibles.</p>
+                )
             )}
+
 
 
 

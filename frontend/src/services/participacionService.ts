@@ -27,5 +27,11 @@ export const aceptarParticipacion = async (idUsuario: number, idActividad: numbe
 //rechazar participacion
 export const rechazarParticipacion = async (idUsuario: number, idActividad: number) => {
     const response = await api.put(`/participacion`, {idUsuario, idActividad, aceptada: false});
+     return response.data;
+};
+
+//eliminar participacion
+export const eliminarParticipacion = async (idUsuario: number, idActividad: number) => {
+    const response = await api.delete(`/participacion`, {data: {idUsuario, idActividad}}); //se pone data porque es un delete y no un post o put
     return response.data;
 };

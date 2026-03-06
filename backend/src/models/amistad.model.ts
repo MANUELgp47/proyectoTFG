@@ -7,9 +7,17 @@ export const getAllAmistad = async (): Promise<Amistad[]> => {
     return result.rows.map(mapearAmistad);
 };
 
+//devuelve amistad entre dos usuarios, en los dos ordenes posibles, si no hay amistad devuelve null
 export const getAmistadPorUsuarios = async (idUsuario1: number, idUsuario2: number): Promise<Amistad | null> => {
-    const result = await pool.query("SELECT * FROM amistad WHERE id_usuario1 = $1 AND id_usuario2 = $2", [idUsuario1, idUsuario2]);
-    if (result.rows.length === 0) return null;
+    const result = await pool.query(
+        "SELECT * FROM amistad WHERE (id_usuario1 = $1 AND id_usuario2 = $2) OR (id_usuario1 = $2 AND id_usuario2 = $1)",
+        [idUsuario1, idUsuario2]
+    );
+
+    if (result.rows.length === 0) {
+        return null;
+    }
+
     return mapearAmistad(result.rows[0]);
 };
 

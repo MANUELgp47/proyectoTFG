@@ -5,8 +5,8 @@ import * as NotificacionModel from '../models/notificacion.model.js';
 
 export const getNotificaciones = async (req: Request, res: Response) => {
     try {
-        const notificacions = await NotificacionModel.getAllNotificacions();
-        res.json(notificacions);
+        const notifiacciones = await NotificacionModel.getAllNotificaciones();
+        res.json(notifiacciones);
     } catch (error) {
         console.error('Error al obtener notificaciones:', error);
         res.status(500).json({ message: 'Error del servidor' });

@@ -17,7 +17,9 @@ export const getAllSolicitudesAmistad = async (req: Request, res: Response) => {
     }
 };
 export const getSolicitudAmistad = async (req: Request, res: Response) => {
-    const {idEmisor, idReceptor} = req.params;
+    const idReceptor = req.params.idReceptor;
+    const idEmisor=req.userId;
+
     try {
         const solicitud = await SolicitudAmistadModel.getSolicitudAmistad(Number(idEmisor), Number(idReceptor));
         if (!solicitud) {
@@ -30,6 +32,7 @@ export const getSolicitudAmistad = async (req: Request, res: Response) => {
     }
 };
 
+//no se usa en el frontend, solo para pruebas
 export const getSolicitudesPorReceptor = async (req: Request, res: Response) => {
     const {idReceptor} = req.params;
     try {

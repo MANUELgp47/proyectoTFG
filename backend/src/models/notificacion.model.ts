@@ -3,7 +3,7 @@ import type {Notificacion, CrearNotificacion} from "../types/notificacion.js";
 import {mapearNotificacion} from "../utils/mappers.js";
 
 
-export const getAllNotificacions = async (): Promise<Notificacion[]> => {
+export const getAllNotificaciones = async (): Promise<Notificacion[]> => {
     const result = await pool.query("SELECT * FROM notificacion");
     return result.rows.map(mapearNotificacion);
 };
@@ -25,13 +25,14 @@ export const crearNotificacion = async (notificacion: CrearNotificacion): Promis
         mensaje,
         tipo,
         idReferencia,
+        idUsuarioEmisor,
     } = notificacion;
 
     const result = await pool.query(
         `INSERT INTO notificacion
-             (id_usuario_receptor, mensaje, tipo, id_referencia)
-         VALUES ($1, $2, $3, $4) RETURNING *`,
-        [idUsuarioReceptor, mensaje, tipo, idReferencia]
+             (id_usuario_receptor, mensaje, tipo, id_usuarioEmisor,id_referencia)
+         VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+        [idUsuarioReceptor, mensaje, tipo, idUsuarioEmisor, idReferencia]
     );
 
     return mapearNotificacion(result.rows[0]);

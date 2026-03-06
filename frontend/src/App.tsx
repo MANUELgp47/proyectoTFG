@@ -7,9 +7,13 @@ import MisActividades from "./pages/MisActividades";
 import {ActividadDetalle} from "./pages/ActividadDetalle";
 import Notificaciones from "./pages/Notificaciones";
 import VistaNotificacion from "./pages/VistaNotificacion.tsx";
+import PerfilUsuario from "./pages/PerfilUsuario";
+import EditarPerfilUsuario from "./pages/EditarPerfilUsuario.tsx";
+import ListaAmigos from "./pages/ListaAmigos.tsx";
 
 import Home from "./pages/Home";
 import Login from "./pages/Login";
+
 //import Registro from "./pages/Registro";
 
 
@@ -53,6 +57,20 @@ export default function App() {
                 path="/notificaciones/:idNotificacion"
                 element={<VistaNotificacion/>}
             />
+
+            <Route
+                path="/usuario/:idUsuario"
+                element={<PerfilUsuario/>}
+            />
+            <Route
+                path="/usuario/:idUsuario/editar"
+                element={<EditarPerfilUsuario/>}
+            />
+             <Route
+                path="/amistad/:idUsuario/"
+                element={<ListaAmigos/>}
+            />
+
 
 
 

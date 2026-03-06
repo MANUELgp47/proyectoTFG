@@ -14,6 +14,7 @@ export class NotificacionService {
             return;
         }
         const notificacion: CrearNotificacion = {
+            idUsuarioEmisor: req.body.idEmisor,
             idUsuarioReceptor: req.body.idCreador,
             tipo: 'creacion_actividad',
             mensaje: `Se ha creado la actividad con nombre ${req.body.titulo}`,
@@ -24,6 +25,7 @@ export class NotificacionService {
 
     static creaNotificacionPorParametros(idUsuarioReceptor: number, tipo: CrearNotificacion['tipo'], mensaje: string, idReferencia: number) {
         const notificacion: CrearNotificacion = {
+            idUsuarioEmisor: 0, // Ajustar según el contexto
             idUsuarioReceptor,
             tipo,
             mensaje,
@@ -49,10 +51,9 @@ export class NotificacionService {
             for (const participante of await ActividadService.getUsuariosParticipantes(idActividad)) {
                 if (participante !== body.idEmisor) {
 
-
-
                     //notificación
                     const notificacion: CrearNotificacion = {
+                        idUsuarioEmisor: body.idEmisor,
                         idUsuarioReceptor: participante,
                         tipo: 'chat_actividad',
                         mensaje: `Tienes un nuevo mensaje de usuario ${NombreEmisor} en el chat de la actividad ${NombreActividad}`,
@@ -82,6 +83,7 @@ export class NotificacionService {
 
             //notificación
             const notificacion: CrearNotificacion = {
+                idUsuarioEmisor: body.idEmisor,
                 idUsuarioReceptor,
                 tipo: 'chat_individual',
                 mensaje: `Tienes un nuevo mensaje de usuario ${NombreEmisor}`,

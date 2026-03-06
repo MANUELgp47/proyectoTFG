@@ -3,7 +3,7 @@ import type {Participacion, Crearparticipacion} from "../types/participacion.js"
 import {mapearParticipacion} from "../utils/mappers.js";
 import * as ActividadModel from "./actividad.model.js";
 
-export const getAllParticipacions = async (): Promise<Participacion[]> => {
+export const getAllParticipaciones = async (): Promise<Participacion[]> => {
     const result = await pool.query("SELECT * FROM participacion");
     return result.rows.map(mapearParticipacion);
 };

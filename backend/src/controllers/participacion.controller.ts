@@ -9,8 +9,8 @@ import * as UsuarioService from "../services/usuario.service.js";
 
 export const getParticipaciones = async (req: Request, res: Response) => {
     try {
-        const participacions = await ParticipacionModel.getAllParticipacions();
-        res.json(participacions);
+        const participaciones = await ParticipacionModel.getAllParticipaciones();
+        res.json(participaciones);
     } catch (error) {
         console.error('Error al obtener participacions:', error);
         res.status(500).json({message: 'Error del servidor'});
@@ -143,10 +143,12 @@ export const createParticipacion = async (req: Request, res: Response) => {
                 aceptada = 'Pendiente de aprobación para unirse a la actividad ';
                 //notificar al creador de la actividad que alguien quiere unirse
                 //TODO cambiar el mensaje para que muestre el nombre del usuario en lugar del id
+                const nombreUsuario = await UsuarioService.UsuarioService.getNombreUsuarioPorId(participacion.idUsuario);
                 const notificacionCreador: CrearNotificacion = {
                     idUsuarioReceptor: actividad.idCreador,
                     tipo: 'solicitud_union_actividad',
-                    mensaje: `El usuario con ID: ${participacion.idUsuario} ha solicitado unirse a la actividad ${actividad.titulo}`,
+                    mensaje: `El usuario con ID: ${nombreUsuario} ha solicitado unirse a la actividad ${actividad.titulo}`,
+                    idUsuarioEmisor: participacion.idUsuario,
                     idReferencia: participacion.idActividad,
                 };
                 await NotificacionModel.crearNotificacion(notificacionCreador);
@@ -169,7 +171,7 @@ export const createParticipacion = async (req: Request, res: Response) => {
 export const actualizaEstado = async (req: Request, res: Response) => {
     const {idUsuario, idActividad, aceptada} = req.body;
 
-    //TODO comprobar que el usuario que acepta es el creador de la actividad
+
     const idCreador = await ActividadService.getIdCreadorActividad(idActividad);
     if (aceptada){
         //comprueba que la actividad no ha alcanzado el maximo de participantes y que es el creador quien acepta
@@ -211,10 +213,35 @@ export const actualizaEstado = async (req: Request, res: Response) => {
     }
 };
 
-//TODO . pensar si es necesario eliminar participacion
+
 //Eliminar una participacion
 export const eliminarParticipacion = async (req: Request, res: Response) => {
     const {idUsuario, idActividad} = req.body;
+    const idEditor = req.userId;
+
+   // console.log('eliminar participacion modelo con idUsuario:', idUsuario, 'y idActividad:', idActividad, 'y idEditor:', idEditor);
+
+    //comprobar que la participacion existe
+    const participacion = await ParticipacionModel.getParticipacionPorId(Number(idUsuario), Number(idActividad));
+    if (!participacion) {
+        return res.status(404).json({message: 'Participacion no encontrada'});
+    }
+
+    //comprobar que quien elimina es el creador de la actividad o el propio usuario
+    const idCreador = await ActividadService.getIdCreadorActividad(Number(idActividad));
+    if (idEditor !== idCreador && idEditor !== Number(idUsuario)) {
+        return res.status(403).json({message: 'Solo el creador de la actividad o el propio usuario pueden eliminar esta participacion'});
+    }
+
+    //comprobar que idUsuario e idActividad son numeros validos y no undefined
+    if (idUsuario === undefined || idActividad === undefined) {
+        return res.status(400).json({message: 'idUsuario e idActividad son requeridos'});
+    }
+    if (Number.isNaN(Number(idUsuario)) || Number.isNaN(Number(idActividad))) {
+        return res.status(400).json({message: 'IDs inválidos'});
+    }
+
+
 
     //TODO comprobar que el usuario que elimina es el creador de la actividad o el propio usuario
 

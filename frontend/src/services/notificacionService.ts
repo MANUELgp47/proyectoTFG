@@ -16,3 +16,9 @@ export const marcarNotificacionComoLeida = async (idNotificacion: number) => {
     const response = await api.put(`/notificacion/${idNotificacion}`, {leida: true});
     return response.data;
 };
+
+//eliminar notificacion
+export const eliminarNotificacion = async (idNotificacion: number) => {
+    const response = await api.delete(`/notificacion/${idNotificacion}`);
+    return response.data;
+};

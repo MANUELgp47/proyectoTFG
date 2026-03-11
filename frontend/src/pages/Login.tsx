@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { login as loginApi } from '../api/auth.api';
 import { useAuth } from "../context/AuthContext";
+import {Link, Navigate} from 'react-router-dom';
+
 
 const Login = () => {
     const [nombre_email, setLogin] = useState('');
@@ -24,44 +26,61 @@ const Login = () => {
                 contrasena,
             });
 
+            console.log("Token guardado en localStorage:", response.token); // Verificar que el token se recibe correctamente
+            console.log("Token guardado en localStorage:", response);
+
+
             // Guardar token en contexto global
-            login(response.token);
+            login(response);
 
             console.log('Login correcto');
            //TODO redireccionar a home después de login exitoso,
-            // navigate("/")
+
+
+
         } catch (err: any) {
             console.error(err);
             setError('Credenciales incorrectas');
         } finally {
             setLoading(false);
+            <Navigate to="/"/>
         }
     };
 
+
+
     return (
-        <form onSubmit={handleSubmit}>
-            <h2>Login</h2>
+        <div>
+            <form onSubmit={handleSubmit}>
+                <h2>Login</h2>
 
-            <input
-                type="text"
-                placeholder="Email o nombre de usuario"
-                value={nombre_email}
-                onChange={(e) => setLogin(e.target.value)}
-            />
+                <input
+                    type="text"
+                    placeholder="Email o nombre de usuario"
+                    value={nombre_email}
+                    onChange={(e) => setLogin(e.target.value)}
+                />
 
-            <input
-                type="password"
-                placeholder="Contraseña"
-                value={contrasena}
-                onChange={(e) => setContrasena(e.target.value)}
-            />
+                <input
+                    type="password"
+                    placeholder="Contraseña"
+                    value={contrasena}
+                    onChange={(e) => setContrasena(e.target.value)}
+                />
 
-            <button type="submit" disabled={loading}>
-                {loading ? 'Entrando...' : 'Entrar'}
-            </button>
+                <button type="submit" disabled={loading}>
+                    {loading ? 'Entrando...' : 'Entrar'}
+                </button>
 
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-        </form>
+
+                {error && <p style={{ color: 'red' }}>{error}</p>}
+            </form>
+            <Link to="/registro">
+                <button>Crear cuenta</button>
+            </Link>
+        </div>
+
+
     );
 };
 

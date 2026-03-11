@@ -76,12 +76,12 @@ export const crearSolicitudAmistad = async (req: Request, res: Response) => {
             return res.status(400).json({message: 'Ya existe una amistad entre estos usuarios'});
         }
 
-
+// Si ya había una solicitud rechazada, se elimina y se crea una nueva
         const estado = await SolicitudAmistadModel.getSolicitudAmistad(idEmisor,idReceptor);
         const rechazado: 'rechazada' = 'rechazada';
 
         if (estado?.estado == rechazado) {//si ya habia una solicitud rechazada, se elimina y se crea una nueva
-            await SolicitudAmistadModel.eliminarSolicitudAmistad(idEmisor, idReceptor);
+            await SolicitudAmistadService.SolicitudAmistadService.eliminarSolicitudAmistad(idEmisor, idReceptor);
         }
         const nuevaSolicitud = await SolicitudAmistadModel.crearSolicitudAmistadPorIds(idEmisor, idReceptor);
 

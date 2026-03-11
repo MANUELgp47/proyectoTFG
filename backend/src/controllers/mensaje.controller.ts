@@ -9,6 +9,7 @@ import * as ServicioUsuario from "../services/usuario.service.js";
 import * as ServicioActividad from "../services/actividad.service.js";
 import * as ServicioNotificacion from "../services/notificacion.service.js";
 import * as ServicioChatActividad from "../services/chatActividad.service.js";
+import {marcarMensajeLeidoPorChatIndividual} from "../models/mensaje.model.js";
 
 export const getMensajes = async (req: Request, res: Response) => {
     try {
@@ -34,6 +35,18 @@ export const getMensajePorId = async (req: Request, res: Response) => {
 };
 export const getMensajesPorChatIndividual = async (req: Request, res: Response) => {
     const idChatIndividual = Number(req.params.idChatIndividual);
+    const idUsuario = req.userId;
+
+    //comprobar que el chat individual existe y que el usuario es uno de los participantes
+    const chatIndividual = await ChatIndividualModel.getChatIndividualPorId(idChatIndividual);
+    if (!chatIndividual) {
+        return res.status(404).json({message: 'Chat individual no encontrado'});
+    }
+    if (idUsuario !== chatIndividual.idUsuario1 && idUsuario !== chatIndividual.idUsuario2) {
+        return res.status(403).json({message: 'No tienes permiso para ver los mensajes de este chat individual'});
+    }
+
+
     try {
         const mensajes = await MensajedModel.getMensajesPorChatIndividual(idChatIndividual);
         res.json(mensajes);
@@ -115,7 +128,7 @@ export const createMensaje = async (req: Request, res: Response) => {
 
         //valida contenido no vacío
         if (req.body.contenido == null || req.body.contenido.trim() === '') {
-            return res.status(400).json({ message: 'El contenido del mensaje no puede estar vacío' });
+            return res.status(400).json({message: 'El contenido del mensaje no puede estar vacío'});
         }
 
         req.body.idEmisor = idEmisor;
@@ -206,6 +219,44 @@ export const updateMensaje = async (req: Request, res: Response) => {
         res.status(500).json({message: 'Error del servidor'});
 
     }
+}
+
+//marcar mensaje como leido por id
+export const marcarMensajeComoLeidoIndividual = async (req: Request, res: Response) => {
+    const idMensaje = Number(req.params.idMensaje);
+    const idUsuario = req.userId;
+
+
+    console.log(" idMensaje: ", idMensaje, " idUsuario: ", idUsuario);
+
+
+    //existe mensaje
+    const mensaje = await MensajedModel.getMensajePorId(idMensaje);
+    if (!mensaje) {
+        return res.status(404).json({message: 'Mensaje no encontrado'});
+
+    }
+    //el usuario es el receptor del mensaje del chat individual
+    const chatIndividual = await ChatIndividualModel.getChatIndividualPorId(mensaje.idChatIndividual!);
+    if (!chatIndividual) {
+        return res.status(404).json({message: 'Chat individual no encontrado'});
+    }
+    if (idUsuario !== chatIndividual.idUsuario1 && idUsuario !== chatIndividual.idUsuario2) {
+        return res.status(403).json({message: 'No tienes permiso para marcar este mensaje como leído'});
+    }
+    //si soy el emisor no puedo marcarlo como leido
+    if (idUsuario === mensaje.idEmisor) {
+        return res.status(403).json({message: 'No puedes marcar como leído un mensaje que has enviado'});
+    }
+
+    try {
+        const mensajeActualizado = await MensajedModel.marcarMensajeLeidoPorChatIndividual(idMensaje);
+        res.json(mensajeActualizado);
+    } catch (error) {
+        console.error('Error al marcar mensaje como leído:', error);
+        res.status(500).json({message: 'Error del servidor'});
+    }
+
 }
 
 

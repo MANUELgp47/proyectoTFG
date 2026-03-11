@@ -9,8 +9,9 @@ interface LoginResponse {
     token: string;
 }
 
-export const login = async (data: LoginRequest): Promise<LoginResponse> => {
-    const response = await api.post('/auth/login', data);
+export const login = async (token: LoginRequest): Promise<LoginResponse> => {
+    const response = await api.post('/auth/login', token);
+
     return response.data;
 };
 

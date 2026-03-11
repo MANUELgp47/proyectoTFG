@@ -10,6 +10,11 @@ router.get('/', MensajeController.getMensajes);
 //crear un mensaje
 router.post('/', authMiddleware, MensajeController.createMensaje);
 
+//get mensajes de un chat individual por id del chat
+router.get('/chat/:idChatIndividual', authMiddleware, MensajeController.getMensajesPorChatIndividual);
+
+//marcar un mensaje como leido por id en chats individuales
+router.put('/:idMensaje', authMiddleware, MensajeController.marcarMensajeComoLeidoIndividual);
 
 //eliminar un mensaje por id
 router.delete('/:id', authMiddleware, MensajeController.deleteMensaje);

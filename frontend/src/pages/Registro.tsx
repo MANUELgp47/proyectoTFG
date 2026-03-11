@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { register } from '../api/auth.api';
+import {Navigate} from "react-router-dom";
 //import { login } from '../api/auth.api';
 
 const Register = () => {
@@ -41,6 +42,7 @@ const Register = () => {
             setSuccess('Usuario creado correctamente');
             // TODO ejecuta login automático después de registro exitoso
             // await login({ nombre_email: form.email, contrasena: form.contrasena });
+            <Navigate to="/"/>
 
 
         } catch (err) {
@@ -60,7 +62,6 @@ const Register = () => {
             <br/><input type="password" name="contrasena" placeholder="Contraseña" onChange={handleChange} />
             <br/><input type="date" name="fechaNac" onChange={handleChange} />
             <br/><input name="ubicacion" placeholder="Ubicación" onChange={handleChange} />
-
             <br/><textarea name="biografia" placeholder="Biografía" onChange={handleChange} />
 
             <br/> <button type="submit" disabled={loading}>

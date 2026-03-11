@@ -1,6 +1,7 @@
 import type {Request, Response} from 'express';
 import * as ChatIndividualModel from '../models/chatIndividual.model.js';
 import {AmistadService} from "../services/amistad.service.js";
+import * as UsuarioService from "../services/usuario.service.js";
 
 export const getChatsIndividual = async (req: Request, res: Response) => {
     try {
@@ -44,11 +45,52 @@ export const getChatIndividualPorUsuarios = async (req: Request, res: Response) 
 };
 
 
+//obtener chat individual por id de usuario emisor o receptor
+export const getChatIndividualPorUsuario = async (req: Request, res: Response) => {
+
+    console.log("req.params.idUsuario", req.params.idUsuario, "req.userId", req.userId);
+
+    const idParametro = Number(req.params.idUsuario);
+    const idUsuario = req.userId;
+
+    //comprueba atributos idUsuario y idParametro
+    if (!idUsuario || isNaN(idParametro)) {
+
+        return res.status(400).json({ message: 'ID de usuario inválido' });
+    }
+
+    //exsiste el usuario idParametro
+    const usuario = await UsuarioService.UsuarioService.existeUsuarioPorId(idParametro);
+    if (!usuario) {
+
+        return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    try {
+
+        const chatIndividual = await ChatIndividualModel.getChatIndividualPorUsuarios(idUsuario, idParametro);
+
+        if (!chatIndividual) {
+            return false;
+        }
+        console.log(chatIndividual);
+        res.json(chatIndividual);
+    } catch (error) {
+        console.error('Error al obtener chat individual por usuario:', error);
+        res.status(500).json({ message: 'Error del servidor' });
+    }
+};
+
+
 
 export const createChatIndividual = async (req: Request, res: Response) => {
     try {
         const idReceptor = Number(req.params.idReceptor);
         const idEmisor = req.userId;
+
+
+        console.log("idEmisor", idEmisor, "idReceptor", idReceptor);
+
         //valida idEmisor y idReceptor
         if (!idEmisor || isNaN(idReceptor)) {
             return res.status(400).json({ message: 'IDs de usuario inválidos' });
@@ -68,6 +110,7 @@ export const createChatIndividual = async (req: Request, res: Response) => {
 
         //crea el chat individual
         const chatIndividual = await ChatIndividualModel.crearChatIndividualPorUsuarios(idEmisor, idReceptor);
+        console.log("chatIndividual creado", chatIndividual);
         res.status(201).json(chatIndividual);
     } catch (error) {
         console.error('Error al crear chat individual:', error);

@@ -53,6 +53,18 @@ export const marcarMensajeLeido = async (idMensaje: number): Promise<Mensaje | n
 };
 
 
+//marcar como leído el mensaje en chat individual por id del chat individual
+export const marcarMensajeLeidoPorChatIndividual = async (idmensaje: number): Promise<Mensaje[]> => {
+    const result = await pool.query(
+        `UPDATE mensaje
+         SET leido = TRUE
+         WHERE id_mensaje = $1
+         RETURNING *`,
+        [idmensaje]
+    );
+    return result.rows.map(mapearMensaje);
+}
+
 //actualiza el contenido del mensaje
 export const actualizarMensaje = async (idMensaje: number, nuevoContenido: string): Promise<Mensaje | null> => {
     const result = await pool.query(

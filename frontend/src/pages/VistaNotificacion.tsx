@@ -3,7 +3,7 @@ import {useEffect, useState} from 'react';
 import {getNotificacionPorId, marcarNotificacionComoLeida, eliminarNotificacion} from '../services/notificacionService';
 import {useParams} from 'react-router-dom';
 import {aceptarParticipacion, rechazarParticipacion, eliminarParticipacion} from "../services/participacionService";
-import { useIdSesionActual } from "../services/sesionService";
+import { useAuth } from "../context/AuthContext";
 import {aceptarSolicitudAmistad, rechazarSolicitudAmistad} from '../services/solicitudAmistadService';
 
 
@@ -23,7 +23,7 @@ export default function VistaNotificacion() {
     const [notificacion, setNotificacion] = useState<Notificacion | null>(null);
     const [error, setError] = useState<string | null>(null);
 
-    const idUsuarioSesion = useIdSesionActual();
+    const { idUsuario: idUsuarioSesion } = useAuth();
 
     useEffect(() => {
         const fetchNotificacion = async () => {
@@ -31,8 +31,10 @@ export default function VistaNotificacion() {
                 const data = await getNotificacionPorId(Number(idNotificacion));
                 setNotificacion(data);
 
-                // Marcar la notificación como leída
-                await marcarNotificacionComoLeida(Number(idNotificacion));
+                // Marcar la notificación como leída solo si hay sesión válida
+                if (idUsuarioSesion != null) {
+                    await marcarNotificacionComoLeida(Number(idNotificacion));
+                }
 
             } catch (err) {
                 console.error('Error fetching notificacion:', err);
@@ -41,7 +43,7 @@ export default function VistaNotificacion() {
         };
 
         fetchNotificacion();
-    }, [idNotificacion]);
+    }, [idNotificacion, idUsuarioSesion]);
 
     if (error) {
         return <div>{error}</div>;

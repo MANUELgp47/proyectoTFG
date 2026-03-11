@@ -4,10 +4,12 @@
 * y un hook useAuth para acceder al contexto de autenticación desde cualquier componente.
 * */
 
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState } from "react";
+import { getUserIdFromToken } from "../services/tokenUtils";
 
 interface AuthContextType {
     token: string | null;
+    idUsuario: number | null;
     isAuthenticated: boolean;
     login: (token: string) => void;
     logout: () => void;
@@ -19,32 +21,46 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 //proveedor del contexto, da contexto a sus hijos
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-    const [token, setToken] = useState<string | null>(null);//token de autenticación, null si no hay token
-    const [loading, setLoading] = useState(true);//indica si se está cargando el token desde localStorage
+    // inicialización síncrona desde localStorage para evitar renders intermedios
+    const initialToken = typeof window !== 'undefined' ? localStorage.getItem("token") : null;
+    const [token, setToken] = useState<string | null>(initialToken);//token de autenticación, null si no hay token
+    const [idUsuario, setIdUsuario] = useState<number | null>(getUserIdFromToken(initialToken));
+    const [loading] = useState(false);//ya hemos inicializado sincronamente
 
-    // Al cargar la app mira si ya hay token guardado
-    useEffect(() => {
-        const storedToken = localStorage.getItem("token");
-        if (storedToken) setToken(storedToken);
-
-        setLoading(false);
-    }, []);
 
     // Funciones para login porque guardan el token en localStorage y en el estado,
+    /*const login = (newToken: string) => {
+        const id = getUserIdFromToken(newToken);
+        if (id == null) {
+            console.error('Token recibido en login no contiene idUsuario válido. Ignorando login.', { token: newToken });
+            // asegúrate de limpiar el token por seguridad
+            localStorage.removeItem('token');
+            setToken(null);
+            setIdUsuario(null);
+            return;
+        }
+        localStorage.setItem("token", newToken);
+        setToken(newToken);
+        setIdUsuario(id);
+    };*/
+
     const login = (newToken: string) => {
         localStorage.setItem("token", newToken);
+
         setToken(newToken);
     };
 
     const logout = () => {
         localStorage.removeItem("token");
         setToken(null);
+        setIdUsuario(null);
     };
 
     return (
         <AuthContext.Provider
             value={{
                 token,
+                idUsuario,
                 isAuthenticated: !!token,
                 loading,
                 login,

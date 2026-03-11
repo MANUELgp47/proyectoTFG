@@ -1,33 +1,30 @@
 import { useEffect, useState } from "react";
 import { getUsuario, updateUsuario } from "../services/usuarioService";
 import { useNavigate } from "react-router-dom";
-import { useIdSesionActual } from "../services/sesionService";
+import { useAuth } from "../context/AuthContext";
 
 export default function EditarPerfilUsuario() {
 
     const [usuario, setUsuario] = useState<any>(null);
 
     const navigate = useNavigate();
-    const idSesion = useIdSesionActual();
+    const { idUsuario } = useAuth();
 
     useEffect(() => {
         const fetchUsuario = async () => {
             try {
+                if (idUsuario == null) return;
                 console.log("Obteniendo datos del usuario...");
-                const response = await getUsuario(Number(idSesion));
+                const response = await getUsuario(Number(idUsuario));
 
                 setUsuario(response);
-                /*setNombre(data.nombre);
-                setDescripcion(data.descripcion);
-                setUbicacion(data.ubicacion);*/
-                console.log(usuario)
             } catch (error) {
                 console.error(error);
             }
         };
 
         fetchUsuario();
-    }, [idSesion]);//se ejecuta cada vez que cambia el idSesion, es decir, cada vez que se inicia sesión con un usuario diferente
+    }, [idUsuario]);
 
     if (!usuario) {
         return <div>Cargando...</div>;
@@ -43,13 +40,12 @@ export default function EditarPerfilUsuario() {
                 biografia: usuario.biografia,
                 ubicacion: usuario.ubicacion
             });
-            navigate(`/usuario/${idSesion}`);//vuleve al perfil del usuario
+            navigate(`/usuario/${idUsuario}`);//vuleve al perfil del usuario
         } catch (error) {
             console.error(error);
         }
 
     }
-
 
 
 
@@ -80,5 +76,4 @@ export default function EditarPerfilUsuario() {
             </form>
 
         </div>
-    )};
-
+    );};

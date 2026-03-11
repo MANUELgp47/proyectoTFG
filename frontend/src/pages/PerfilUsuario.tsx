@@ -1,37 +1,38 @@
 //Este es le perfil de usuario, donde se muestra su informacion personal, un boton para editar su perfil(aun no funcional) y un boton para ver las actividades creadas por el usuario
 import {useEffect, useState} from "react";
 import {getUsuario} from "../services/usuarioService";
-//import { useAuth } from "../context/AuthContext";
 import {Link, useParams} from "react-router-dom";
-import {useIdSesionActual} from "../services/sesionService";
+import {useAuth} from "../context/AuthContext";
 import {getAmistadEntreUsuarios, eliminarAmistad} from '../services/amistadService';
-import type {Usuario, Amistad, SolicitudAmistad} from '../types';
+import type {Usuario, Amistad, SolicitudAmistad} from '../types.ts';
 import {creaSulicitud, getSolicitudAmistad} from "../services/solicitudAmistadService";
+import {getChatIndividualPorUsuario, crearChatIndividual} from "../services/chatService";
 
 export default function PerfilUsuario() {
-    //idUsuario por parametero de la url
-    const {idUsuario} = useParams<{ idUsuario: string }>();
+    //idUsuario por parametero
+    const {idUsuarios} = useParams<{ idUsuarios: string }>();
     const [usuario, setUsuario] = useState<Usuario | null>(null);
     const [amistad, setAmistad] = useState<Amistad | null>(null);
     const [solicitud, setSolicitud] = useState<SolicitudAmistad | null>(null);
-    const idSesion = useIdSesionActual();
+    const {idUsuario} = useAuth();
+    const idSesion = idUsuario;
 
 
     useEffect(() => {
         const fetchUsuario = async () => {
 
             try {
-                const data = await getUsuario(Number(idUsuario));
+                const data = await getUsuario(Number(idUsuarios));
 
                 setUsuario(data);
             } catch (error) {
 
-                console.error(error);
+                console.error("id USUARIO PARAMEYTRO", idUsuarios, "id sesion", idSesion, error);
             }
         };
 
         fetchUsuario();
-    }, [idUsuario]);
+    }, [idUsuarios, idSesion]); //TODO si falla algo quitar idSesion
 
     useEffect(() => {
         const fetchAmistad = async () => {
@@ -42,18 +43,15 @@ export default function PerfilUsuario() {
                 return;
             }
 
-            const fetchedSolicitud = await getSolicitudAmistad(Number(idUsuario));
+            const fetchedSolicitud = await getSolicitudAmistad(Number(idUsuarios));
             setSolicitud(fetchedSolicitud);
-            const fetchedAmistad = await getAmistadEntreUsuarios(idSesion, Number(idUsuario));
+            const fetchedAmistad = await getAmistadEntreUsuarios(idSesion, Number(idUsuarios));
+            //  console.log("Amistad entre usuarios", idSesion, idUsuario, fetchedAmistad);
             setAmistad(fetchedAmistad);
-
-
-
-
 
         };
         fetchAmistad();
-    }, [idSesion, idUsuario]);
+    }, [idSesion, idUsuarios]);
 
     if (!usuario) {
         return <div>Cargando...</div>;
@@ -66,10 +64,40 @@ export default function PerfilUsuario() {
         return;
     }
     const handleEnviarSolicitudAmistad = () => {
-        console.log("solicitud"+solicitud)
+        console.log("solicitud" + solicitud)
         creaSulicitud(usuario.idUsuario);
         alert("Solicitud de amistad enviada");
         return;
+    }
+    const handleChatear = async () => {
+        // Redirige al chat individual con este usuario. Si no existe, pregunta y lo crea.
+        try {
+
+
+
+            const chatExistente = await getChatIndividualPorUsuario(Number(idUsuarios));
+
+            if (!chatExistente) {
+                const confirmar = window.confirm("¿Quieres iniciar un chat con este usuario?");
+                if (confirmar) {
+
+                    const nuevoChat = await crearChatIndividual(usuario.idUsuario);
+
+
+
+                    alert("Chat creado");
+                    // redirigir al chat creado
+                    window.location.href = `/chatIndividual/${nuevoChat.idChatIndividual}`;
+                }
+            } else {
+                // redirigir al chat existente
+                window.location.href = `/chatIndividual/${chatExistente.idChatIndividual}`;
+            }
+        } catch (error) {
+            console.error('Error al abrir/crear chat:', error);
+            alert('No se pudo abrir el chat. Inténtalo de nuevo.');
+        }
+
     }
 
     return (
@@ -81,34 +109,35 @@ export default function PerfilUsuario() {
             <p>Biografía: {usuario.biografia}</p>
             <p>Fecha de registro: {new Date(usuario.fechaRegistro).toLocaleDateString()}</p>
 
-            <Link to={`/usuario/${idUsuario}/actividadesCreadas`}>
+            <Link to={`/usuario/${idUsuarios}/actividadesCreadas`}>
                 <button>Ver actividades creadas</button>
             </Link>
-            <Link to={`/amistad/${idUsuario} `}>
+            <Link to={`/amistad/${idUsuarios} `}>
                 <button>Ver amistades</button>
             </Link>
             {/*Si idSesion == usuario.idUsuario*/}
-            {idSesion !== null && idSesion === Number(idUsuario) && (
-                <Link to={`/usuario/${idUsuario}/editar`}>
+            {idSesion !== null && idSesion === Number(idUsuarios) && (
+                <Link to={`/usuario/${idUsuarios}/editar`}>
                     <button>Editar perfil</button>
                 </Link>)}
 
 
             {/*Si es mi amigo Boton borrar amistad*/}
             {amistad && (
-                <button onClick={handleEliminarAmistad}>Eliminar amistad</button>
+                <>
+                    <button onClick={handleEliminarAmistad}>Eliminar amistad</button>
+                    <button onClick={handleChatear}>Chatear</button>
+                </>
             )}
+
+
+
 
             {/*Si no hay amistad Boton de crear amistad*/}
-            {!amistad && !solicitud && Number(idSesion) != Number(idUsuario) && (
-
-
-
+            {!amistad && solicitud?.estado != 'pendiente' && (Number(idSesion) !== Number(idUsuarios)) && (
                 <button onClick={handleEnviarSolicitudAmistad}>Enviar solicitud de amistad</button>
-
-
             )}
-                {/*Si hay solicitud pendiente*/}
+            {/*Si hay solicitud pendiente*/}
             {!amistad && solicitud && solicitud.estado === 'pendiente' && (
                 <p>Solicitud de amistad pendiente</p>
             )}

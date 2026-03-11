@@ -8,18 +8,21 @@ import {Link, useParams} from 'react-router-dom';
 export default function ListaAmigos() {
     const [amigos, setAmigos] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-    const {idUsuario} = useParams<{ idUsuario: string }>();
+    //const {idUsuarioParametros} = useParams<{ idUsuario: string }>();
+    const {idUsuarioParametros} = useParams<{ idUsuarioParametros: string }>();
+    //const {idUsuarios} = useParams<{ idUsuarios: string }>();
 
     useEffect(() => {
         const fetchAmigos = async () => {
             try {
-                const amigosData = await getAmistades(Number(idUsuario));
+                const amigosData = await getAmistades(Number(idUsuarioParametros));
+                console.log("amigos", amigos)
                 const amigosConDetalles = await Promise.all(
                     amigosData.map(async (amistad: any) => {//obtenemos el nombre de usuario y el id del amistad,
                         let usuario;
                         let idAmigo;
                         //TODO ver esto
-                        if (Number(amistad.idUsuario1) == Number(idUsuario)) {
+                        if (Number(amistad.idUsuario1) == Number(idUsuarioParametros)) {
                             idAmigo = amistad.idUsuario2;//si el idUsuario es el idUsuario1, entonces el amigo es el idUsuario2
                             usuario = await getUsuario(idAmigo);
                         }else
@@ -51,6 +54,8 @@ export default function ListaAmigos() {
     return (
         <div>
             <h1>Lista de amigos</h1>
+
+
             {amigos.length === 0 ? (
                 <p>No tienes amigos aún.</p>
             ) : (

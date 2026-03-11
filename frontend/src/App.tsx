@@ -10,6 +10,9 @@ import VistaNotificacion from "./pages/VistaNotificacion.tsx";
 import PerfilUsuario from "./pages/PerfilUsuario";
 import EditarPerfilUsuario from "./pages/EditarPerfilUsuario.tsx";
 import ListaAmigos from "./pages/ListaAmigos.tsx";
+import ChatIndividual from "./pages/VistaChatIndividial.tsx";
+import PrivateRoute from "./routes/PrivateRoute";
+import Register from "./pages/Registro.tsx";
 
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -24,10 +27,13 @@ export default function App() {
             {/*  Rutas públicas */}
             <Route path="/" element={<Home/>}/>
             <Route path="/login" element={<Login/>}/>
+            <Route path="/registro" element={<Register/>}/>
+
 
 
             {/* Rutas privadas */}
 
+            <Route element={<PrivateRoute  />}>
             <Route
                 path="/usuario/:id/actividadesCreadas"
                 element={<ActividadesCreadas/>}
@@ -59,7 +65,7 @@ export default function App() {
             />
 
             <Route
-                path="/usuario/:idUsuario"
+                path="/usuario/:idUsuarios"
                 element={<PerfilUsuario/>}
             />
             <Route
@@ -67,11 +73,15 @@ export default function App() {
                 element={<EditarPerfilUsuario/>}
             />
              <Route
-                path="/amistad/:idUsuario/"
+                path="/amistad/:idUsuarioParametros/"
                 element={<ListaAmigos/>}
             />
+            <Route
+                path="/chatIndividual/:idChatIndividual/"
+                element={<ChatIndividual/>}
+            />
 
-
+                </Route>
 
 
         </Routes>

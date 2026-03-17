@@ -1,5 +1,5 @@
 import api from "../api/axios";
-import type {ChatIndividual} from '../types';
+import type {ChatActividad, ChatIndividual} from '../types';
 
 //crea chat individual
 
@@ -11,6 +11,26 @@ export const crearChatIndividual = async (idReceptor: number): Promise<ChatIndiv
 export const getChatIndividualPorUsuario = async (idUsuario: number): Promise<ChatIndividual | false> => {
     try {
         const response = await api.get(`chatIndividual/usuario/${idUsuario}`);
+        return response.data;
+    } catch (error) {
+
+        if (error.response && error.response.status === 404) {
+            return false; // No se encontró el chat individual
+        }
+        throw error; // Relanzar otros errores
+    }
+}
+
+
+
+
+////ACTIVIDAD
+
+//obtener chat de una actividad por id de actividad
+export const getChatActividad = async (idActividad: number): Promise<ChatActividad> => {
+
+    try {
+        const response = await api.get(`chatActividad/actividad/${idActividad}`);
         return response.data;
     } catch (error) {
 

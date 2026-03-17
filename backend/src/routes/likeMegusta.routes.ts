@@ -12,6 +12,12 @@ router.get('/comentario/numero/:idComentario', LikeMegustaController.getNumeroLi
 //obtener todos los likes de la base de datos
 router.get('/', LikeMegustaController.getLikesMegusta);
 
+//Obtener si un Usuario dió like a un recuerdo
+router.get('/recuerdo/:idRecuerdo/usuario/', LikeMegustaController.getLikeMegustaPorIdRecuerdoYIdUsuario);
+
+//Obtener si un Usuario dió like a un comentario
+//router.get('/comentario/:idComentario/usuario/:idUsuario', LikeMegustaController.getLikeMegustaPorIdComentarioYIdUsuario);
+
 // Obtener todos los likes de un recuerdo
 router.get('/recuerdo/:idRecuerdo', LikeMegustaController.getLikesMegustaPorIdRecuerdo);
 

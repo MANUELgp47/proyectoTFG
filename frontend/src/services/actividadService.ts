@@ -26,8 +26,11 @@ export const updateActividad = async (id: number, data: any) => {
     return response.data;
 };
 
-//cancelar actividad
-
+//Finaliza una actividad
+export const finalizarActividad = async (id: number) => {
+    const response = await api.post(`/actividad/${id}/finalizar`);
+    return response.data;
+};
 
 //obtener los participantes de una actividad
 export const getActividadesQueParticipo = async () => {

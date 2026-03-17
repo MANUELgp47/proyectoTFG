@@ -149,6 +149,7 @@ export const getActividadPorId = async (req: Request, res: Response) => {
                 idUsuarioReceptor: actividad.idCreador,
                 tipo: 'creacion_actividad',
                 mensaje: `Se ha creado la actividad con nombre ${req.body.titulo}`,
+                idUsuarioEmisor: actividad.idCreador,
                 idReferencia: actividad.idActividad, //id de la actividad creada actividad.idActividad
             };
 
@@ -217,6 +218,7 @@ export const getActividadPorId = async (req: Request, res: Response) => {
                     idUsuarioReceptor: actividad.idCreador,
                     tipo: 'actualizacion_actividad',
                     mensaje: `Se ha actualizado la actividad con nombre ${actividad.titulo}`,
+                    idUsuarioEmisor: req.userId!,
                     idReferencia: actividad.idActividad,
                 };
 

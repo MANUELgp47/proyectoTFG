@@ -1,6 +1,6 @@
 import api from "../api/axios.ts";
 
-export const creaSulicitud= async (idReceptor: number): Promise<any> => {
+export const CrearSolicitud= async (idReceptor: number): Promise<any> => {
     const response = await api.post(`solicitudAmistad/${idReceptor}`);
     return response.data;
 };

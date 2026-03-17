@@ -10,7 +10,7 @@ const router = Router();
 router.get('/', ChatActividadController.getChatsActividad);
 
 //Obtiene el chat de actividad por id de actividad
-router.post('/actividad', ChatActividadController.getChatPorActividad);
+router.get('/actividad/:idActividad', authMiddleware, ChatActividadController.getChatPorActividad);
 
 //crear un chat de actividad
 router.post('/',  ChatActividadController.createChatActividad);

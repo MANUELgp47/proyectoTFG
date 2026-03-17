@@ -32,6 +32,9 @@ export const createActividadTag = async (req: Request, res: Response) => {
     const existeTag = await TagService.TagService.existeTagPorid(req.body.idTag);
     const existeActividad = await ActividadService.ActividadService.existeActividad(idActividad);
 
+
+    console.log("idUsuario", idUsuario, "idActividad", idActividad, "idTag", req.body.idTag, "existeTag", existeTag, "existeActividad", existeActividad);
+
     //valida los id usuario
     if (!idUsuario || isNaN(idUsuario)) {
         return res.status(400).json({ message: 'ID de usuario inválido' });

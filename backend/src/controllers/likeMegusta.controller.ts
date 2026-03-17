@@ -67,6 +67,8 @@ export const createLikeMegusta = async (req: Request, res: Response) => {
         const idUsuario = req.userId;
         req.body.idUsuario = idUsuario;
 
+        console.log("Creando like:", req.body);
+
         // Validar que venga idRecuerdo o idComentario
         if (!req.body.idRecuerdo && !req.body.idComentario) {
             return res.status(400).json({ message: 'Debe proporcionar idRecuerdo o idComentario' });
@@ -76,12 +78,14 @@ export const createLikeMegusta = async (req: Request, res: Response) => {
         if (req.body.idRecuerdo) {
             const recuerdoExiste = await RecuerdoService.existeRecuerdo(req.body.idRecuerdo);
             if (!recuerdoExiste) {
+                console.log("Recuerdo no encontrado",req.body.idRecuerdo);
                 return res.status(404).json({ message: 'Recuerdo no encontrado' });
             }
             const likeExistente = await LikeModel.getLikesMegustaPorIdRecuerdo(req.body.idRecuerdo)
             //busca el idUsuario en los likes existentes
             for (const like of likeExistente) {
                 if (like.idUsuario === idUsuario) {
+                    console.log("ya has dado like",like.idUsuario);
                     return res.status(400).json({ message: 'Ya has dado like a este recuerdo' });
                 }
             }
@@ -134,6 +138,20 @@ export const deleteLikeMegusta = async (req: Request, res: Response) => {
         }
     } catch (error) {
         console.error('Error al eliminar like:', error);
+        res.status(500).json({ message: 'Error del servidor' });
+    }
+};
+
+// Obtener si un Usuario dió like a un recuerdo
+export const getLikeMegustaPorIdRecuerdoYIdUsuario = async (req: Request, res: Response) => {
+    try {
+        const idRecuerdo = Number(req.params.idRecuerdo);
+        const idUsuario = Number(req.userId);
+        const likeMegusta = await LikeModel.getLikeMegustaPorIdRecuerdoYIdUsuario(idRecuerdo, idUsuario);
+        res.json(likeMegusta);
+    }
+    catch (error) {
+        console.error('Error al obtener like por idRecuerdo e idUsuario:', error);
         res.status(500).json({ message: 'Error del servidor' });
     }
 };

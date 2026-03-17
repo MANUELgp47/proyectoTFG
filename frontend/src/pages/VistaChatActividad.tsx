@@ -1,21 +1,24 @@
-//muestra los mensajes entre dos usuarios, con un input para enviar nuevos mensajes
-import {useCallback, useEffect, useState} from "react";
-import {getMensajesIndividual, crearMensajeChat, marcarMensajeComoLeidoIndividual} from "../services/mensajeService";
-import {useParams, Navigate} from "react-router-dom";
-import type {Mensaje} from '../types';
-import { useAuth } from "../context/AuthContext";
+//Muestra el chat de una actividad específica. El ID de la actividad se obtiene de la URL.
+import {useEffect, useState} from "react";
+import {Navigate, useParams} from "react-router-dom";
+import {getChatActividad} from "../services/chatService";
+import {crearMensajeChat, getMensajesActividad} from "../services/mensajeService";
+import type {ChatActividad, Mensaje} from "../types.ts";
+import {useAuth} from "../context/AuthContext.tsx";
 
-export default function VistaChatIndividual() {
-    const {idChatIndividual} = useParams<{ idChatIndividual: string }>();
-    const [mensajes, setMensajes] = useState<Mensaje[] | null>(null);
-    const [contenidoNuevoMensaje, setContenidoNuevoMensaje] = useState("");
-
+export default function VistaChatActividad() {
+    const {idActividad} = useParams<{ idActividad: string }>();
+    const [chat, setChat] = useState<ChatActividad | null>(null);
+    const [error, setError] = useState("");
     const { loading, idUsuario, isAuthenticated } = useAuth();
     const idSesion = idUsuario;
+    const [mensajes, setMensajes] = useState<Mensaje[] | null>(null);
+    const {idChatActividad} = useParams<{ idChatActividad: string }>();
+    const [contenidoNuevoMensaje, setContenidoNuevoMensaje] = useState("");
 
     // Si estamos inicializando el provider esperar
     if (loading) {
-        return <div>Cargando...</div>;
+        return <div>loading...</div>;
     }
 
     // Si no esta autenticado, redirigir a login (o mostrar mensaje de no autorizado)
@@ -28,17 +31,20 @@ export default function VistaChatIndividual() {
         return <div>Cargando sesión...</div>;
     }
 
-    const marcarLeidos = useCallback(async (data: Mensaje[]| null) => {
-        if (!data) return;
-        for (const mensaje of data) {
-            // validar que idMensaje y idEmisor sean números válidos
-            const idMensajeNum = Number(mensaje.idMensaje);
-            if (!mensaje.leido && (mensaje.idEmisor != idSesion) && Number.isFinite(idMensajeNum)) {
-                console.log("marcarLeidos", idMensajeNum, "idSesion", idSesion, "idEmisor", mensaje.idEmisor);
-                await marcarMensajeComoLeidoIndividual(idMensajeNum);
+    useEffect(() => {
+        const cargarChat = async () => {
+            try {
+                const chatData = await getChatActividad(Number(idActividad));
+                setChat(chatData);
+            } catch (err) {
+                console.error("Error cargando chat:", err);
+                setError("Error al cargar el chat de la actividad");
             }
-        }
-    }, [idSesion]);
+        };
+
+        cargarChat();
+    }, [idActividad]);
+
 
     useEffect(() => {
         let mounted = true;
@@ -48,7 +54,7 @@ export default function VistaChatIndividual() {
                 if (!isAuthenticated || idSesion == null) return;
                 if (isFetching) return; // ya hay una petición en curso
                 isFetching = true;
-                const data = await getMensajesIndividual(Number(idChatIndividual));
+                const data = await getMensajesActividad(Number(idChatActividad));
                 if (!mounted) return;
                 setMensajes(data);
             } catch (error) {
@@ -70,51 +76,44 @@ export default function VistaChatIndividual() {
             mounted = false;
             clearInterval(interval);
         };
-    }, [idChatIndividual, isAuthenticated, idSesion]);
-
-    // Efecto que marca como leídos una vez que tenemos mensajes y el id de sesión
-    useEffect(() => {
-        if (mensajes && idSesion) {
-            marcarLeidos(mensajes).catch(err => console.error('Error marcando mensajes leídos:', err));
-        }
-    }, [mensajes, idSesion, marcarLeidos]);
-
+    }, [idChatActividad, isAuthenticated, idSesion]);
+/*
     if (!mensajes) {
         return <div>Cargando...</div>;
     }
+*/
 
 
-
-    //TODO ver por que no actualiza la lista de mensajes después de enviar uno nuevo, aunque si se guarda en la base de datos
     const handleEnviarMensaje = async (contenido: string) => {
         await crearMensajeChat({
-            idChatIndividual: Number(idChatIndividual),
+            idChatActividad: Number(idChatActividad),
             contenido: contenido,
         });
 
         //actualizar la lista de mensajes después de enviar uno nuevo
-        const data = await getMensajesIndividual(Number(idChatIndividual));
+        const data = await getMensajesActividad(Number(idChatActividad));
         setMensajes(data);
         setContenidoNuevoMensaje("");
     };
 
 
-
     return (
         <div>
-            <h1>Chat Individual</h1>
+            <h1>Chat Actividad</h1>
             <div>
-                {mensajes.map((mensaje) => (
+                {/*Si mensajees not null*/}
+
+                {mensajes && mensajes.map((mensaje) => (
 
                     <div key={mensaje.idMensaje}>
 
                         <p>Id mensaje: {mensaje.idMensaje}</p>
-                        {!mensaje.leido && mensaje.idEmisor != idSesion && null}
+
 
                         <p><strong>{mensaje.idEmisor}</strong>: {mensaje.contenido}</p>
-                        {mensaje.leido && mensaje.idEmisor === idSesion && <span style={{color: 'green'}}> (Leído)</span>}
 
-                    <br/><br/>
+
+                        <br/><br/>
 
                     </div>
                 ))}
@@ -129,5 +128,5 @@ export default function VistaChatIndividual() {
                 <button onClick={() => handleEnviarMensaje(contenidoNuevoMensaje)}>Enviar</button>
             </div>
         </div>
-    );
-}
+        );
+    }

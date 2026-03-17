@@ -1,12 +1,14 @@
 //Este es le perfil de usuario, donde se muestra su informacion personal, un boton para editar su perfil(aun no funcional) y un boton para ver las actividades creadas por el usuario
-import {useEffect, useState} from "react";
+import { useEffect, useState} from "react";
 import {getUsuario} from "../services/usuarioService";
 import {Link, useParams} from "react-router-dom";
 import {useAuth} from "../context/AuthContext";
 import {getAmistadEntreUsuarios, eliminarAmistad} from '../services/amistadService';
 import type {Usuario, Amistad, SolicitudAmistad} from '../types.ts';
-import {creaSulicitud, getSolicitudAmistad} from "../services/solicitudAmistadService";
+import {CrearSolicitud, getSolicitudAmistad} from "../services/solicitudAmistadService";
 import {getChatIndividualPorUsuario, crearChatIndividual} from "../services/chatService";
+import {getRecuerdosPorUsuario} from "../services/recuerdoService.ts";
+
 
 export default function PerfilUsuario() {
     //idUsuario por parametero
@@ -16,6 +18,7 @@ export default function PerfilUsuario() {
     const [solicitud, setSolicitud] = useState<SolicitudAmistad | null>(null);
     const {idUsuario} = useAuth();
     const idSesion = idUsuario;
+    const [recuerdos, setRecuerdos] = useState<any[]>([]);
 
 
     useEffect(() => {
@@ -27,7 +30,8 @@ export default function PerfilUsuario() {
                 setUsuario(data);
             } catch (error) {
 
-                console.error("id USUARIO PARAMEYTRO", idUsuarios, "id sesion", idSesion, error);
+                console.error("Error al cargar usuario:", error);
+
             }
         };
 
@@ -48,10 +52,29 @@ export default function PerfilUsuario() {
             const fetchedAmistad = await getAmistadEntreUsuarios(idSesion, Number(idUsuarios));
             //  console.log("Amistad entre usuarios", idSesion, idUsuario, fetchedAmistad);
             setAmistad(fetchedAmistad);
+           /* console.log("id usuario perfil", idUsuarios, "id sesion", idSesion, "amistad", fetchedAmistad, "solicitud", fetchedSolicitud);
+            const recuerdos = await getRecuerdosPorUsuario(Number(idUsuarios));
+            console.log("recuerdos", recuerdos);
+            setRecuerdos(recuerdos);*/
+
 
         };
         fetchAmistad();
     }, [idSesion, idUsuarios]);
+
+    useEffect(() => {
+        const fetchRecuerdos = async () => {
+            try {
+                const recuerdosData = await getRecuerdosPorUsuario(Number(idUsuarios));
+                setRecuerdos(recuerdosData);
+            } catch (error) {
+                console.error("Error al cargar recuerdos:", error);
+            }
+        };
+
+        fetchRecuerdos();
+    }, [idUsuarios]);
+
 
     if (!usuario) {
         return <div>Cargando...</div>;
@@ -65,14 +88,13 @@ export default function PerfilUsuario() {
     }
     const handleEnviarSolicitudAmistad = () => {
         console.log("solicitud" + solicitud)
-        creaSulicitud(usuario.idUsuario);
+        CrearSolicitud(usuario.idUsuario);
         alert("Solicitud de amistad enviada");
         return;
     }
     const handleChatear = async () => {
         // Redirige al chat individual con este usuario. Si no existe, pregunta y lo crea.
         try {
-
 
 
             const chatExistente = await getChatIndividualPorUsuario(Number(idUsuarios));
@@ -82,7 +104,6 @@ export default function PerfilUsuario() {
                 if (confirmar) {
 
                     const nuevoChat = await crearChatIndividual(usuario.idUsuario);
-
 
 
                     alert("Chat creado");
@@ -131,8 +152,6 @@ export default function PerfilUsuario() {
             )}
 
 
-
-
             {/*Si no hay amistad Boton de crear amistad*/}
             {!amistad && solicitud?.estado != 'pendiente' && (Number(idSesion) !== Number(idUsuarios)) && (
                 <button onClick={handleEnviarSolicitudAmistad}>Enviar solicitud de amistad</button>
@@ -140,6 +159,22 @@ export default function PerfilUsuario() {
             {/*Si hay solicitud pendiente*/}
             {!amistad && solicitud && solicitud.estado === 'pendiente' && (
                 <p>Solicitud de amistad pendiente</p>
+            )}
+
+            {/*Muestra los recuerdos que ha creado*/}
+            <h2>Recuerdos creados por {usuario.nombreUsuario}</h2>
+            {recuerdos.length === 0 ? (
+                <p>No ha creado ningún recuerdo aún.</p>
+            ) : (
+                <ul>
+                    {recuerdos.map((recuerdo) => (
+                        <li key={recuerdo.idRecuerdo}>
+                            <Link to={`/Recuerdo/${recuerdo.idRecuerdo}`}>
+                                {recuerdo.titulo}
+                            </Link>
+                        </li>
+                    ))}
+                </ul>
             )}
 
 

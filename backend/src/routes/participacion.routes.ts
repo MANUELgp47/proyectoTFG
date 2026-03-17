@@ -17,6 +17,9 @@ router.get('/actividad/:id/numero', authMiddleware, ParticipaciónController.get
 //obtiene participacion especifica de un usuario en una actividad
 router.get('/:idActividad', authMiddleware, ParticipaciónController.getParticipacionPorId);
 
+//obtiene todas las participaciones de una actividad
+router.get('/actividad/:idActividad', authMiddleware, ParticipaciónController.getParticipacionesPorActividad);
+
 //Crear una nueva participacion
 router.post('/', authMiddleware, ParticipaciónController.createParticipacion);
 

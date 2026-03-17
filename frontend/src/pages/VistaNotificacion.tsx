@@ -3,9 +3,8 @@ import {useEffect, useState} from 'react';
 import {getNotificacionPorId, marcarNotificacionComoLeida, eliminarNotificacion} from '../services/notificacionService';
 import {useParams} from 'react-router-dom';
 import {aceptarParticipacion, rechazarParticipacion, eliminarParticipacion} from "../services/participacionService";
-import { useAuth } from "../context/AuthContext";
+import {useAuth} from "../context/AuthContext";
 import {aceptarSolicitudAmistad, rechazarSolicitudAmistad} from '../services/solicitudAmistadService';
-
 
 
 interface Notificacion {
@@ -15,6 +14,7 @@ interface Notificacion {
     tipo?: string;
     idReferencia?: number | string;
     idUsuarioEmisor?: number | string;
+
     [key: string]: unknown;
 }
 
@@ -23,7 +23,7 @@ export default function VistaNotificacion() {
     const [notificacion, setNotificacion] = useState<Notificacion | null>(null);
     const [error, setError] = useState<string | null>(null);
 
-    const { idUsuario: idUsuarioSesion } = useAuth();
+    const {idUsuario: idUsuarioSesion} = useAuth();
 
     useEffect(() => {
         const fetchNotificacion = async () => {
@@ -103,6 +103,10 @@ export default function VistaNotificacion() {
         }
         alert('Solicitud de amistad rechazada');
     }
+    const handleCrearRecuerdo = () => {
+        // Redirige a la página de creación de recuerdo, pasando el idReferencia (idActividad) como parámetro
+        window.location.href = `/crearRecuerdo/${notificacion.idReferencia}`;
+    }
 
 
     const fechaTexto = notificacion.fecha ? new Date(notificacion.fecha).toLocaleString() : 'Fecha no disponible';
@@ -116,15 +120,15 @@ export default function VistaNotificacion() {
             {notificacion.tipo === 'solicitud_union_actividad' &&
                 Number(notificacion.idUsuarioEmisor) !== idUsuarioSesion && (
 
-                <>
-                    <button onClick={handleAceptarSolicitudParticipacion}>Aceptar
-                        solicitud
-                    </button>
-                    <button onClick={handleRechazarSolicitudParticipacion}>Rechazar
-                        solicitud
-                    </button>
-                </>
-            )}
+                    <>
+                        <button onClick={handleAceptarSolicitudParticipacion}>Aceptar
+                            solicitud
+                        </button>
+                        <button onClick={handleRechazarSolicitudParticipacion}>Rechazar
+                            solicitud
+                        </button>
+                    </>
+                )}
             {notificacion.tipo === 'solicitud_amistad' &&
                 Number(notificacion.idUsuarioEmisor) !== idUsuarioSesion && (
 
@@ -134,6 +138,14 @@ export default function VistaNotificacion() {
                         </button>
                         <button onClick={handlerechazarSolicitudAmistad}>Rechazar
                             solicitud
+                        </button>
+                    </>
+                )}
+            {notificacion.tipo === 'posibilidad_recuerdo' &&
+                Number(notificacion.idUsuarioEmisor) !== idUsuarioSesion && (
+
+                    <>
+                        <button onClick={handleCrearRecuerdo}>Crear recuerdo
                         </button>
                     </>
                 )}

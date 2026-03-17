@@ -18,3 +18,6 @@ export const eliminarAmistad = async (idusuario2: number): Promise<void> => {
     const response = await api.delete(`amistad/${idusuario2}`);
     return response.data;
 }
+
+
+//

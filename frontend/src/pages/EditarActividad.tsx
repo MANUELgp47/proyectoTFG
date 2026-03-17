@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
 import {useParams, useNavigate} from "react-router-dom";
-import {updateActividad} from "../services/actividadService";
+import {updateActividad, finalizarActividad} from "../services/actividadService";
 import api from "../api/axios";
 
 export default function EditarActividad() {
@@ -59,7 +59,7 @@ export default function EditarActividad() {
             });
 
             // Actualizamos en frontend
-            setActividad({ ...actividad, estado: "cancelada" });
+            setActividad({...actividad, estado: "cancelada"});
 
         } catch (err) {
             setError("No se pudo cancelar");
@@ -74,7 +74,6 @@ export default function EditarActividad() {
             if (!id) throw new Error('ID de actividad no disponible');
             const actividadId = Number(id);
             if (Number.isNaN(actividadId)) throw new Error('ID de actividad inválido');
-
 
 
             await updateActividad(actividadId, {
@@ -94,6 +93,27 @@ export default function EditarActividad() {
             setError("No se pudo actualizar");
         }
     };
+
+    const handleFinalizar = async () => {
+        try {
+            if (!id) throw new Error('ID de actividad no disponible');
+            const actividadId = Number(id);
+            if (Number.isNaN(actividadId)) throw new Error('ID de actividad inválido');
+
+            const confirmar = window.confirm(
+                "¿Seguro que quieres finalizar esta actividad?"
+            );
+            if (!confirmar) return;
+
+            await finalizarActividad(actividadId);
+
+            // Actualizamos en frontend
+            setActividad({...actividad, estado: "finalizada"});
+
+        } catch (err) {
+            setError("No se pudo finalizar");
+        }
+    }
 
     return (
         <div>
@@ -124,7 +144,7 @@ export default function EditarActividad() {
                     type="datetime-local"
                     value={actividad.fechaFin}
                     onChange={(e) =>
-                        setActividad({ ...actividad, fechaFin: e.target.value })
+                        setActividad({...actividad, fechaFin: e.target.value})
                     }
                 /><br/>
                 <input
@@ -132,30 +152,38 @@ export default function EditarActividad() {
                     placeholder="Ubicación"
                     value={actividad.ubicacion}
                     onChange={(e) =>
-                        setActividad({ ...actividad, ubicacion: e.target.value })
+                        setActividad({...actividad, ubicacion: e.target.value})
                     }
                 /><br/>
                 <textarea
                     value={actividad.imagenes}
                     onChange={(e) =>
-                        setActividad({ ...actividad, imagenes: e.target.value })
+                        setActividad({...actividad, imagenes: e.target.value})
                     }
                 /><br/>
 
 
                 <button type="submit">Actualizar</button>
                 {actividad.estado === "activa" && (
-                    <button
-                        type="button"
-                        onClick={handleCancelar}
-                        style={{ backgroundColor: "red", color: "white", marginLeft: "10px" }}
-                    >
-                        Cancelar actividad
-                    </button>
+                    <div>
+                        <button
+                            type="button"
+                            onClick={handleCancelar}
+                            style={{backgroundColor: "red", color: "white", marginLeft: "10px"}}
+                        >
+                            Cancelar actividad
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleFinalizar}
+                            style={{backgroundColor: "orange", color: "white", marginLeft: "10px"}}
+                        >
+                            Finalizar actividad
+                        </button>
+                    </div>
                 )}
 
             </form>
-
 
 
             {error && <p>{error}</p>}

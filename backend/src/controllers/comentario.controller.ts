@@ -51,20 +51,26 @@ export const getComentariosPorUsuario = async (req: Request, res: Response) => {
 }
 export const createComentario = async (req: Request, res: Response) => {
     try {
+
+
         req.body.idUsuario = req.userId;
 
         //validar que el contenido no esté vacío
         if (!req.body.mensaje || req.body.mensaje.trim() === '') {
+
             return res.status(400).json({message: 'El contenido del comentario no puede estar vacío'});
         }
         //validar que existe el recuerdo
         if (!req.body.idRecuerdo) {
+
             return res.status(400).json({message: 'El ID del recuerdo es obligatorio'});
         }
         const existeRecuerdo = await RecuerdoService.existeRecuerdo(req.body.idRecuerdo);
         if (!existeRecuerdo) {
+
             return res.status(404).json({message: 'El recuerdo al que se quiere comentar no existe'});
         }
+
 
 
         const comentario = await ComentarioModel.crearComentario(req.body);

@@ -55,8 +55,21 @@ export const getMensajesPorChatIndividual = async (req: Request, res: Response) 
         res.status(500).json({message: 'Error del servidor'});
     }
 };
+//get mensajes por chat de actividad
 export const getMensajesPorChatActividad = async (req: Request, res: Response) => {
     const idChatActividad = Number(req.params.idChatActividad);
+    const idUsuario = Number(req.userId);
+
+    //comprobar que el chat de actividad existe y que el usuario participa en la actividad
+    const chatActividad = await ChatActividadModel.getChatActividadPorId(idChatActividad);
+    if (!chatActividad) {
+        return res.status(404).json({message: 'Chat de actividad no encontrado'});
+    }
+    const estaEnActividad = await ServicioActividad.ActividadService.esUsuarioParticipante(chatActividad.idActividad, idUsuario);
+    if (!estaEnActividad) {
+        return res.status(403).json({message: 'No tienes permiso para ver los mensajes de este chat de actividad'});
+    }
+
     try {
         const mensajes = await MensajedModel.getMensajesPorChatActividad(idChatActividad);
         res.json(mensajes);
@@ -64,7 +77,7 @@ export const getMensajesPorChatActividad = async (req: Request, res: Response) =
         console.error('Error al obtener mensajes por chat de actividad:', error);
         res.status(500).json({message: 'Error del servidor'});
     }
-};
+}
 
 //función para comprobar si el emisor existe y si el chat individual o de actividad existe TODO: Hacer en servicio
 const comprobarEmisorChat = async (idEmisor: number, idChatIndividual?: number, idChatActividad?: number): Promise<boolean> => {

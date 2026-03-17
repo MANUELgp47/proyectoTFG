@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import * as MensajeController from '../controllers/mensaje.controller.js';
 import {authMiddleware} from "../middleware/auth.middleware.js";
+import {getMensajesPorChatActividad} from "../controllers/mensaje.controller.js";
 
 const router = Router();
 
@@ -12,6 +13,9 @@ router.post('/', authMiddleware, MensajeController.createMensaje);
 
 //get mensajes de un chat individual por id del chat
 router.get('/chat/:idChatIndividual', authMiddleware, MensajeController.getMensajesPorChatIndividual);
+
+//
+router.get('/chatActividad/:idChatActividad', authMiddleware, MensajeController.getMensajesPorChatActividad);
 
 //marcar un mensaje como leido por id en chats individuales
 router.put('/:idMensaje', authMiddleware, MensajeController.marcarMensajeComoLeidoIndividual);

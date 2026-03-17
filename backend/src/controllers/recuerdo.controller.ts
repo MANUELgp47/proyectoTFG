@@ -22,6 +22,13 @@ export const getRecuerdoPorId = async (req: Request, res: Response) => {
         return res.status(400).json({message: 'ID inválido'});
     }
 
+    //existe el recuerdo
+    const existeRecuerdo = await RecuerdoService.existeRecuerdo(idRecuerdo);
+    if (!existeRecuerdo) {
+        return res.status(404).json({message: 'Recuerdo no encontrado'});
+    }
+
+
     try {
         const recuerdo = await RecuerdoModel.getRecuerdoPorId(idRecuerdo);
         if (!recuerdo) {
@@ -71,6 +78,10 @@ export const createRecuerdo = async (req: Request, res: Response) => {
     const idUsuario = req.userId;
     const titulo = req.body.titulo;
     let todoCorrecto = true;
+
+    console.log('idActividad:', idActividad);
+    console.log('idUsuario:', idUsuario);
+    console.log('titulo:', titulo);
 
     if (!idActividad || !idUsuario || !titulo) {
         return res.status(400).json({message: 'Faltan campos obligatorios'});

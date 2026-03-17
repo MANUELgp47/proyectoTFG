@@ -1,21 +1,19 @@
 import {useEffect, useState} from "react";
 import {useParams} from "react-router-dom";
 import {getActividadPorId} from "../services/actividadService";
-import {getNumeroParticipantes, getParticipacionPorId, participarEnActividad} from "../services/participacionService";
+import {
+    eliminarParticipacion,
+    getNumeroParticipantes,
+    getParticipacionPorId,
+    participarEnActividad
+} from "../services/participacionService";
+import {getChatActividad} from "../services/chatService";
+import {useAuth} from "../context/AuthContext.tsx";
+import type {Actividad} from "../types.ts";
 
 
 // Tipos locales mínimos para evitar `any`
-interface Actividad {
-    idActividad: number;
-    titulo: string;
-    descripcion?: string;
-    fechaInicio: string | Date;
-    fechaFin: string | Date;
-    ubicacion?: string;
-    imagenes?: string[];
-    publica?: boolean;
-    participantesmax?: number;
-}
+
 
 interface Participacion {
     esCreador?: boolean;
@@ -28,6 +26,9 @@ export function ActividadDetalle() {
     const [loading, setLoading] = useState(true);
     const [numeroParticipantes, setNumeroParticipantes] = useState(0);
     const [miParticipacion, setParticipacion] = useState<Participacion | null>(null);
+    const [idChatActividad, setIdChatActividad] = useState<number | null>(null);
+    const {  idUsuario } = useAuth();
+    const idSesion = Number(idUsuario);
 
 
     useEffect(() => {
@@ -43,7 +44,14 @@ export function ActividadDetalle() {
                     const miParticipacion = await getParticipacionPorId(Number(id));
                     setParticipacion(miParticipacion);
 
-
+                    //si participo en la actividad, cargar el chat de la actividad para marcar los mensajes como leídos
+                    if (miParticipacion && miParticipacion.aceptada) {
+                     //   console.log("Cargando chat de la actividad para marcar mensajes como leídos, miParticipacion", miParticipacion);
+                        const chat = await getChatActividad(Number(id));
+                        console.log("chat ",chat.idChatActividad, "actividad  ", chat.idActividad);
+                        setIdChatActividad(chat.idChatActividad);
+                        console.log(chat.idChatActividad);
+                    }
 
                 }
             } catch (error) {
@@ -73,6 +81,23 @@ export function ActividadDetalle() {
     const handleDejarParticipar = async () => {
         try {
             // llama a tu endpoint dejar participar
+
+            if (idSesion == null) {
+                console.error("No se pudo obtener el ID de sesión del usuario.");
+                return;
+            }
+            if (actividad.idActividad == null) {
+                console.error("No se pudo obtener el ID de la actividad.");
+                return;
+            }
+            if (actividad.idCreador == idSesion) {
+                console.error("El creador de la actividad no puede dejar de participar.");
+                return;
+            }
+
+            eliminarParticipacion(idSesion, actividad.idActividad);
+
+
             console.log("Dejar participar");
         } catch (error) {
             console.error(error);
@@ -104,19 +129,22 @@ export function ActividadDetalle() {
 
             {/* Estado de participación: mostrar mensajes específicos según miParticipacion */}
             {miParticipacion ? (
-                miParticipacion.esCreador ? (/*Creador*/
+                miParticipacion.esCreador && actividad.estado == 'activa' ? (/*Creador*/
                     <button
                         onClick={() => window.location.href = `/ActualizarActividad/${actividad.idActividad}`}
                     >
                         Editar actividad
                     </button>
-                ) : miParticipacion.aceptada ? ( /* Participo aprobado */
+                ) : miParticipacion.aceptada && actividad.estado == 'activa' ? ( /* Participo aprobado */
                     <button
                         onClick={handleDejarParticipar}
                         style={{backgroundColor: "red", color: "white"}}
                     >
                         Dejar de participar
                     </button>
+
+
+
                 ) : (/* Participación pendiente */
                     <p>Tu participación está pendiente de aprobación.</p>
                 )
@@ -128,7 +156,17 @@ export function ActividadDetalle() {
                 ) : (
                     <p>No hay plazas disponibles.</p>
                 )
-            )}
+            )
+            }
+
+            {/*Si participo muestra un boton para el chat de la actividad*/}
+                {miParticipacion && miParticipacion.aceptada && (
+                    <button
+                        onClick={() => window.location.href = `/ChatActividad/${idChatActividad}`}
+                    >
+                        Ir al chat de la actividad
+                    </button>
+                )}
 
 
 

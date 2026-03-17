@@ -157,6 +157,7 @@ export const createParticipacion = async (req: Request, res: Response) => {
                 idUsuarioReceptor: participacion.idUsuario,
                 tipo: tipoNot,
                 mensaje: `${aceptada} ${actividad.titulo}`,
+                idUsuarioEmisor: actividad.idCreador,
                 idReferencia: participacion.idActividad,
             };
             await NotificacionModel.crearNotificacion(notificacion);
@@ -206,12 +207,35 @@ export const actualizaEstado = async (req: Request, res: Response) => {
                 idUsuarioReceptor: idUsuario,
                 tipo: 'union_actividad',
                 mensaje: `Su solicitud para unirse a la actividad ${actividad.titulo} ha sido aceptada`,
+                idUsuarioEmisor: actividad.idCreador,
                 idReferencia: idActividad,
             };
             await NotificacionModel.crearNotificacion(notificacion);
         }
     }
 };
+
+//obtiene todas las participaciones de una actividad
+export const getParticipacionesPorActividad = async (req: Request, res: Response) => {
+    const idActividad = req.params.idActividad;
+
+    if (idActividad === undefined) {
+        return res.status(400).json({message: 'idActividad es requerido'});
+    }
+    //comprobar que la actividad existe
+    const actividadExiste = await ActividadService.existeActividad(Number(idActividad));
+    if (!actividadExiste) {
+        return res.status(404).json({message: 'La actividad no existe'});
+    }
+
+    try {
+        const participacions = await ParticipacionModel.getParticipacionesPorActividad(Number(idActividad));
+        res.json(participacions);
+    } catch (error) {
+        console.error('Error al obtener participacions por actividad:', error);
+        res.status(500).json({message: 'Error del servidor'});
+    }
+}
 
 
 //Eliminar una participacion
@@ -241,6 +265,11 @@ export const eliminarParticipacion = async (req: Request, res: Response) => {
         return res.status(400).json({message: 'IDs inválidos'});
     }
 
+    //si la actividad no está activa, no se pueden eliminar participaciones
+    const estadoActividad = await ActividadService.getEstadoActividad(Number(idActividad));
+    if (estadoActividad !== 'activa') {
+        return res.status(400).json({message: 'No se pueden eliminar participaciones de una actividad que no está activa'});
+    }
 
 
     //TODO comprobar que el usuario que elimina es el creador de la actividad o el propio usuario

@@ -65,3 +65,23 @@ export const eliminarLikeMegusta = async (idLike: number): Promise<boolean> => {
 
     return result.rowCount === 1;// Devuelve true si se eliminó una fila, false si no
 };
+
+// Obtener si un Usuario dió like a un recuerdo
+export const getLikeMegustaPorIdRecuerdoYIdUsuario = async (idRecuerdo: number, idUsuario: number): Promise<LikeMegusta | null> => {
+    const result = await pool.query(
+        "SELECT * FROM like_megusta WHERE id_recuerdo = $1 AND id_usuario = $2",
+        [idRecuerdo, idUsuario]
+    );
+    if (result.rows.length === 0) return null;
+    return mapearLikeMegusta(result.rows[0]);
+};
+
+// Obtener si un Usuario dió like a un comentario
+export const getLikeMegustaPorIdComentarioYIdUsuario = async (idComentario: number, idUsuario: number): Promise<LikeMegusta | null> => {
+    const result = await pool.query(
+        "SELECT * FROM like_megusta WHERE id_comentario = $1 AND id_usuario = $2",
+        [idComentario, idUsuario]
+    );
+    if (result.rows.length === 0) return null;
+    return mapearLikeMegusta(result.rows[0]);
+}

@@ -29,4 +29,8 @@ router.delete('/:id', authMiddleware, ActividadController.deleteActividad);
 //finalizar una actividad
 router.post('/:id/finalizar', authMiddleware, ActividadController.finalizarActividad);
 
+
+
+
+
 export default router;

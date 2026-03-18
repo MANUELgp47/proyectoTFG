@@ -13,7 +13,9 @@ router.get('/comentario/numero/:idComentario', LikeMegustaController.getNumeroLi
 router.get('/', LikeMegustaController.getLikesMegusta);
 
 //Obtener si un Usuario dió like a un recuerdo
-router.get('/recuerdo/:idRecuerdo/usuario/', LikeMegustaController.getLikeMegustaPorIdRecuerdoYIdUsuario);
+router.get('/recuerdo/:idRecuerdo/',authMiddleware, LikeMegustaController.getLikeMegustaPorIdRecuerdoYIdUsuario);
+//Obtener si un Usuario dió like a un comentario
+router.get('/comentario/:idComentario/',authMiddleware, LikeMegustaController.getLikeMegustaPorIdRecuerdoYIdUsuario);
 
 //Obtener si un Usuario dió like a un comentario
 //router.get('/comentario/:idComentario/usuario/:idUsuario', LikeMegustaController.getLikeMegustaPorIdComentarioYIdUsuario);

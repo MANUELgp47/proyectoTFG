@@ -7,7 +7,13 @@ import type {Recuerdo, Usuario, Comentario} from "../types.ts";
 import {getParticipacionesPorActividad} from "../services/participacionService";
 import {getUsuario} from "../services/usuarioService";
 import {getComentarioByIdRecuerdo, crearComentario} from "../services/comentarioService.ts";
-import {crearLike, getLikesByIdRecuerdo, usuarioDioLikeRecuerdo} from "../services/likeService.ts";
+import {
+    crearLike,
+    getLikesByIdRecuerdo,
+    usuarioDioLikeRecuerdo,
+    getLikesByIdComentario,
+    usuarioDioLikeComnetario
+} from "../services/likeService.ts";
 
 
 export default function VistaRecuerdo() {
@@ -20,6 +26,9 @@ export default function VistaRecuerdo() {
     const [likes, setLikes] = useState<number>(0);
     const [heDadoLike, setHeDadoLike] = useState<boolean | null>(null);
     const [heDadoLikeLoaded, setHeDadoLikeLoaded] = useState<boolean>(false);
+
+    const [likesComentarios, setLikesComentarios] = useState<{ [idComentario: number]: number }>({});
+    const [heDadoLikeComentarios, setHeDadoLikeComentarios] = useState<{ [idComentario: number]: boolean }>({});
 
 
     useEffect(() => {
@@ -44,22 +53,15 @@ export default function VistaRecuerdo() {
                     : (likesData && (likesData.numeroLikes ?? likesData.count ?? 0)) || 0;
                 setLikes(numeroLikes);
 
-                const heDadoLikeData = await usuarioDioLikeRecuerdo(Number(idRecuerdo));
-                // Normalizar la respuesta pero no convertir valores ausentes en false.
-                let heDadoLikeBool: boolean | null = null;
-                if (heDadoLikeData === null || heDadoLikeData === undefined) {
-                    heDadoLikeBool = null; // indeterminado
-                } else if (typeof heDadoLikeData === 'boolean') {
-                    heDadoLikeBool = heDadoLikeData;
-                } else if (typeof heDadoLikeData === 'number') {
-                    // si el servicio devuelve un contador, >0 significa que dio like
-                    heDadoLikeBool = heDadoLikeData > 0;
-                } else if (typeof heDadoLikeData === 'object') {
-                    // buscar campos comunes que indiquen existencia de like
-                    heDadoLikeBool = !!(heDadoLikeData.dioLike ?? heDadoLikeData.exists ?? heDadoLikeData.count ?? heDadoLikeData.numeroLikes ?? heDadoLikeData.value);
-                } else {
-                    heDadoLikeBool = null;
-                }
+                const heDadoLikeData = await usuarioDioLikeRecuerdo(Number(idRecuerdo));// devuelve true o false
+
+
+
+
+                // Marcar si el usuario ya ha dado like
+                const heDadoLikeBool = Boolean(heDadoLikeData);
+
+
                 setHeDadoLike(heDadoLikeBool);
                 setHeDadoLikeLoaded(true);
 
@@ -79,6 +81,27 @@ export default function VistaRecuerdo() {
                 const comentariosData = await getComentarioByIdRecuerdo(Number(idRecuerdo)) as Comentario[];
                 // console.log("Comentarios", comentariosData);
                 setComentarios(comentariosData);
+
+                // Obtener likes de cada comentario y a los que yo le he dado like
+                const likesData: { [idComentario: number]: number } = {};
+                const likesDataYo: { [idComentario: number]: boolean } = {};
+                await Promise.all(comentariosData.map(async (comentario) => {// para cada comentario obtenemos su número de likes y lo guardamos en un objeto con clave el id del comentario y valor el número de likes
+                    const numeroLikes = await getLikesByIdComentario(comentario.idComentario);
+                    likesData[comentario.idComentario] = typeof numeroLikes === 'number'
+                        ? numeroLikes
+                        : (numeroLikes && (numeroLikes.numeroLikes ?? numeroLikes.count ?? 0)) || 0;
+
+                    // Obtener si el usuario ha dado like a este comentario
+                    const heDadoLikeData = await usuarioDioLikeComnetario(Number(comentario.idComentario));
+                    likesDataYo[comentario.idComentario] = Boolean(heDadoLikeData);
+
+
+
+                }));
+                setLikesComentarios(likesData);
+                setHeDadoLikeComentarios(likesDataYo);
+
+
 
             } catch (err) {
                 console.error(err);
@@ -113,6 +136,26 @@ export default function VistaRecuerdo() {
         // Marcar que el usuario ya ha dado like
         setHeDadoLike(true);
         setHeDadoLikeLoaded(true);
+    }
+    const handleLikeComentario = async (idComentario: number) => {
+
+        await crearLike({idComentario: idComentario});
+
+        //refrescar likes del comentario
+        const numeroLikes = await getLikesByIdComentario(idComentario);
+        setLikesComentarios(prev => ({
+            ...prev,
+            [idComentario]: typeof numeroLikes === 'number'
+                ? numeroLikes
+                : (numeroLikes && (numeroLikes.numeroLikes ?? numeroLikes.count ?? 0)) || 0
+        }));
+
+        //recargar si he dado like a este comentario
+        const heDadoLikeData = await usuarioDioLikeComnetario(idComentario);
+        setHeDadoLikeComentarios(prev => ({
+            ...prev,
+            [idComentario]: Boolean(heDadoLikeData)
+        }));
     }
 
 
@@ -163,7 +206,8 @@ export default function VistaRecuerdo() {
                 {participantes && participantes.length > 0 ? (
                     <ul>
                         {participantes.map((participante, index) => (
-                            <li key={index}><a href={`/usuario/${participante.idUsuario}`}>{participante.nombre}</a>
+                            <li key={index}><a href={`/usuario/${participante.idUsuario}`}>{participante.nombreUsuario}</a>
+
                             </li>
                         ))}
                     </ul>
@@ -181,9 +225,13 @@ export default function VistaRecuerdo() {
                 <h2>Comentarios</h2>
                 {comentarios && comentarios.length > 0 ? (
                     <ul>
-                        {comentarios.map((comentario, index) => (
-                            <li key={index}>
+                        {comentarios.map((comentario) => (
+                            <li key={comentario.idComentario}>
                                 <p><strong>{comentario.idUsuario}:</strong> {comentario.mensaje}</p>
+                                <p>{likesComentarios[comentario.idComentario] ?? 0}</p>
+                                {heDadoLikeComentarios[comentario.idComentario] === false && (
+                                    <button onClick={() => handleLikeComentario(comentario.idComentario)} style={{marginTop: "10px"}}>Me gusta</button>
+                                )}
                             </li>
                         ))}
                     </ul>

@@ -4,6 +4,10 @@ export const getActividades = async () => {
     const response = await api.get("/actividad");
     return response.data;
 };
+export const getActividadesFiltro = async (data:any ) => {
+    const response = await api.get(`/actividad?${data}`);
+    return response.data;
+};
 
 export const createActividad = async (data: any) => {
     const response = await api.post("/actividad", data);

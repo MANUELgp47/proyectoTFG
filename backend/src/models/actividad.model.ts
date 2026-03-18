@@ -95,3 +95,15 @@ export const eliminarActividad = async (idActividad: number): Promise<boolean> =
 
     return result.rowCount === 1 ;// Devuelve true si se eliminó una fila, false si no
 };
+
+//obtener actividades con uno de los tags que se pasan en el array por parametro
+/*export const getActividadesPorTags = async (tags: string[]): Promise<Actividad[]> => {
+    const result = await pool.query(
+        `SELECT a.* FROM actividad a
+         JOIN actividad_tag at ON a.id_actividad = at.id_actividad
+         JOIN tag t ON at.id_tag = t.id_tag
+         WHERE t.nombre = ANY($1::text[])`,
+        [tags]
+    );
+    return result.rows.map(mapearActividad);
+}*/

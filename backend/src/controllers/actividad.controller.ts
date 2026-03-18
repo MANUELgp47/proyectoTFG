@@ -10,13 +10,63 @@ import * as ActividadService from '../services/actividad.service.js';
 import {UsuarioService} from "../services/usuario.service.js";
 
 
+/*
+export const getActividadesFiltradas= async (req: Request, res: Response) => {
+    const {titulo, ubicacion, publica, fecha} = req.query as any;
+
+    console.log("datos a filtrar",titulo, ubicacion, publica, fecha);
+    try {
+        const actividades = await ActividadService.ActividadService.getFiltered({
+            titulo,
+            ubicacion,
+            publica,
+            fecha
+        });
+
+        res.json(actividades);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({error: "Error al obtener actividades"});
+    }
+}*/
+
 export const getActividades = async (req: Request, res: Response) => {
     try {
-        const actividads = await ActividadModel.getAllActividads();
-        res.json(actividads);
+        const { titulo, ubicacion, publica, fecha, participantesmax, estado, tags } = req.query as any;
+
+        let actividades;
+
+
+        if (titulo || ubicacion || publica || fecha || participantesmax || estado || tags) {
+
+            try {
+                actividades = await ActividadService.ActividadService.getFiltered({
+                    titulo,
+                    ubicacion,
+                    publica,
+                    fecha,
+                    participantesmax,
+                    estado,
+                    tags
+
+                });
+            }catch (error)  {
+
+                res.status(404).json({ message: 'Error de busqueda' });
+            }
+
+
+
+        } else {
+
+            actividades = await ActividadModel.getAllActividads();
+        }
+
+        res.json(actividades);
+
     } catch (error) {
         console.error('Error al obtener actividades:', error);
-        res.status(500).json({message: 'Error del servidor'});
+        res.status(500).json({ message: 'Error del servidor' });
     }
 };
 

@@ -297,7 +297,7 @@ Content-Type: application/json
   "contrasena": "hoalpass"
 }
 
-###manuel eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc3MzEzODk2MCwiZXhwIjoxNzczMjI1MzYwfQ.PNhNszTg6ZWoSMgi9HOX96Pk9wf-C8O4S2iQcdQpsKU
+###manuel eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsImlhdCI6MTc3Mzc0NzYxNiwiZXhwIjoxNzc0NjExNjE2fQ.8f606nSL4Jdg_WEpi8Yvby0KJY81BR0dg7FHmZ9fdPc
 ### pep eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc3MzEzODk2MCwiZXhwIjoxNzczMjI1MzYwfQ.PNhNszTg6ZWoSMgi9HOX96Pk9wf-C8O4S2iQcdQpsKU
 
 
@@ -327,3 +327,11 @@ Content-Type: application/json
 ### mostrar usuario 6
 GET http://localhost:3000/api/usuario/6
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc3MjY0NTQyMCwiZXhwIjoxNzcyNzMxODIwfQ._BiHYgLpB_kOh4r2Dz_6ylnorPbmK5SMoSz5SMzYkBE
+
+###Filtrado de actividad
+
+
+
+GET http://localhost:3000/api/actividad?tags=Sendero,Deporte
+
+

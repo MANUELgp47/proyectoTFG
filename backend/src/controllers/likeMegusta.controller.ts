@@ -10,7 +10,7 @@ export const getLikesMegusta = async (req: Request, res: Response) => {
         res.json(likesMegusta);
     } catch (error) {
         console.error('Error al obtener likes:', error);
-        res.status(500).json({ message: 'Error del servidor' });
+        res.status(500).json({message: 'Error del servidor'});
     }
 };
 
@@ -22,7 +22,7 @@ export const getLikesMegustaPorIdRecuerdo = async (req: Request, res: Response) 
         res.json(likesMegusta);
     } catch (error) {
         console.error('Error al obtener likes por idRecuerdo:', error);
-        res.status(500).json({ message: 'Error del servidor' });
+        res.status(500).json({message: 'Error del servidor'});
     }
 };
 
@@ -34,7 +34,7 @@ export const getLikesMegustaPorIdComentario = async (req: Request, res: Response
         res.json(likesMegusta);
     } catch (error) {
         console.error('Error al obtener likes por idComentario:', error);
-        res.status(500).json({ message: 'Error del servidor' });
+        res.status(500).json({message: 'Error del servidor'});
     }
 };
 
@@ -43,10 +43,10 @@ export const getNumeroLikesComentario = async (req: Request, res: Response) => {
     try {
         const idComentario = Number(req.params.idComentario);
         const numeroLikes = await LikeModel.getNumeroLikesComentario(idComentario);
-        res.json({ numeroLikes });
+        res.json({numeroLikes});
     } catch (error) {
         console.error('Error al obtener numero de likes por idComentario:', error);
-        res.status(500).json({ message: 'Error del servidor' });
+        res.status(500).json({message: 'Error del servidor'});
     }
 };
 
@@ -55,10 +55,10 @@ export const getNumeroLikesRecuerdo = async (req: Request, res: Response) => {
     try {
         const idRecuerdo = Number(req.params.idRecuerdo);
         const numeroLikes = await LikeModel.getNumeroLikesRecuerdo(idRecuerdo);
-        res.json({ numeroLikes });
+        res.json({numeroLikes});
     } catch (error) {
         console.error('Error al obtener numero de likes por idRecuerdo:', error);
-        res.status(500).json({ message: 'Error del servidor' });
+        res.status(500).json({message: 'Error del servidor'});
     }
 };
 
@@ -67,26 +67,24 @@ export const createLikeMegusta = async (req: Request, res: Response) => {
         const idUsuario = req.userId;
         req.body.idUsuario = idUsuario;
 
-        console.log("Creando like:", req.body);
-
         // Validar que venga idRecuerdo o idComentario
         if (!req.body.idRecuerdo && !req.body.idComentario) {
-            return res.status(400).json({ message: 'Debe proporcionar idRecuerdo o idComentario' });
+            return res.status(400).json({message: 'Debe proporcionar idRecuerdo o idComentario'});
         }
         //comprueba que el usuario no haya dado like ya a ese recuerdo o comentario
         //si es un like de recuerdo se asegura de que existe el recuerdo
         if (req.body.idRecuerdo) {
             const recuerdoExiste = await RecuerdoService.existeRecuerdo(req.body.idRecuerdo);
             if (!recuerdoExiste) {
-                console.log("Recuerdo no encontrado",req.body.idRecuerdo);
-                return res.status(404).json({ message: 'Recuerdo no encontrado' });
+                console.log("Recuerdo no encontrado", req.body.idRecuerdo);
+                return res.status(404).json({message: 'Recuerdo no encontrado'});
             }
             const likeExistente = await LikeModel.getLikesMegustaPorIdRecuerdo(req.body.idRecuerdo)
             //busca el idUsuario en los likes existentes
             for (const like of likeExistente) {
                 if (like.idUsuario === idUsuario) {
-                    console.log("ya has dado like",like.idUsuario);
-                    return res.status(400).json({ message: 'Ya has dado like a este recuerdo' });
+                    console.log("ya has dado like", like.idUsuario);
+                    return res.status(400).json({message: 'Ya has dado like a este recuerdo'});
                 }
             }
 
@@ -95,13 +93,13 @@ export const createLikeMegusta = async (req: Request, res: Response) => {
         if (req.body.idComentario) {
             const comentarioExiste = await ComentarioService.existeComentario(req.body.idComentario);
             if (!comentarioExiste) {
-                return res.status(404).json({ message: 'Comentario no encontrado' });
+                return res.status(404).json({message: 'Comentario no encontrado'});
             }
             const likeExistente = await LikeModel.getLikesMegustaPorIdComentario(req.body.idComentario)
             //busca el idUsuario en los likes existentes
             for (const like of likeExistente) {
                 if (like.idUsuario === idUsuario) {
-                    return res.status(400).json({ message: 'Ya has dado like a este comentario' });
+                    return res.status(400).json({message: 'Ya has dado like a este comentario'});
                 }
             }
         }
@@ -110,7 +108,7 @@ export const createLikeMegusta = async (req: Request, res: Response) => {
         res.status(201).json(likeMegusta);
     } catch (error) {
         console.error('Error al crear like:', error);
-        res.status(500).json({ message: 'Error del servidor' });
+        res.status(500).json({message: 'Error del servidor'});
     }
 };
 export const deleteLikeMegusta = async (req: Request, res: Response) => {
@@ -120,25 +118,25 @@ export const deleteLikeMegusta = async (req: Request, res: Response) => {
         //existe el like
         const like = await LikeModel.getLikeMegustaPorId(Number(req.params.idLike));
         if (!like) {
-            return res.status(404).json({ message: 'Like no encontrado' });
+            return res.status(404).json({message: 'Like no encontrado'});
         }
         //el like pertenece al usuario que lo quiere eliminar
         if (like.idUsuario !== idUsuario) {
-            return res.status(403).json({ message: 'No tienes permiso para eliminar este like' });
+            return res.status(403).json({message: 'No tienes permiso para eliminar este like'});
         }
 
 
-        const { idLike } = req.params;
+        const {idLike} = req.params;
         const eliminado = await LikeModel.eliminarLikeMegusta(Number(idLike));
 
         if (eliminado) {
-            res.json({ message: 'Like eliminado correctamente' });
+            res.json({message: 'Like eliminado correctamente'});
         } else {
-            res.status(404).json({ message: 'Like no encontrado' });
+            res.status(404).json({message: 'Like no encontrado'});
         }
     } catch (error) {
         console.error('Error al eliminar like:', error);
-        res.status(500).json({ message: 'Error del servidor' });
+        res.status(500).json({message: 'Error del servidor'});
     }
 };
 
@@ -146,12 +144,19 @@ export const deleteLikeMegusta = async (req: Request, res: Response) => {
 export const getLikeMegustaPorIdRecuerdoYIdUsuario = async (req: Request, res: Response) => {
     try {
         const idRecuerdo = Number(req.params.idRecuerdo);
+        const idComentario = Number(req.params.idComentario);
         const idUsuario = Number(req.userId);
-        const likeMegusta = await LikeModel.getLikeMegustaPorIdRecuerdoYIdUsuario(idRecuerdo, idUsuario);
-        res.json(likeMegusta);
-    }
-    catch (error) {
+        if (idRecuerdo) {
+            const likeMegusta = await LikeModel.getLikeMegustaPorIdRecuerdoYIdUsuario(idRecuerdo, idUsuario);
+            res.json(likeMegusta);
+        } else if (idComentario) {
+            const likeMegusta = await LikeModel.getLikeMegustaPorIdComentarioYIdUsuario(idComentario, idUsuario);
+            res.json(likeMegusta);
+        } else {
+            return res.status(400).json({message: 'Debe proporcionar idRecuerdo o idComentario'});
+        }
+    } catch (error) {
         console.error('Error al obtener like por idRecuerdo e idUsuario:', error);
-        res.status(500).json({ message: 'Error del servidor' });
+        res.status(500).json({message: 'Error del servidor'});
     }
 };

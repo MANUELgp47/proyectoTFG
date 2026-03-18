@@ -15,6 +15,17 @@ export const crearLike = async (data: any) => {
 }
 
 export const usuarioDioLikeRecuerdo = async ( idRecuerdo: number) => {
-    const response = await api.get(`/likeMegusta/recuerdo/${idRecuerdo}/usuario/}`);
-    return response.data;
+    const response = await api.get(`/likeMegusta/recuerdo/${idRecuerdo}`);
+    if (response.data) {
+        return true;
+    }
+    return false;
+
+}
+export const usuarioDioLikeComnetario = async ( idComentario: number) => {
+    const response = await api.get(`/likeMegusta/comentario/${idComentario}`);
+    if (response.data) {
+        return true;
+    }
+    return false;
 }

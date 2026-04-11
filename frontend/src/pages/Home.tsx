@@ -8,7 +8,7 @@ import {getTags} from "../services/tagService.ts";
 
 export default function Home() {
     const [actividades, setActividades] = useState<any[]>([]);
-    const {isAuthenticated, idUsuario} = useAuth();
+    const {isAuthenticated, idUsuario, rol} = useAuth();
     const [tagsDisponibles, setTagsDisponibles] = useState<string[]>([]);
     const [filtros, setFiltros] = useState({
         titulo: "",
@@ -104,6 +104,12 @@ export default function Home() {
                 <button onClick={() => logout()}>
                     Logout</button>
 
+            )}
+            {/*ADMIN*/}
+            {isAuthenticated && rol === 'admin' && (
+                <Link to="/admin/crearTag">
+                    <button>Gestionar Tags</button>
+                </Link>
             )}
 
             <br/>

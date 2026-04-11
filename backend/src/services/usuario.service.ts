@@ -90,4 +90,10 @@ export class UsuarioService {
         const usuario = await UsuarioModel.getUsuarioPorId(idUsuario);
         return usuario ? usuario.nombreUsuario : null;
     }
+
+    //obtener rol por id de usuario
+    static async getRolPorIdUsuario(idUsuario: number): Promise<string | null> {
+        const usuario = await UsuarioModel.getUsuarioPorId(idUsuario);
+        return usuario ? usuario.rol : null;
+    }
 }

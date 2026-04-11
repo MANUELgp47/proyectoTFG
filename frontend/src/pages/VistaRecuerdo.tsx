@@ -1,12 +1,12 @@
 //la vista de un recuerdo pasado por parametro y la lista de los usuarios que participaron en la actividad a la que pertenece el recuerdo
 //TODO sacar participantes de la actividad y listarlos con enlace a su perfil
 import {useEffect, useState} from "react";
-import {getRecuerdoPorId} from "../services/recuerdoService";
+import {getRecuerdoPorId, eliminarRecuerdos} from "../services/recuerdoService";
 import {useParams} from "react-router-dom";
 import type {Recuerdo, Usuario, Comentario} from "../types.ts";
 import {getParticipacionesPorActividad} from "../services/participacionService";
 import {getUsuario} from "../services/usuarioService";
-import {getComentarioByIdRecuerdo, crearComentario} from "../services/comentarioService.ts";
+import {getComentarioByIdRecuerdo, crearComentario, eliminarComentario} from "../services/comentarioService.ts";
 import {
     crearLike,
     getLikesByIdRecuerdo,
@@ -14,6 +14,7 @@ import {
     getLikesByIdComentario,
     usuarioDioLikeComnetario
 } from "../services/likeService.ts";
+import {useAuth} from "../context/AuthContext.tsx";
 
 
 export default function VistaRecuerdo() {
@@ -29,6 +30,7 @@ export default function VistaRecuerdo() {
 
     const [likesComentarios, setLikesComentarios] = useState<{ [idComentario: number]: number }>({});
     const [heDadoLikeComentarios, setHeDadoLikeComentarios] = useState<{ [idComentario: number]: boolean }>({});
+    const {rol, idUsuario} = useAuth();
 
 
     useEffect(() => {
@@ -41,7 +43,9 @@ export default function VistaRecuerdo() {
                 //obtener participantes de la actividad a la que pertenece el recuerdo
                 const participantesData = await getParticipacionesPorActividad(data.idActividad);
                 //  console.log("Participacion", participantesData);
-                const participantesList = await Promise.all(participantesData.map(async (participacion: { idUsuario: number }) => {
+                const participantesList = await Promise.all(participantesData.map(async (participacion: {
+                    idUsuario: number
+                }) => {
                     return await getUsuario(participacion.idUsuario) as Usuario;
                 }));
                 setParticipantes(participantesList);
@@ -54,8 +58,6 @@ export default function VistaRecuerdo() {
                 setLikes(numeroLikes);
 
                 const heDadoLikeData = await usuarioDioLikeRecuerdo(Number(idRecuerdo));// devuelve true o false
-
-
 
 
                 // Marcar si el usuario ya ha dado like
@@ -96,11 +98,9 @@ export default function VistaRecuerdo() {
                     likesDataYo[comentario.idComentario] = Boolean(heDadoLikeData);
 
 
-
                 }));
                 setLikesComentarios(likesData);
                 setHeDadoLikeComentarios(likesDataYo);
-
 
 
             } catch (err) {
@@ -158,6 +158,23 @@ export default function VistaRecuerdo() {
         }));
     }
 
+    const handleEliminaComentario = async (idComentario: number) => {
+        if (window.confirm("¿Estás seguro de que deseas eliminar el comentario? Esta acción no se puede deshacer.")) {
+            await eliminarComentario(idComentario);
+
+            //refrescar comentarios
+            const comentariosData = await getComentarioByIdRecuerdo(Number(idRecuerdo)) as Comentario[];
+            setComentarios(comentariosData);
+        }
+    }
+
+    const handleEliminarRecuerdo = async () => {
+        if (!idRecuerdo) return;
+        if (window.confirm("¿Estás seguro de que deseas eliminar este recuerdo? Esta acción no se puede deshacer.")) {
+            await eliminarRecuerdos(Number(idRecuerdo));
+            window.location.href = "/";
+        }
+    }
 
 
     if (error) {
@@ -206,7 +223,8 @@ export default function VistaRecuerdo() {
                 {participantes && participantes.length > 0 ? (
                     <ul>
                         {participantes.map((participante, index) => (
-                            <li key={index}><a href={`/usuario/${participante.idUsuario}`}>{participante.nombreUsuario}</a>
+                            <li key={index}><a
+                                href={`/usuario/${participante.idUsuario}`}>{participante.nombreUsuario}</a>
 
                             </li>
                         ))}
@@ -230,13 +248,25 @@ export default function VistaRecuerdo() {
                                 <p><strong>{comentario.idUsuario}:</strong> {comentario.mensaje}</p>
                                 <p>{likesComentarios[comentario.idComentario] ?? 0}</p>
                                 {heDadoLikeComentarios[comentario.idComentario] === false && (
-                                    <button onClick={() => handleLikeComentario(comentario.idComentario)} style={{marginTop: "10px"}}>Me gusta</button>
+                                    <button onClick={() => handleLikeComentario(comentario.idComentario)}
+                                            style={{marginTop: "10px"}}>Me gusta</button>
                                 )}
+                                {(rol === 'admin' || rol === 'mod') && (
+                                    <button onClick={() => handleEliminaComentario(comentario.idComentario)}
+                                            style={{marginTop: "10px"}}>Eliminar</button>
+                                )}
+
                             </li>
                         ))}
                     </ul>
                 ) : (
                     <p>No hay comentarios para este recuerdo.</p>
+                )}
+
+                {((rol === 'admin' || rol === 'mod') || idUsuario === recuerdo.idUsuario) && (
+                    <button onClick={() => handleEliminarRecuerdo()} style={{marginTop: "10px", color: "red"}}>Eliminar
+                        recuerdo</button>
+
                 )}
 
                 {/*Crear comentario*/}

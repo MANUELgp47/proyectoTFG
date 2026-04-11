@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
+import {useEffect, useState} from "react";
 //import { useParams } from "react-router-dom";
-import { getActividadesQueParticipo} from "../services/actividadService";
+import {getActividadesQueParticipo} from "../services/actividadService";
 //import {useAuth} from "../context/AuthContext.tsx";
 
 export default function MisActividades() {
     const [actividades, setActividades] = useState<any[]>([]);
- //   const { isAuthenticated } = useAuth();
+    //   const { isAuthenticated } = useAuth();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -20,7 +20,7 @@ export default function MisActividades() {
         fetchData();
     }, []);
 
-  //  if (loading) return <p>Cargando...</p>;
+    //  if (loading) return <p>Cargando...</p>;
 
     return (
         <div>
@@ -31,8 +31,12 @@ export default function MisActividades() {
             ) : (
                 actividades.map((act) => (
                     <div key={act.id}>
-                        <h3>{act.titulo}</h3>
+                        <h3><a href={`/actividad/${act.idActividad}`}>{act.titulo}</a></h3>
+
                         <p>{act.descripcion}</p>
+
+                        <p>{act.estado}</p>
+                     
                     </div>
                 ))
             )}

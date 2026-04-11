@@ -45,6 +45,11 @@ export class ActividadService {
         const usuariosParticipantes = await ActividadModel.getParticipantesDeActividad(idActividad);
         return usuariosParticipantes;
     }
+    //es participante
+    static async esParticipante(idActividad: number, idUsuario: number): Promise<boolean> {
+        const usuariosParticipantes = await ActividadModel.getParticipantesDeActividad(idActividad);
+        return usuariosParticipantes.includes(idUsuario);
+    }
 
     //devuelve el id del creador de una actividad
     static async getIdCreadorActividad(idActividad: number): Promise<number | null> {
@@ -243,5 +248,24 @@ export class ActividadService {
        return result.rows.map(mapearActividad);
     };
 
+    //es admin
+        static async esAdminActividad(idActividad: number, idUsuario: number): Promise<boolean> {
+            const actividad = await ActividadModel.getActividadPorId(idActividad);
+            if (!actividad) {
+                return false;
+            }
+            const admins = actividad.admins || [];//si no tiene admins, devuelve un array vacío para evitar errores
+            return admins.includes(idUsuario);
+        }
+
+        //es expulsado
+        static async esExpulsadoActividad(idActividad: number, idUsuario: number): Promise<boolean> {
+            const actividad = await ActividadModel.getActividadPorId(idActividad);
+            if (!actividad) {
+                return false;
+            }
+            const expulsados = actividad.expulsados || [];//si no tiene expulsados, devuelve un array vacío para evitar errores
+            return expulsados.includes(idUsuario);
+        }
 
 }

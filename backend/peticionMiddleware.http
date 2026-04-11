@@ -335,3 +335,22 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsI
 GET http://localhost:3000/api/actividad?tags=Sendero,Deporte
 
 
+###Añadir un admin a Actividad
+PUT http://localhost:3000/api/actividad/admins/40
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjE0LCJpYXQiOjE3NzU5MDYxODYsImV4cCI6MTc3Njc3MDE4Nn0.9bZ6YvPC0IY6Bmixr5fnHybCl_pGQhp7rBdbZ87x5Kc
+Content-Type: application/json
+
+{
+  "idAdmin": 13,
+  "action": "remove"
+}
+
+###Añadir un expulsado a Actividad
+PUT http://localhost:3000/api/actividad/expulsados/40
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc3NTkwNTkyOSwiZXhwIjoxNzc2NzY5OTI5fQ.lLBZtuGWEG0OMONtc9zvl7AhHlVTvaofhRzczKDyoH4
+Content-Type: application/json
+
+{
+  "idExpulsado": 13,
+  "action": "add"
+}

@@ -37,6 +37,8 @@ export default function ActividadesCreadas() {
                     <div key={act.id}>
                         <h3>{act.titulo}</h3>
                         <p>{act.descripcion}</p>
+                        <a href={`/actividad/${act.idActividad}`}>{act.titulo}</a>
+                        <p>{act.estado}</p>
                     </div>
                 ))
             )}

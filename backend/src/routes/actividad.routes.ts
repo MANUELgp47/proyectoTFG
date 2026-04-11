@@ -2,6 +2,7 @@ import { Router } from 'express';
 import * as ActividadController from '../controllers/actividad.controller.js';
 import {finalizarActividad, getActividadesPorUsuario} from "../controllers/actividad.controller.js";
 import {authMiddleware} from "../middleware/auth.middleware.js";
+import * as ActividadTagController from "../controllers/actividadTag.controller.js";
 
 const router = Router();
 
@@ -30,7 +31,10 @@ router.delete('/:id', authMiddleware, ActividadController.deleteActividad);
 router.post('/:id/finalizar', authMiddleware, ActividadController.finalizarActividad);
 
 
+//edita admin
+router.put('/admins/:idActividad',authMiddleware, ActividadController.editAdmins);
 
-
+//edita expulsados
+router.put('/expulsados/:idActividad',authMiddleware, ActividadController.editExpulsados);
 
 export default router;

@@ -96,6 +96,47 @@ export const eliminarActividad = async (idActividad: number): Promise<boolean> =
     return result.rowCount === 1 ;// Devuelve true si se eliminó una fila, false si no
 };
 
+// Añade un administrador a la lista de admins de una actividad
+export const addAdminActividad = async (idActividad: number, idAdmin: number): Promise<void> => {
+    await pool.query(
+        `UPDATE Actividad
+         SET admins = array_append(admins, $2)
+         WHERE id_actividad = $1
+           AND NOT ($2 = ANY(admins))`, // Evita duplicados: solo añade si no está ya en la lista
+        [idActividad, idAdmin]
+    );
+};
+// Elimina un administrador de la lista de admins de una actividad
+export const removeAdminActividad = async (idActividad: number, idAdmin: number): Promise<void> => {
+    await pool.query(
+        `UPDATE Actividad
+         SET admins = array_remove(admins, $2)
+         WHERE id_actividad = $1`,
+        [idActividad, idAdmin]
+    );
+};
+
+// Añade un usuario a la lista de expulsados de una actividad
+export const addExpulsadoActividad = async (idActividad: number, idUsuario: number): Promise<void> => {
+    await pool.query(
+        `UPDATE Actividad
+         SET expulsados = array_append(expulsados, $2)
+         WHERE id_actividad = $1
+           AND NOT ($2 = ANY(expulsados))`, // Evita duplicados: solo añade si no está ya en la lista
+        [idActividad, idUsuario]
+    );
+};
+
+// Elimina un usuario de la lista de expulsados de una actividad
+export const removeExpulsadoActividad = async (idActividad: number, idUsuario: number): Promise<void> => {
+    await pool.query(
+        `UPDATE Actividad
+         SET expulsados = array_remove(expulsados, $2)
+         WHERE id_actividad = $1`,
+        [idActividad, idUsuario]
+    );
+};
+
 //obtener actividades con uno de los tags que se pasan en el array por parametro
 /*export const getActividadesPorTags = async (tags: string[]): Promise<Actividad[]> => {
     const result = await pool.query(

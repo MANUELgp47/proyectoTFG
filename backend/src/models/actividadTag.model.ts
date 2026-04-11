@@ -34,3 +34,5 @@ export const eliminarActividadTag = async (idActividad: number, idTag: number): 
 
     return result.rowCount === 1;// Devuelve true si se eliminó una fila, false si no
 };
+
+//añade

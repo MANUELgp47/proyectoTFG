@@ -5,6 +5,7 @@ import * as ActividadModel from '../models/actividad.model.js';
 import * as UsuarioModel from '../models/usuario.model.js';
 import {ActividadService} from "../services/actividad.service.js";
 import {RecuerdoService} from '../services/recuerdo.service.js';
+import {UsuarioService} from "../services/usuario.service.js";
 
 export const getRecuerdos = async (req: Request, res: Response) => {
     try {
@@ -171,6 +172,10 @@ export const createRecuerdo = async (req: Request, res: Response) => {
 
 export const deleteRecuerdoPorId = async (req: Request, res: Response) => {
     const idUsuario = req.userId;
+    if (!idUsuario) {
+        return res.status(401).json({message: 'No autorizado'});
+    }
+    const rol =await UsuarioService.getRolPorIdUsuario(idUsuario);
 
     const idRecuerdo = req.params.id ? parseInt(req.params.id, 10) : NaN;
     if (isNaN(idRecuerdo)) {
@@ -185,7 +190,7 @@ export const deleteRecuerdoPorId = async (req: Request, res: Response) => {
 
     //comprobar que el recuerdo pertenece al usuario (esCreador)
     const idCreador = await RecuerdoService.getIdCreadorRecuerdo(idRecuerdo);
-    if (idCreador !== idUsuario) {
+    if (idCreador !== idUsuario && (rol !== 'admin' && rol !== 'mod')) {
         return res.status(403).json({message: 'No tienes permiso para eliminar este recuerdo'});
     }
 

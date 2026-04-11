@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
 import {useParams} from "react-router-dom";
-import {getActividadPorId} from "../services/actividadService";
+import {getActividadPorId, eliminarActividad} from "../services/actividadService";
 import {
     eliminarParticipacion,
     getNumeroParticipantes,
@@ -27,13 +27,16 @@ export function ActividadDetalle() {
     const [numeroParticipantes, setNumeroParticipantes] = useState(0);
     const [miParticipacion, setParticipacion] = useState<Participacion | null>(null);
     const [idChatActividad, setIdChatActividad] = useState<number | null>(null);
-    const {  idUsuario } = useAuth();
+    const {idUsuario, rol} = useAuth();
     const idSesion = Number(idUsuario);
+    //Es admin de la actividad?
+    const [isAdminActividad, setIsAdminActividad] = useState(false);
 
 
     useEffect(() => {
         const fetchData = async () => {
             try {
+                console.log("Cargando detalles de la actividad con id:", id);
                 if (id) {
                     const data = await getActividadPorId(Number(id));
                     setActividad(data);
@@ -46,7 +49,7 @@ export function ActividadDetalle() {
 
                     //si participo en la actividad, cargar el chat de la actividad para marcar los mensajes como leídos
                     if (miParticipacion && miParticipacion.aceptada) {
-                     //   console.log("Cargando chat de la actividad para marcar mensajes como leídos, miParticipacion", miParticipacion);
+                        //   console.log("Cargando chat de la actividad para marcar mensajes como leídos, miParticipacion", miParticipacion);
                         const chat = await getChatActividad(Number(id));
 
                         // Comprobamos que chat no sea false ni un booleano antes de acceder a sus propiedades
@@ -59,8 +62,7 @@ export function ActividadDetalle() {
                         }
 
 
-
-                       // console.log(chat.idChatActividad);
+                        // console.log(chat.idChatActividad);
                     }
 
                 }
@@ -74,6 +76,20 @@ export function ActividadDetalle() {
         fetchData();
     }, [id]);
 
+    //Comprobar si el usuario es el creador de la actividad o admin para mostrar opciones de edición/borrado
+    useEffect(() => {
+
+      if (actividad?.idCreador === idSesion) {
+            setIsAdminActividad(true);
+      }
+
+      //busca el idSesion en la lista Actividad.admins para ver si es admin de la actividad
+      if (actividad?.admins && actividad.admins.includes(idSesion)) {
+            setIsAdminActividad(true);
+      }
+
+    }, [actividad, idSesion, rol]);
+
     if (loading) return <p>Cargando...</p>;
     if (!actividad) return <p>Actividad no encontrada.</p>;
 
@@ -83,6 +99,8 @@ export function ActividadDetalle() {
             // llama a tu endpoint participar
             await participarEnActividad(actividad.idActividad);
             console.log("Participar");
+            // Recargar la página para actualizar el estado de participación
+            window.location.reload();
         } catch (error) {
             console.error(error);
         }
@@ -107,14 +125,20 @@ export function ActividadDetalle() {
 
             eliminarParticipacion(idSesion, actividad.idActividad);
 
-
+            window.location.reload();
             console.log("Dejar participar");
         } catch (error) {
             console.error(error);
         }
     };
 
-
+    const handleEliminarActividad = () => {
+        if (window.confirm("¿Estás seguro de que deseas eliminar esta actividad? Esta acción no se puede deshacer.")) {
+            eliminarActividad(actividad.idActividad);
+            // Redirigir a la página principal o a otra página después de eliminar
+            window.location.href = "/";
+        }
+    };
 
 
     return (
@@ -139,7 +163,7 @@ export function ActividadDetalle() {
 
             {/* Estado de participación: mostrar mensajes específicos según miParticipacion */}
             {miParticipacion ? (
-                miParticipacion.esCreador && actividad.estado == 'activa' ? (/*Creador*/
+                isAdminActividad && actividad.estado == 'activa' ? (/*Creador*/
                     <button
                         onClick={() => window.location.href = `/ActualizarActividad/${actividad.idActividad}`}
                     >
@@ -154,12 +178,11 @@ export function ActividadDetalle() {
                     </button>
 
 
-
                 ) : (/* Participación pendiente */
                     <p>Tu participación está pendiente de aprobación.</p>
                 )
             ) : (
-                Number(actividad.participantesmax) > numeroParticipantes ? (/* No participo */
+                (Number(actividad.participantesmax) > numeroParticipantes) || Number(actividad.participantesmax) === 0 ? (/* No participo */
                     <button onClick={handleParticipar}>
                         Participar
                     </button>
@@ -170,18 +193,34 @@ export function ActividadDetalle() {
             }
 
             {/*Si participo muestra un boton para el chat de la actividad*/}
-                {miParticipacion && miParticipacion.aceptada && (
+            {miParticipacion && miParticipacion.aceptada && (
+                <button
+                    onClick={() => window.location.href = `/ChatActividad/${idChatActividad}`}
+                >
+                    Ir al chat de la actividad
+                </button>
+            )}
+            {/*  Control de borrado Por moderadores */}
+            {(rol === 'admin' || rol === 'mod') && (
+                <div style={{marginTop: "20px", borderTop: "1px solid #ccc", paddingTop: "10px"}}>
                     <button
-                        onClick={() => window.location.href = `/ChatActividad/${idChatActividad}`}
+                        onClick={handleEliminarActividad}
+                        style={{backgroundColor: "darkred", color: "white"}}
                     >
-                        Ir al chat de la actividad
+                        Eliminar actividad (Admin/Mod)
                     </button>
-                )}
-
-
-
-
+                </div>
+            )}
+            {(rol === 'admin' ) && (
+                <div style={{marginTop: "20px", borderTop: "1px solid #ccc", paddingTop: "10px"}}>
+                    <button
+                        onClick={() => window.location.href = `/ActualizarActividad/${actividad.idActividad}`}
+                        style={{backgroundColor: "white", color: "blue"}}
+                    >
+                        Editar actividad
+                    </button>
+                </div>
+            )}
         </div>
-
     );
 }

@@ -100,6 +100,12 @@ export const createParticipacion = async (req: Request, res: Response) => {
         return res.status(400).json({message: 'El usuario ya es participante de la actividad'});
     }
 
+    //comprueba que el usuario no está expulsado de la actividad
+    const estaExpulsado = await ActividadService.esExpulsadoActividad(req.body.idActividad, req.userId!);
+    if (estaExpulsado) {
+        return res.status(403).json({message: 'El usuario está expulsado de la actividad'});
+    }
+
     //el usuario no existe
     req.body.idUsuario = req.userId;
     const usuarioExiste = await UsuarioService.UsuarioService.existeUsuarioPorId(req.body.idUsuario);

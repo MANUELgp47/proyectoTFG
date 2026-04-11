@@ -66,6 +66,8 @@ export interface Actividad {
     publica: boolean;
     participantesmax?: number;
     imagenes?: string[];
+    admins?: number[]; // IDs de usuarios con permisos de administración
+    expulsados?: number[]; // IDs de usuarios expulsados
     estado: 'activa' | 'finalizada' | 'cancelada';
 }
 /*

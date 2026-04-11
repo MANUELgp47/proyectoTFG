@@ -17,3 +17,25 @@ export const asignarTagActividad = async (idActividad: number, idTag: number): P
     return response.data;
 
 };
+
+//elimina un tag de una actividad
+export const eliminarTagActividad = async (idActividad: number, idTag: number): Promise<void> => {
+    console.log("eliminarTagActividad", {idActividad, idTag});
+    const response = await api.delete("/actividadtag/", { data: { idActividad, idTag } });
+    return response.data;
+};
+
+
+
+//ADMINISTRADOR
+//crea un nuevo tag
+export const crearTag = async (tag: { nombre: string }): Promise<Tag> => {
+    const response = await api.post("/tag/", tag);
+    return response.data;
+};
+
+//elimina un tag
+export const eliminarTag = async (idTag: number): Promise<void> => {
+    const response = await api.delete(`/tag/${idTag}`);
+    return response.data;
+};

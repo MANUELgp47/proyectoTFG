@@ -1,6 +1,7 @@
 import type {Request, Response} from 'express';
 import * as ComentarioModel from '../models/comentario.model.js';
 import {RecuerdoService} from "../services/recuerdo.service.js";
+import {UsuarioService} from "../services/usuario.service.js";
 
 export const getComentarios = async (req: Request, res: Response) => {
     try {
@@ -85,13 +86,23 @@ export const deleteComentario = async (req: Request, res: Response) => {
     const idComentario = Number(req.params.idComentario);
     const idUsuario = req.userId;
 
+
     //verificar que el comentario existe
     //el creador del comentario es el mismo que lo quiere eliminar
     const comentario = await ComentarioModel.getComentarioPorId(idComentario);
     if (!comentario) {
         return res.status(404).json({message: 'Comentario no encontrado'});
     }
-    if (comentario.idUsuario !== idUsuario) {
+
+    //comprueba idUsuario
+    if (!idUsuario) {
+        return res.status(401).json({message: 'No autorizado'});
+    }
+
+
+    //verificar que el usuario es el creador del comentario o es admin o mod
+    const rol =await  UsuarioService.getRolPorIdUsuario(idUsuario);
+    if (comentario.idUsuario !== idUsuario && (rol !== 'admin' && rol !== 'mod')) {
         return res.status(403).json({message: 'No tienes permiso para eliminar este comentario'});
     }
 

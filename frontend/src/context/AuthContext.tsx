@@ -4,12 +4,14 @@
 * y un hook useAuth para acceder al contexto de autenticación desde cualquier componente.
 * */
 
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { getUserIdFromToken } from "../services/tokenUtils";
+import { getUsuario } from "../services/usuarioService";
 
 interface AuthContextType {
     token: string | null;
     idUsuario: number | null;
+    rol: string | null;
     isAuthenticated: boolean;
     login: (token: string) => void;
     logout: () => void;
@@ -25,35 +27,67 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const initialToken = typeof window !== 'undefined' ? localStorage.getItem("token") : null;
     const [token, setToken] = useState<string | null>(initialToken);//token de autenticación, null si no hay token
     const [idUsuario, setIdUsuario] = useState<number | null>(getUserIdFromToken(initialToken));//id del usuario extraído del token, null si no hay token o el token es inválido
-    const [loading] = useState(false);//ya hemos inicializado sincronamente
+    const [rol, setRol] = useState<string | null>(null);
+    const [loading, setLoading] = useState<boolean>(false);//indicador para llamadas al backend
 
+    // Si al iniciar hay token (y por tanto idUsuario), obtenemos el usuario para sacar el rol
+    useEffect(() => {
+        let mounted = true;
+        const fetchRol = async () => {
+            if (idUsuario == null) return;
+            setLoading(true);
+            try {
+                const usuario = await getUsuario(Number(idUsuario));
+                if (!mounted) return;
+                setRol(usuario?.rol ?? null);
+            } catch (error) {
+                console.error('Error al obtener usuario para rol:', error);
+                if (mounted) setRol(null);
+            } finally {
+                if (mounted) setLoading(false);
+            }
+        };
 
-    // Funciones para login porque guardan el token en localStorage y en el estado,
-    /*const login = (newToken: string) => {
+        fetchRol();
+
+        return () => { mounted = false; };
+    }, [idUsuario]);
+
+    // Funciones para login porque guardan el token en localStorage y en el estado
+    const login = (newToken: string) => {
+        // extraer id del token (el token sólo contiene id según tu nota)
         const id = getUserIdFromToken(newToken);
-        if (id == null) {
-            console.error('Token recibido en login no contiene idUsuario válido. Ignorando login.', { token: newToken });
-            // asegúrate de limpiar el token por seguridad
-            localStorage.removeItem('token');
-            setToken(null);
-            setIdUsuario(null);
-            return;
-        }
+
         localStorage.setItem("token", newToken);
         setToken(newToken);
         setIdUsuario(id);
-    };*/
 
-    const login = (newToken: string) => {
-        localStorage.setItem("token", newToken);
-
-        setToken(newToken);
+        // obtener rol desde backend (fire-and-forget). La useEffect anterior también se encargará de ello
+        if (id != null) {
+            (async () => {
+                setLoading(true);
+                try {
+                    const usuario = await getUsuario(Number(id));
+                    setRol(usuario?.rol ?? null);
+                } catch (error) {
+                    console.error('Error al obtener usuario tras login:', error);
+                    setRol(null);
+                } finally {
+                    setLoading(false);
+                }
+            })();
+        } else {
+            // token inválido: limpiar estado
+            setIdUsuario(null);
+            setRol(null);
+        }
     };
 
     const logout = () => {
         localStorage.removeItem("token");
         setToken(null);
         setIdUsuario(null);
+        setRol(null);
     };
 
     return (
@@ -61,6 +95,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             value={{
                 token,
                 idUsuario,
+                rol,
                 isAuthenticated: !!token,//si hay token, el usuario está autenticado
                 loading,
                 login,

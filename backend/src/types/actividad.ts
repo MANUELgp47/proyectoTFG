@@ -11,7 +11,9 @@ export interface Actividad {
     participantesmax?: number;
     imagenes?: string[];
     estado: 'activa' | 'finalizada' | 'cancelada';
+    admins?: number[]; // IDs de usuarios con permisos de admin en esta actividad
+    expulsados?: number[]; // IDs de usuarios expulsados de esta actividad
     //TODO añadir un campo de notificado boolean para evitar dupolicar notificaciones
 
 }
-export type CreaActividad = Omit<Actividad, 'idActividad' | 'fechaCreacion' | 'estado'>;
+export type CreaActividad = Omit<Actividad, 'idActividad' | 'fechaCreacion' | 'estado' >;

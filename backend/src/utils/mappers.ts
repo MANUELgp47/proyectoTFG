@@ -38,6 +38,8 @@ export const mapearActividad = (row: any): Actividad => {
         participantesmax: row.participantes_max,
         imagenes: row.imagenes,
         estado: row.estado,
+        admins: row.admins,
+        expulsados: row.expulsados,
     };
 };
 

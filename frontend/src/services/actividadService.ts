@@ -44,3 +44,37 @@ export const getActividadesQueParticipo = async () => {
 
     return response.data;
 };
+
+//edita admin
+export const addAdmin = async (idActividad: number, idAdmin: number) => {
+    const action = "add";
+    const response = await api.put(`/actividad/admins/${idActividad}`, {idAdmin, action});
+    return response.data;
+};
+export const removeAdmin = async (idActividad: number, idAdmin: number) => {
+    const action = "remove";
+    const response = await api.put(`/actividad/admins/${idActividad}`, {idAdmin, action});
+    return response.data;
+};
+
+//edita expulsados
+export const addExpulsado = async (idActividad: number, idExpulsado: number) => {
+    const action = "add";
+    const response = await api.put(`/actividad/expulsados/${idActividad}`, {idExpulsado, action});
+    return response.data;
+}
+
+export const removeExpulsado = async (idActividad: number, idExpulsado: number) => {
+    const action = "remove";
+    const response = await api.put(`/actividad/expulsados/${idActividad}`, {idExpulsado, action});
+    return response.data;
+};
+
+
+
+//ADMINISTRACIÓN
+//Elimina una actividad por id (sólo admin y moderador)
+export const eliminarActividad = async (id: number) => {
+    const response = await api.delete(`/actividad/${id}`);
+    return response.data;
+};

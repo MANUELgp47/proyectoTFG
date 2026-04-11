@@ -15,10 +15,12 @@ import PrivateRoute from "./routes/PrivateRoute";
 import Register from "./pages/Registro.tsx";
 import ChatActividad from "./pages/VistaChatActividad.tsx";
 import CrearRecuerdo from "./pages/CrearRecuerdo.tsx";
+import CrearTag from "./pages/vistasAdmin/CrearTag.tsx";
 
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import VistaRecuerdo from "./pages/VistaRecuerdo.tsx";
+import {VistaParticipantes} from "./pages/VistaParticipantes.tsx";
 
 //import Registro from "./pages/Registro";
 
@@ -86,12 +88,22 @@ export default function App() {
                     path="/chatActividad/:idChatActividad/"
                     element={<ChatActividad/>}
                 /> <Route
-                    path="/crearRecuerdo/:idActividad/"
-                    element={<CrearRecuerdo/>}
-                />
+                path="/crearRecuerdo/:idActividad/"
+                element={<CrearRecuerdo/>}
+            />
                 <Route
                     path="/recuerdo/:idRecuerdo/"
                     element={<VistaRecuerdo/>}
+                />
+                <Route
+                    path="/participantes/:idActividad/"
+                    element={<VistaParticipantes/>}
+                />
+
+                {/*Admin*/}
+                <Route
+                    path="/admin/crearTag"
+                    element={<CrearTag/>}
                 />
 
             </Route>

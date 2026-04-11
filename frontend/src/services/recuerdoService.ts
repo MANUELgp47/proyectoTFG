@@ -20,3 +20,9 @@ export const getRecuerdosPorUsuario = async (idUsuario: number) => {
     const response = await api.get(`/recuerdo/usuario/${idUsuario}`);
     return response.data;
 }
+
+//eliminar recuerdo por id de recuerdo
+export const eliminarRecuerdos = async (id: number) => {
+    const response = await api.delete(`/recuerdo/${id}`);
+    return response.data;
+}

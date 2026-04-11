@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import { getActividadesFiltro} from "../services/actividadService";
+import {getActividadesFiltro} from "../services/actividadService";
 import {useAuth} from "../context/AuthContext";
 import {Link} from "react-router-dom";
 import {getActividades} from "../services/actividadService.ts";
@@ -24,7 +24,7 @@ export default function Home() {
 
     useEffect(() => {
         const fetchData = async () => {
-          try {
+            try {
                 const data = await getActividades();
                 setActividades(data);
                 const tags = await getTags();
@@ -50,7 +50,6 @@ export default function Home() {
             if (filtros.tags.length > 0) {
                 params.append("tags", filtros.tags.join(","));
             }
-
 
 
             const response = await getActividadesFiltro(params.toString())

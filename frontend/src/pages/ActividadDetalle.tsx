@@ -48,9 +48,19 @@ export function ActividadDetalle() {
                     if (miParticipacion && miParticipacion.aceptada) {
                      //   console.log("Cargando chat de la actividad para marcar mensajes como leídos, miParticipacion", miParticipacion);
                         const chat = await getChatActividad(Number(id));
-                        console.log("chat ",chat.idChatActividad, "actividad  ", chat.idActividad);
-                        setIdChatActividad(chat.idChatActividad);
-                        console.log(chat.idChatActividad);
+
+                        // Comprobamos que chat no sea false ni un booleano antes de acceder a sus propiedades
+                        if (chat && typeof chat !== 'boolean' && 'idChatActividad' in chat) {
+                            setIdChatActividad(chat.idChatActividad);
+                        } else {
+                            // Si no hay chat, dejamos idChatActividad en null y avisamos en consola (no lanzar excepción)
+                            console.warn('No se encontró chat de actividad para id:', id);
+                            setIdChatActividad(null);
+                        }
+
+
+
+                       // console.log(chat.idChatActividad);
                     }
 
                 }

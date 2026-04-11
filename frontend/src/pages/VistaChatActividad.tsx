@@ -35,7 +35,12 @@ export default function VistaChatActividad() {
         const cargarChat = async () => {
             try {
                 const chatData = await getChatActividad(Number(idActividad));
-                setChat(chatData);
+                //if es un chat
+                if (typeof chatData !== "boolean") {
+                    setChat(chatData);
+                }
+
+
             } catch (err) {
                 console.error("Error cargando chat:", err);
                 setError("Error al cargar el chat de la actividad");
@@ -67,7 +72,7 @@ export default function VistaChatActividad() {
         // carga inicial
         void cargarMensajes();
 
-        // polling cada 3 segundos
+        // cada 3 segundos
         const interval = setInterval(() => {
             void cargarMensajes();
         }, 3000);

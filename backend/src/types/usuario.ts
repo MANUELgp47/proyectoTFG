@@ -16,13 +16,14 @@ export interface Usuario {
     fechaRegistro?: string;    // timestamp ISO
     ultimaConexion?: string;   // timestamp ISO
     ubicacion?: string;
+    rol: 'admin' | 'dev' | 'user' | 'mod' | 'baneado';
 }
 
 /**
  * Tipo para crear un usuario (datos que envía el cliente al registrar).
  * No contiene id ni campos generados por el sistema.
  */
-export type CrearUsuario = Omit<Usuario, 'idUsuario' | 'fechaRegistro' | 'ultimaConexion'>;
+export type CrearUsuario = Omit<Usuario, 'idUsuario' | 'fechaRegistro' | 'ultimaConexion' | 'rol'>;
 
 /**
  * Tipo para devolver al frontend (sin contraseña).

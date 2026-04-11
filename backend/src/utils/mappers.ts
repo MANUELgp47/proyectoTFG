@@ -1,7 +1,7 @@
 //Sirve para mapear datos entre diferentes formatos o estructuras en la aplicación backend.
 
-import {type Usuario } from "../types/usuario.js";//se usa .js porque es un módulo de Node.js
-import {type Actividad } from "../types/actividad.js";
+import {type Usuario} from "../types/usuario.js";//se usa .js porque es un módulo de Node.js
+import {type Actividad} from "../types/actividad.js";
 import type {ChatActividad} from "../types/chatActividad.js";
 
 // Mapea los campos snake_case (BD) a camelCase (TypeScript)
@@ -19,6 +19,7 @@ export const mapearUsuario = (row: any): Usuario => {
         biografia: row.biografia,
         fechaRegistro: row.fecha_registro,
         ultimaConexion: row.ultima_conexion,
+        rol: row.rol,
         ubicacion: row.ubicacion,
     };
 };

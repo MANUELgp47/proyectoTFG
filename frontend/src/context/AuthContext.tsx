@@ -24,7 +24,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // inicialización síncrona desde localStorage para evitar renders intermedios
     const initialToken = typeof window !== 'undefined' ? localStorage.getItem("token") : null;
     const [token, setToken] = useState<string | null>(initialToken);//token de autenticación, null si no hay token
-    const [idUsuario, setIdUsuario] = useState<number | null>(getUserIdFromToken(initialToken));
+    const [idUsuario, setIdUsuario] = useState<number | null>(getUserIdFromToken(initialToken));//id del usuario extraído del token, null si no hay token o el token es inválido
     const [loading] = useState(false);//ya hemos inicializado sincronamente
 
 
@@ -61,7 +61,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             value={{
                 token,
                 idUsuario,
-                isAuthenticated: !!token,
+                isAuthenticated: !!token,//si hay token, el usuario está autenticado
                 loading,
                 login,
                 logout,

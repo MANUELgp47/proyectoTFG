@@ -18,7 +18,7 @@ export default function PrivateRoute({ children }: { children: JSX.Element }) {
     // Si está autenticado -> deja pasar
     return children;
 }*/
-
+//Muestra las rutas hijas si el usuario está autenticado, de lo contrario redirige a login
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
@@ -27,5 +27,5 @@ export default function PrivateRoute() {
 
     if (loading) return <p>Cargando...</p>;
 
-    return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
+    return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;//Si el usuario está autenticado, muestra las rutas hijas (Outlet), de lo contrario redirige a login
 }

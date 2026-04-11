@@ -10,9 +10,9 @@ export const crearChatIndividual = async (idReceptor: number): Promise<ChatIndiv
 //obtener chat individual por id de usuario emisor o receptor si no lo encuentra devuelve false
 export const getChatIndividualPorUsuario = async (idUsuario: number): Promise<ChatIndividual | false> => {
     try {
-        const response = await api.get(`chatIndividual/usuario/${idUsuario}`);
+        const response = await api.get(`chatIndividual/${idUsuario}`);
         return response.data;
-    } catch (error) {
+    } catch (error: any) {
 
         if (error.response && error.response.status === 404) {
             return false; // No se encontró el chat individual
@@ -27,12 +27,12 @@ export const getChatIndividualPorUsuario = async (idUsuario: number): Promise<Ch
 ////ACTIVIDAD
 
 //obtener chat de una actividad por id de actividad
-export const getChatActividad = async (idActividad: number): Promise<ChatActividad> => {
+export const getChatActividad = async (idActividad: number): Promise<ChatActividad | boolean> => {
 
     try {
         const response = await api.get(`chatActividad/actividad/${idActividad}`);
         return response.data;
-    } catch (error) {
+    } catch (error: any) {
 
         if (error.response && error.response.status === 404) {
             return false; // No se encontró el chat individual

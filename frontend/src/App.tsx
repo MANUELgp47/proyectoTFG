@@ -17,6 +17,7 @@ import ChatActividad from "./pages/VistaChatActividad.tsx";
 import CrearRecuerdo from "./pages/CrearRecuerdo.tsx";
 import CrearTag from "./pages/vistasAdmin/CrearTag.tsx";
 
+import VistaSettings from "./pages/vistaSettings.tsx";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import VistaRecuerdo from "./pages/VistaRecuerdo.tsx";
@@ -41,6 +42,9 @@ export default function App() {
                 <Route
                     path="/usuario/:id/actividadesCreadas"
                     element={<ActividadesCreadas/>}
+                /><Route
+                    path="/settings"
+                    element={<VistaSettings/>}
                 />
                 <Route
                     path="actividad/crear"

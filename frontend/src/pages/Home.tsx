@@ -93,6 +93,11 @@ export default function Home() {
                     <button>Mis Actividades</button>
                 </Link>
             )}
+            {isAuthenticated && (
+                <Link to="/settings">
+                    <button>Ajustes</button>
+                </Link>
+            )}
             {isAuthenticated && idUsuario != null && (
                 <Link to={`/usuario/${idUsuario}`}>
                     <button>Mi perfil</button>

@@ -162,35 +162,43 @@ export function ActividadDetalle() {
 
 
             {/* Estado de participación: mostrar mensajes específicos según miParticipacion */}
-            {miParticipacion ? (
-                isAdminActividad && actividad.estado == 'activa' ? (/*Creador*/
-                    <button
-                        onClick={() => window.location.href = `/ActualizarActividad/${actividad.idActividad}`}
-                    >
-                        Editar actividad
-                    </button>
-                ) : miParticipacion.aceptada && actividad.estado == 'activa' ? ( /* Participo aprobado */
-                    <button
-                        onClick={handleDejarParticipar}
-                        style={{backgroundColor: "red", color: "white"}}
-                    >
-                        Dejar de participar
-                    </button>
+            <div>
+                {miParticipacion ? (
+                    <>
+                        {/* Mostrar botón de editar si es admin de la actividad y la actividad está activa */}
+                        {isAdminActividad && actividad.estado === 'activa' && (
+                            <button
+                                onClick={() => window.location.href = `/ActualizarActividad/${actividad.idActividad}`}
+                            >
+                                Editar actividad
+                            </button>
+                        )}
 
+                        {/* Mostrar botón para dejar de participar si la participación está aceptada y la actividad está activa */}
+                        {miParticipacion.aceptada && actividad.estado === 'activa' && (
+                            <button
+                                onClick={handleDejarParticipar}
+                                style={{backgroundColor: "red", color: "white", marginLeft: isAdminActividad ? 8 : 0}}
+                            >
+                                Dejar de participar
+                            </button>
+                        )}
 
-                ) : (/* Participación pendiente */
-                    <p>Tu participación está pendiente de aprobación.</p>
-                )
-            ) : (
-                (Number(actividad.participantesmax) > numeroParticipantes) || Number(actividad.participantesmax) === 0 ? (/* No participo */
-                    <button onClick={handleParticipar}>
-                        Participar
-                    </button>
+                        {/* Si la participación existe pero no está aceptada, mostrar mensaje de pendiente */}
+                        {!miParticipacion.aceptada && (
+                            <p>Tu participación está pendiente de aprobación.</p>
+                        )}
+                    </>
                 ) : (
-                    <p>No hay plazas disponibles.</p>
-                )
-            )
-            }
+                    ((Number(actividad.participantesmax) > numeroParticipantes) || Number(actividad.participantesmax) === 0) ? (
+                        <button onClick={handleParticipar}>
+                            Participar
+                        </button>
+                    ) : (
+                        <p>No hay plazas disponibles.</p>
+                    )
+                )}
+            </div>
 
             {/*Si participo muestra un boton para el chat de la actividad*/}
             {miParticipacion && miParticipacion.aceptada && (
@@ -199,7 +207,13 @@ export function ActividadDetalle() {
                 >
                     Ir al chat de la actividad
                 </button>
+
             )}
+            <button
+                onClick={() => window.location.href = `/participantes/${id}`}
+            >
+               Participantes
+            </button>
             {/*  Control de borrado Por moderadores */}
             {(rol === 'admin' || rol === 'mod') && (
                 <div style={{marginTop: "20px", borderTop: "1px solid #ccc", paddingTop: "10px"}}>

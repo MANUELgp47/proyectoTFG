@@ -16,6 +16,7 @@ import chatActividadRoutes from "./routes/chatActividad.routes.js";
 import authRoutes from "./auth/auth.routes.js";
 import tagRoutes from "./routes/tag.routes.js";
 import actividadTagRoutes from "./routes/actividadTag.routes.js";
+import settingRoutes from "./routes/settings.routes.js";
 
 
 const app = express();
@@ -39,6 +40,7 @@ app.use('/api/chatActividad', chatActividadRoutes);
 app.use('/api/tag',tagRoutes);
 app.use('/api/actividadtag', actividadTagRoutes);
 app.use('/api/auth/', authRoutes);
+app.use('/api/settings', settingRoutes);
 
 
 //get para probar la conexión a la base de datos

@@ -41,6 +41,7 @@ console.log(" ejecutando authMiddleware " + authHeader);
 
         req.userId = decoded.idUsuario;
         //comprueba que exista el usuario
+
        // const existeUsuario = await UsuarioService.existeUsuarioPorId(req.userId);
 
 

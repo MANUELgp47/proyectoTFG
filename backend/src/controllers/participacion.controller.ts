@@ -271,6 +271,12 @@ export const eliminarParticipacion = async (req: Request, res: Response) => {
         return res.status(400).json({message: 'IDs inválidos'});
     }
 
+    //si el usuario eliminado es admin le quita el admin a la actividad
+    const esAdmin = await ActividadService.esAdminActividad(Number(idActividad), Number(idUsuario));
+    if (esAdmin) {
+        await ActividadModel.removeAdminActividad(Number(idActividad), Number(idUsuario));
+    }
+
     //si la actividad no está activa, no se pueden eliminar participaciones
     const estadoActividad = await ActividadService.getEstadoActividad(Number(idActividad));
     if (estadoActividad !== 'activa') {

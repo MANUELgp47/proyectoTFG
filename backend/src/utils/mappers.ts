@@ -43,6 +43,21 @@ export const mapearActividad = (row: any): Actividad => {
     };
 };
 
+//settings
+export const mapearSettings = (row: any) => {
+    return {
+        idUsuario: row.id_usuario,
+        perfilPublico: row.perfil_publico,
+        actividadPublica: row.actividad_publica,
+        modoOscuro: row.modo_oscuro,
+        idioma: row.idioma,
+        preferencias: row.preferencias,
+        usuariosBloqueados: row.usuarios_bloqueados,
+    };
+}
+
+
+
 export const mapearAmistad = (row: any) => {
     return {
         idUsuario1: row.id_usuario1,

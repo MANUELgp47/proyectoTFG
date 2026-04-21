@@ -26,6 +26,7 @@ import {VistaParticipantes} from "./pages/VistaParticipantes.tsx";
 //import Registro from "./pages/Registro";
 
 
+
 export default function App() {
     return (
 
@@ -39,6 +40,9 @@ export default function App() {
             {/* Rutas privadas */}
 
             <Route element={<PrivateRoute/>}>
+
+
+
                 <Route
                     path="/usuario/:id/actividadesCreadas"
                     element={<ActividadesCreadas/>}

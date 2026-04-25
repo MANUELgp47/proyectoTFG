@@ -2,7 +2,7 @@
 //TODO sacar participantes de la actividad y listarlos con enlace a su perfil
 import {useEffect, useState} from "react";
 import {getRecuerdoPorId, eliminarRecuerdos} from "../services/recuerdoService";
-import {useParams} from "react-router-dom";
+import {Link, useParams} from "react-router-dom";
 import type {Recuerdo, Usuario, Comentario} from "../types.ts";
 import {getParticipacionesPorActividad} from "../services/participacionService";
 import {getUsuario} from "../services/usuarioService";
@@ -16,6 +16,8 @@ import {
 } from "../services/likeService.ts";
 import {useAuth} from "../context/AuthContext.tsx";
 
+import { Heart, Share2, Users, Trash2, Calendar, Ticket } from "lucide-react";
+import TopBar from "../components/ui/TopBar.tsx";
 
 export default function VistaRecuerdo() {
     const {idRecuerdo} = useParams();
@@ -186,107 +188,321 @@ export default function VistaRecuerdo() {
     }
 
     return (
-        <div>
-            <h1>{recuerdo.titulo}</h1>
-            <p>{recuerdo.descripcion}</p>
-            {/* Imagenes */}
-            <div
-                style={{
-                    display: "flex",
-                    flexWrap: "wrap",
-                    gap: "10px",
-                    marginTop: "20px"
-                }}
-            >
-                {recuerdo.imagenes && recuerdo.imagenes.length > 0 ? (
-                    recuerdo.imagenes.map((url, index) => (
-                        <img
-                            key={index}
-                            src={url}
-                            alt={`Recuerdo ${index + 1}`}
-                            style={{width: "200px", height: "200px", objectFit: "cover"}}
-                        />
-                    ))
-                ) : (
-                    <p>No hay imágenes para este recuerdo.</p>
-                )}
-                <p>Likes : {likes}</p>
-                {/* Mostrar botón solo si ya hemos cargado el estado y sabemos que NO ha dado like (heDadoLike === false). */}
-                {heDadoLikeLoaded && heDadoLike === false && (
-                    <button onClick={handleLikeRecuerdo} style={{marginTop: "10px"}}>Me gusta</button>
-                )}
+        <div className="min-h-screen bg-[#F8F9FB]">
+            <div className="max-w-[1200px] mx-auto px-6 py-6">
+                <TopBar />
 
-            </div>
-            {/* Participantes */}
-            <div style={{marginTop: "20px"}}>
-                <h2>Participantes {participantes.length}</h2>
-                {participantes && participantes.length > 0 ? (
-                    <ul>
-                        {participantes.map((participante, index) => (
-                            <li key={index}><a
-                                href={`/usuario/${participante.idUsuario}`}>{participante.nombreUsuario}</a>
+                <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-8">
+                    {/* ============ COLUMNA IZQUIERDA ============ */}
+                    <section>
+                        {/* Badge */}
+                        <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-tertiary text-secondary text-xs font-bold tracking-wider">
+            RECUERDO PUBLICADO
+          </span>
 
-                            </li>
-                        ))}
-                    </ul>
-                ) : (
-                    <><p>No hay participantes para este recuerdo.</p>
+                        {/* Título */}
+                        <h1
+                            className="mt-4 text-4xl sm:text-5xl font-extrabold text-secondary tracking-tight leading-tight"
+                            style={{ fontFamily: "'Manrope', sans-serif" }}
+                        >
+                            {recuerdo.titulo}
+                        </h1>
 
-                    </>
-                )}
-            </div>
+                        {/* Metadatos */}
+                        <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-neutral">
+            <span className="flex items-center gap-1.5">
+              <Calendar className="w-4 h-4 text-primary" />
+                {recuerdo.fechaCreacion
+                    ? new Date(recuerdo.fechaCreacion).toLocaleDateString()
+                    : "Fecha de ejemplo"}
+            </span>
+                            {recuerdo.idActividad && (
+                                <>
+                                    <span>•</span>
+                                    <Link
+                                        to={`/actividad/${recuerdo.idActividad}`}
+                                        className="flex items-center gap-1.5 italic hover:text-primary transition"
+                                    >
+                                        <Ticket className="w-4 h-4 text-primary" />
+                                        {recuerdo.titulo}
+                                    </Link>
+                                </>
+                            )}
+                        </div>
 
-            {/*Comentario*/}
+                        {/* Botones de acción */}
+                        <div className="mt-6 flex flex-wrap items-center gap-3">
+                            {/* Like */}
+                            <button
+                                onClick={handleLikeRecuerdo}
+                                disabled={!heDadoLikeLoaded || heDadoLike === true}
+                                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-white text-secondary font-semibold text-sm shadow-sm hover:bg-slate-50 transition disabled:opacity-100"
+                            >
+                                <Heart
+                                    className={`w-4 h-4 ${
+                                        heDadoLike ? "fill-red-500 text-red-500" : "text-red-500"
+                                    }`}
+                                />
+                                {likes.toLocaleString()}
+                            </button>
 
+                            {/* Compartir */}
+                            <button
+                                onClick={() => navigator.clipboard?.writeText(window.location.href)}
+                                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-secondary font-semibold text-sm hover:bg-white transition"
+                            >
+                                <Share2 className="w-4 h-4" />
+                                Compartir
+                            </button>
 
-            <div style={{marginTop: "20px"}}>
-                <h2>Comentarios</h2>
-                {comentarios && comentarios.length > 0 ? (
-                    <ul>
-                        {comentarios.map((comentario) => (
-                            <li key={comentario.idComentario}>
-                                <p><strong>{comentario.idUsuario}:</strong> {comentario.mensaje}</p>
-                                <p>{likesComentarios[comentario.idComentario] ?? 0}</p>
-                                {heDadoLikeComentarios[comentario.idComentario] === false && (
-                                    <button onClick={() => handleLikeComentario(comentario.idComentario)}
-                                            style={{marginTop: "10px"}}>Me gusta</button>
+                            {/* Ver participantes (scroll al bloque) */}
+                            <a
+                                href="#participantes"
+                                className="ml-auto inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-white font-semibold text-sm hover:bg-primary-600 transition"
+                            >
+                                <Users className="w-4 h-4" />
+                                Ver participantes ({participantes.length})
+                            </a>
+                        </div>
+
+                        {/* Descripción + creador */}
+                        <div className="mt-6 bg-white rounded-3xl p-7 shadow-sm">
+                            <p className="text-neutral leading-relaxed whitespace-pre-wrap">
+                                {recuerdo.descripcion}
+                            </p>
+
+                            <div className="mt-6 pt-6 border-t border-slate-100 flex items-center gap-3">
+                                <div className="w-11 h-11 rounded-full bg-secondary overflow-hidden flex items-center justify-center text-white text-sm font-semibold">
+                                    {recuerdo.creador?.foto ? (
+                                        <img
+                                            src={recuerdo.creador.foto}
+                                            alt={recuerdo.creador.nombre}
+                                            className="w-full h-full object-cover"
+                                            onError={(e) =>
+                                                ((e.currentTarget as HTMLImageElement).style.display = "none")
+                                            }
+                                        />
+                                    ) : (
+                                        (recuerdo.creador?.nombre ?? "U").charAt(0).toUpperCase()
+                                    )}
+                                </div>
+                                <div>
+                                    <div className="text-sm font-bold text-secondary">
+                                        {recuerdo.creador?.nombre ?? "Creador"}
+                                    </div>
+                                    <div className="text-xs text-neutral">Creador del recuerdo</div>
+                                </div>
+
+                                {/* Eliminar recuerdo (admin/mod/dueño) */}
+                                {(rol === "admin" || rol === "mod" || idUsuario === recuerdo.idUsuario) && (
+                                    <button
+                                        onClick={() => handleEliminarRecuerdo()}
+                                        className="ml-auto inline-flex items-center gap-2 px-3 py-2 rounded-lg text-red-600 text-xs font-semibold hover:bg-red-50 transition"
+                                    >
+                                        <Trash2 className="w-3.5 h-3.5" />
+                                        Eliminar
+                                    </button>
                                 )}
-                                {(rol === 'admin' || rol === 'mod') && (
-                                    <button onClick={() => handleEliminaComentario(comentario.idComentario)}
-                                            style={{marginTop: "10px"}}>Eliminar</button>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* ============ COLUMNA DERECHA: GALERÍA ============ */}
+                    <aside>
+                        <div className="flex items-center justify-between mb-4">
+                            <h2
+                                className="text-xl font-extrabold text-secondary"
+                                style={{ fontFamily: "'Manrope', sans-serif" }}
+                            >
+                                Galería de momentos
+                            </h2>
+                            <span className="text-sm text-neutral">
+              {recuerdo.imagenes?.length ?? 0} archivos
+            </span>
+                        </div>
+
+                        {recuerdo.imagenes && recuerdo.imagenes.length > 0 ? (
+                            <div className="space-y-3">
+                                {/* Imagen destacada */}
+                                <div className="relative w-full aspect-video bg-black rounded-2xl overflow-hidden">
+                                    <img
+                                        src={recuerdo.imagenes[0]}
+                                        alt="Destacada"
+                                        className="absolute inset-0 w-full h-full object-cover"
+                                        onError={(e) =>
+                                            ((e.currentTarget as HTMLImageElement).style.display = "none")
+                                        }
+                                    />
+                                </div>
+
+                                {/* Grid 2x2 con las siguientes 4 (y +N si hay más) */}
+                                {recuerdo.imagenes.length > 1 && (
+                                    <div className="grid grid-cols-2 gap-3">
+                                        {recuerdo.imagenes.slice(1, 5).map((url, i, arr) => {
+                                            const isLast = i === arr.length - 1;
+                                            const extra = recuerdo.imagenes!.length - 5;
+                                            return (
+                                                <div
+                                                    key={i}
+                                                    className="relative aspect-square bg-black rounded-2xl overflow-hidden"
+                                                >
+                                                    <img
+                                                        src={url}
+                                                        alt={`Foto ${i + 2}`}
+                                                        className="absolute inset-0 w-full h-full object-cover"
+                                                        onError={(e) =>
+                                                            ((e.currentTarget as HTMLImageElement).style.display = "none")
+                                                        }
+                                                    />
+                                                    {isLast && extra > 0 && (
+                                                        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center text-white text-2xl font-extrabold">
+                                                            +{extra}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
                                 )}
+                            </div>
+                        ) : (
+                            <div className="w-full aspect-video bg-black rounded-2xl flex items-center justify-center text-neutral text-sm">
+                                No hay imágenes
+                            </div>
+                        )}
+                    </aside>
+                </div>
 
-                            </li>
-                        ))}
-                    </ul>
-                ) : (
-                    <p>No hay comentarios para este recuerdo.</p>
-                )}
+                {/* ============ PARTICIPANTES ============ */}
+                <section id="participantes" className="mt-12">
+                    <h2
+                        className="text-2xl font-extrabold text-secondary mb-5"
+                        style={{ fontFamily: "'Manrope', sans-serif" }}
+                    >
+                        Participantes ({participantes.length})
+                    </h2>
+                    {participantes.length > 0 ? (
+                        <div className="flex flex-wrap gap-2">
+                            {participantes.map((p) => (
+                                <Link
+                                    key={p.idUsuario}
+                                    to={`/usuario/${p.idUsuario}`}
+                                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white text-secondary text-sm font-medium hover:bg-neutral-light transition"
+                                >
+                                    <div className="w-6 h-6 rounded-full bg-secondary flex items-center justify-center text-white text-xs font-bold">
+                                        {p.nombreUsuario.charAt(0).toUpperCase()}
+                                    </div>
+                                    {p.nombreUsuario}
+                                </Link>
+                            ))}
+                        </div>
+                    ) : (
+                        <p className="text-neutral">No hay participantes en este recuerdo.</p>
+                    )}
+                </section>
 
-                {((rol === 'admin' || rol === 'mod') || idUsuario === recuerdo.idUsuario) && (
-                    <button onClick={() => handleEliminarRecuerdo()} style={{marginTop: "10px", color: "red"}}>Eliminar
-                        recuerdo</button>
+                {/* ============ COMENTARIOS ============ */}
+                <section className="mt-12">
+                    <h2
+                        className="text-2xl font-extrabold text-secondary mb-5"
+                        style={{ fontFamily: "'Manrope', sans-serif" }}
+                    >
+                        Comentarios <span className="text-neutral font-normal">({comentarios.length})</span>
+                    </h2>
 
-                )}
-
-                {/*Crear comentario*/}
-                <div style={{marginTop: "20px"}}>
-                    <h3>Crear comentario</h3>
-                    <form onSubmit={(e) => {
-                        e.preventDefault();
-                        const formData = new FormData(e.currentTarget);
-                        const texto = formData.get("texto") as string;
-                        handleCrearComentario(texto);
-                        e.currentTarget.reset();
-                    }}>
-                        <textarea name="texto" required placeholder="Escribe tu comentario aquí..."
-                                  style={{width: "30%", height: "100px"}}/>
-                        <button type="submit" style={{marginTop: "10px"}}>Enviar</button>
+                    {/* Crear comentario */}
+                    <form
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            const formData = new FormData(e.currentTarget);
+                            const texto = formData.get("texto") as string;
+                            handleCrearComentario(texto);
+                            e.currentTarget.reset();
+                        }}
+                        className="bg-white rounded-3xl p-5 shadow-sm"
+                    >
+                        <div className="flex items-start gap-3">
+                            <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-white text-xs font-bold shrink-0">
+                                {(idUsuario ?? "U").toString().charAt(0).toUpperCase()}
+                            </div>
+                            <textarea
+                                name="texto"
+                                required
+                                placeholder="Escribe un comentario..."
+                                className="flex-1 min-h-[80px] resize-y bg-neutral-light rounded-xl px-4 py-3 text-sm text-secondary placeholder-neutral outline-none focus:ring-2 focus:ring-primary-100"
+                            />
+                        </div>
+                        <div className="mt-3 flex justify-end">
+                            <button
+                                type="submit"
+                                className="px-6 py-2.5 rounded-full bg-primary text-white font-semibold text-sm hover:bg-primary-600 transition"
+                            >
+                                Publicar
+                            </button>
+                        </div>
                     </form>
 
-                </div>
-            </div>
+                    {/* Lista de comentarios */}
+                    <div className="mt-6 space-y-4">
+                        {comentarios.length === 0 ? (
+                            <p className="text-neutral">No hay comentarios aún. ¡Sé el primero!</p>
+                        ) : (
+                            comentarios.map((c) => (
+                                <div
+                                    key={c.idComentario}
+                                    className="flex items-start gap-3"
+                                >
+                                    <div className="w-9 h-9 rounded-full bg-secondary flex items-center justify-center text-white text-xs font-bold shrink-0">
+                                        {(c.nombreUsuario ?? c.idUsuario).toString().charAt(0).toUpperCase()}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="bg-white rounded-2xl px-4 py-3 shadow-sm">
+                                            <div className="flex items-center justify-between gap-4">
+                      <span className="text-sm font-bold text-secondary">
+                        {c.nombreUsuario ?? `Usuario ${c.idUsuario}`}
+                      </span>
+                                                <span className="text-xs text-neutral">
+                        {c.fecha ? new Date(c.fecha).toLocaleDateString() : "Hace un rato"}
+                      </span>
+                                            </div>
+                                            <p className="mt-1 text-sm text-secondary leading-relaxed">
+                                                {c.mensaje}
+                                            </p>
+                                        </div>
 
+                                        <div className="mt-2 flex items-center gap-4 pl-2">
+                                            <button
+                                                onClick={() => handleLikeComentario(c.idComentario)}
+                                                disabled={heDadoLikeComentarios[c.idComentario] === true}
+                                                className="inline-flex items-center gap-1.5 text-xs font-semibold text-neutral hover:text-red-500 transition"
+                                            >
+                                                <Heart
+                                                    className={`w-3.5 h-3.5 ${
+                                                        heDadoLikeComentarios[c.idComentario]
+                                                            ? "fill-red-500 text-red-500"
+                                                            : ""
+                                                    }`}
+                                                />
+                                                {likesComentarios[c.idComentario] ?? 0}
+                                            </button>
+
+                                            {(rol === "admin" || rol === "mod") && (
+                                                <button
+                                                    onClick={() => handleEliminaComentario(c.idComentario)}
+                                                    className="inline-flex items-center gap-1 text-xs font-semibold text-red-500 hover:text-red-600 transition"
+                                                >
+                                                    <Trash2 className="w-3.5 h-3.5" />
+                                                    Eliminar
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </section>
+            </div>
         </div>
     );
 }

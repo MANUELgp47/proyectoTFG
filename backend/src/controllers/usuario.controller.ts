@@ -13,6 +13,30 @@ export const getUsuarios = async (req: Request, res: Response) => {//async para 
     }
 };
 
+//obtener datos minimos de usuario por id {idUsuario, nombreUsuario}
+export const getDatosMinimosUsuarioID = async (req: Request, res: Response) => {
+    try {
+        const idParam = req.params.idUsuario;
+        if (!idParam) {
+            return res.status(400).json({ message: 'ID requerido' });
+        }
+        const idUsuario = parseInt(idParam, 10);
+        if (Number.isNaN(idUsuario)) {
+            return res.status(400).json({ message: 'ID inválido' });
+        }
+
+        const datosMinimos = await UsuarioService.UsuarioService.obtenerDatosMinimosUsuarioPorId(idUsuario);
+        if (datosMinimos) {
+            res.json(datosMinimos);
+        } else {
+            res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+    } catch (error) {
+        console.error('Error al obtener datos mínimos de usuario por ID:', error);
+        res.status(500).json({ message: 'Error del servidor' });
+    }
+}
+
 //obtener usuario por id
 export const getUsuarioID = async (req: Request, res: Response) => {
     try {

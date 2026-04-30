@@ -18,7 +18,7 @@ import {
     SheetTitle,
     SheetTrigger,
 } from "../components/ui/sheet";
-
+import TopBar from "../components/ui/TopBar.tsx";
 
 export default function PerfilUsuario() {
     //idUsuario por parametero
@@ -133,6 +133,7 @@ export default function PerfilUsuario() {
 
     const sidebarContent = (
         <div className="space-y-6">
+            <TopBar />
             {/* --- Amigos --- */}
             <div className="bg-white rounded-3xl p-6 shadow-sm">
                 <div className="flex items-center justify-between mb-4">

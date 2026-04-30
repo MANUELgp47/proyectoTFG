@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Bell, User, LogOut, LogIn } from "lucide-react";
+import {Bell, User, LogOut, LogIn, Home} from "lucide-react";
 
 
 
@@ -26,6 +26,17 @@ export default function TopBar({ children }: TopBarProps) {
         <header className="flex items-center gap-3 mb-6">
             {/* Contenido central opcional (buscador, filtros...) */}
             <div className="flex-1 flex items-center gap-3">{children}</div>
+
+            {/* Botón Home */}
+            <Link to="/">
+                <button
+                    type="button"
+                    className="w-11 h-11 rounded-full bg-white flex items-center justify-center text-neutral hover:text-primary transition shadow-[0_1px_2px_rgba(15,23,42,0.04)] border border-slate-100"
+                    aria-label="Ir a Inicio"
+                >
+                    <Home className="w-5 h-5" />
+                </button>
+            </Link>
 
             {/* Campanita */}
             {isAuthenticated && (

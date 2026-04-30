@@ -9,7 +9,7 @@ export const getActividadesFiltro = async (data:any ) => {
     return response.data;
 };
 
-export const createActividad = async (data: any) => {
+export const createActividad = async (data: FormData) => {
     const response = await api.post("/actividad", data);
     return response.data;
 };
@@ -25,7 +25,8 @@ export const getActividadesPorUsuario = async (id: number) => {
     return response.data;
 };
 
-export const updateActividad = async (id: number, data: any) => {
+export const updateActividad = async (id: number, data: FormData) => {
+    // Axios se encarga de poner el 'Content-Type': 'multipart/form-data' automáticamente
     const response = await api.put(`/actividad/${id}`, data);
     return response.data;
 };
@@ -67,6 +68,12 @@ export const addExpulsado = async (idActividad: number, idExpulsado: number) => 
 export const removeExpulsado = async (idActividad: number, idExpulsado: number) => {
     const action = "remove";
     const response = await api.put(`/actividad/expulsados/${idActividad}`, {idExpulsado, action});
+    return response.data;
+};
+
+//datos basicos de una actividad por id
+export const getDatosMinimosActividadPorId = async (id: number) => {
+    const response = await api.get(`/actividad/${id}/datosBasicos`);
     return response.data;
 };
 

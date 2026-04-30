@@ -1,6 +1,7 @@
 import type {Request, Response} from 'express';
 import * as ChatActividadModel from '../models/chatActividad.model.js';
 import * as ActividadService from "../services/actividad.service.js";
+import {getIdActividadPorIdChatActividad, getIdChatActividadPorIdActividad} from "../models/chatActividad.model.js";
 
 export const getChatPorActividad = async (req: Request, res: Response) => {
     const  idActividad = Number(req.params.idActividad);
@@ -39,6 +40,31 @@ export const getChatsActividad = async (req: Request, res: Response) => {
         res.status(500).json({message: 'Error del servidor'});
     }
 };
+//obtener todos los chats de actividad en los que participo
+//1. Llamar al servicio para obtener todas las id de actividades en las que el usuario participa
+//2. Por cada id de actividad, obtener el chat de actividad correspondiente
+export const getMisChatsActividad = async (req: Request, res: Response) => {
+    const idUsuario = Number(req.userId);
+
+    // Validar que idUsuario es un número válido
+    if (isNaN(idUsuario)) {
+        return res.status(400).json({ message: 'ID de usuario inválido' });
+    }
+
+    try {
+        const idActividades = await ActividadService.ActividadService.getIdActividadesPorUsuario(idUsuario);
+        const chatsActividad = await Promise.all(idActividades.map(idActividad => ChatActividadModel.getIdChatActividadPorIdActividad(idActividad)));//obtiene los id de los chats
+        //crea el array con los objetos de chat actividad a partir de los id de los chats
+        const chatsActividadObjetos = await Promise.all(chatsActividad.map(idChat => ChatActividadModel.getChatActividadPorId(idChat!)));
+
+        res.json(chatsActividadObjetos);
+    } catch (error) {
+        console.error('Error al obtener mis chats de actividad:', error);
+        res.status(500).json({message: 'Error del servidor'});
+    }
+}
+
+
 
 export const createChatActividad = async (req: Request, res: Response) => {
     try {

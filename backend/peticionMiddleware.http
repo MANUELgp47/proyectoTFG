@@ -354,3 +354,8 @@ Content-Type: application/json
   "idExpulsado": 13,
   "action": "add"
 }
+
+### Obtener lista de chats
+
+GET http://localhost:3000/api/chatActividad/chats/mios
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc3NzMwNjIyNiwiZXhwIjoxNzc4MTcwMjI2fQ.d2mAux49ir0c-30ebDX5NX50j8YhsnXKd7eGKxvf1ic

@@ -63,7 +63,18 @@ export const establecerUltimoMensaje = async (idChatIndividual: number, idMensaj
     );
 };
 
+//obtener todos mis chats individuales por id de usuario. Si el usuario es el id_usuario1 o el id_usuario2
+export const getMisChatsIndividual = async (idUsuario: number): Promise<ChatIndividual[]> => {
+    const result = await pool.query(
+        `SELECT * FROM chat_individual 
+         WHERE id_usuario1 = $1 OR id_usuario2 = $1`,
+        [idUsuario]
+    );
+    return result.rows.map(mapearChatIndividual);
+};
 
+
+//eliminar chat individual por id
 export const eliminarChatIndividual = async (idChatIndividual: number): Promise<boolean> => {
     const result = await pool.query("DELETE FROM chat_individual WHERE id_chat_individual = $1", [idChatIndividual]);
 

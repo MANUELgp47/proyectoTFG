@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { register } from '../api/auth.api';
 import {Navigate} from "react-router-dom";
 //import { login } from '../api/auth.api';
+import { Link } from "react-router-dom";
+import { Camera, Pencil, ArrowRight, CheckCircle2 } from "lucide-react";
 
 const Register = () => {
     const [form, setForm] = useState({
@@ -53,25 +55,264 @@ const Register = () => {
         }
     };
 
+    function Field({
+                       label,
+                       children,
+                   }: {
+        label: string;
+        children: React.ReactNode;
+    }) {
+        return (
+            <div>
+                <label className="text-[10px] font-bold tracking-[0.18em] text-neutral uppercase block mb-2">
+                    {label}
+                </label>
+                {children}
+            </div>
+        );
+    }
+
     return (
-        <form onSubmit={handleSubmit}>
-            <h2>Crear cuenta</h2>
-            <br/><input name="nombreUsuario" placeholder="Nombre de usuario" onChange={handleChange} />
-            <br/><input name="nombre" placeholder="Nombre" onChange={handleChange} />
-            <br/><input name="apellido" placeholder="Apellido" onChange={handleChange} />
-            <br/><input name="email" placeholder="Email" onChange={handleChange} />
-            <br/><input type="password" name="contrasena" placeholder="Contraseña" onChange={handleChange} />
-            <br/><input type="date" name="fechaNac" onChange={handleChange} />
-            <br/><input name="ubicacion" placeholder="Ubicación" onChange={handleChange} />
-            <br/><textarea name="biografia" placeholder="Biografía" onChange={handleChange} />
+        <div className="min-h-screen bg-[#F8F9FB] flex items-center justify-center p-4 sm:p-6">
+            <div className="w-full max-w-[1200px] grid grid-cols-1 lg:grid-cols-2 bg-white rounded-3xl shadow-xl overflow-hidden min-h-[700px]">
+                {/* ============ PANEL IZQUIERDO ============ */}
+                <aside
+                    className="relative hidden lg:flex flex-col justify-between p-12 text-white overflow-hidden"
+                    style={{
+                        background:
+                            "linear-gradient(135deg, #003C94 0%, #0056D2 50%, #1E40AF 100%)",
+                    }}
+                >
+                    {/* Olas decorativas */}
+                    <div
+                        className="absolute inset-0 opacity-30"
+                        style={{
+                            backgroundImage:
+                                "radial-gradient(circle at 20% 30%, rgba(255,255,255,0.15), transparent 50%), radial-gradient(circle at 80% 70%, rgba(0,229,255,0.2), transparent 50%)",
+                        }}
+                    />
+                    <div
+                        className="absolute inset-0 opacity-20"
+                        style={{
+                            backgroundImage:
+                                "repeating-linear-gradient(135deg, rgba(255,255,255,0.08) 0 1px, transparent 1px 60px)",
+                        }}
+                    />
 
-            <br/> <button type="submit" disabled={loading}>
-            {loading ? 'Creando...' : 'Crear cuenta'}
-        </button>
+                    {/* Contenido */}
+                    <div className="relative">
+                        <div className="flex items-center gap-2 text-xl font-extrabold">
+                            <CheckCircle2 className="w-6 h-6" />
+                            <span style={{ fontFamily: "'Manrope', sans-serif" }}>
+              Tu plataforma
+            </span>
+                        </div>
 
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-            {success && <p style={{ color: 'green' }}>{success}</p>}
-        </form>
+                        <h1
+                            className="mt-16 text-4xl xl:text-5xl font-extrabold leading-tight tracking-tight"
+                            style={{ fontFamily: "'Manrope', sans-serif" }}
+                        >
+                            Diseña tu<br />
+                            propio camino.
+                        </h1>
+
+                        <p className="mt-6 text-white/80 text-base leading-relaxed max-w-md">
+                            Únete a una comunidad de pioneros. Crea tu perfil y desbloquea
+                            networking exclusivo y acceso a eventos únicos.
+                        </p>
+                    </div>
+
+                    {/* Testimonio */}
+                    <div className="relative bg-white/10 backdrop-blur-md rounded-2xl p-5 mt-8">
+                        <p className="text-sm italic text-white/90 leading-relaxed">
+                            "Escribir algo aquí para llenar el espacio"
+                        </p>
+                        <div className="mt-4 flex items-center gap-3">
+                            <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center text-white text-xs font-bold">
+                                MT
+                            </div>
+                            <div>
+                                <div className="text-sm font-bold">Nombre</div>
+                                <div className="text-[10px] tracking-wider text-white/70 uppercase">
+                                    Empresa - Cargo
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+
+                {/* ============ PANEL DERECHO (FORMULARIO) ============ */}
+                <main className="p-8 sm:p-12 overflow-y-auto">
+                    <div className="flex items-end justify-between mb-8">
+                        <h2
+                            className="text-3xl sm:text-4xl font-extrabold text-secondary tracking-tight"
+                            style={{ fontFamily: "'Manrope', sans-serif" }}
+                        >
+                            Crear cuenta
+                        </h2>
+                    </div>
+                    <p className="-mt-6 mb-8 text-sm text-neutral">
+                        ¿Ya tienes cuenta?{" "}
+                        <Link
+                            to="/login"
+                            className="text-primary font-semibold hover:underline"
+                        >
+                            Inicia sesión
+                        </Link>
+                    </p>
+
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        {/* Foto de perfil (placeholder visual) */}
+                        <div className="flex flex-col items-center">
+                            <div className="relative">
+                                <div className="w-24 h-24 rounded-full bg-neutral-light border-2 border-dashed border-primary/40 flex items-center justify-center">
+                                    <Camera className="w-7 h-7 text-primary/70" />
+                                </div>
+                                <button
+                                    type="button"
+                                    className="absolute bottom-0 right-0 w-7 h-7 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary-600 transition shadow-md"
+                                    aria-label="Subir foto"
+                                >
+                                    <Pencil className="w-3.5 h-3.5" />
+                                </button>
+                            </div>
+                            <span className="mt-3 text-[10px] font-bold tracking-[0.18em] text-neutral uppercase">
+              Foto de perfil
+            </span>
+                        </div>
+
+                        {/* Fila 1: Nombre de usuario + Ubicación */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <Field label="Nombre de usuario">
+                                <input
+                                    name="nombreUsuario"
+                                    placeholder="@username"
+                                    onChange={handleChange}
+                                    required
+                                    className="form-underline-input"
+                                />
+                            </Field>
+                            <Field label="Ubicación">
+                                <input
+                                    name="ubicacion"
+                                    placeholder="Tu ciudad"
+                                    onChange={handleChange}
+                                    className="form-underline-input"
+                                />
+                            </Field>
+                        </div>
+
+                        {/* Fila 2: Nombre + Apellido */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <Field label="Nombre">
+                                <input
+                                    name="nombre"
+                                    placeholder="Nombre"
+                                    onChange={handleChange}
+                                    required
+                                    className="form-underline-input"
+                                />
+                            </Field>
+                            <Field label="Apellido">
+                                <input
+                                    name="apellido"
+                                    placeholder="Apellido"
+                                    onChange={handleChange}
+                                    required
+                                    className="form-underline-input"
+                                />
+                            </Field>
+                        </div>
+
+                        {/* Email */}
+                        <Field label="Correo electrónico">
+                            <input
+                                type="email"
+                                name="email"
+                                placeholder="ejemplo@correo.com"
+                                onChange={handleChange}
+                                required
+                                className="form-underline-input"
+                            />
+                        </Field>
+
+                        {/* Contraseña */}
+                        <Field label="Contraseña">
+                            <input
+                                type="password"
+                                name="contrasena"
+                                placeholder="••••••••"
+                                onChange={handleChange}
+                                required
+                                className="form-underline-input"
+                            />
+                        </Field>
+
+                        {/* Fecha de nacimiento */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <Field label="Fecha de nacimiento">
+                                <input
+                                    type="date"
+                                    name="fechaNac"
+                                    onChange={handleChange}
+                                    className="form-underline-input"
+                                />
+                            </Field>
+                        </div>
+
+                        {/* Biografía */}
+                        <Field label="Biografía">
+            <textarea
+                name="biografia"
+                placeholder="Cuéntanos sobre ti..."
+                onChange={handleChange}
+                rows={3}
+                className="form-underline-input resize-none"
+            />
+                        </Field>
+
+                        {/* Mensajes */}
+                        {error && (
+                            <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">
+                                {error}
+                            </div>
+                        )}
+                        {success && (
+                            <div className="bg-green-50 border border-green-200 text-green-700 rounded-xl px-4 py-3 text-sm">
+                                {success}
+                            </div>
+                        )}
+
+                        {/* CTA */}
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="w-full py-4 rounded-full text-white font-bold text-sm flex items-center justify-center gap-2 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary/20"
+                            style={{
+                                background:
+                                    "linear-gradient(90deg, #0056D2 0%, #4f7cff 100%)",
+                            }}
+                        >
+                            {loading ? "Creando..." : "Crear cuenta"}
+                            {!loading && <ArrowRight className="w-4 h-4" />}
+                        </button>
+
+                        {/* Términos */}
+                        <p className="text-center text-[10px] tracking-wider text-neutral uppercase">
+                            Al hacer click en crear cuenta aceptas nuestros{" "}
+                            <a href="#" className="text-primary font-bold hover:underline">
+                                términos
+                            </a>{" "}
+                            y{" "}
+                            <a href="#" className="text-primary font-bold hover:underline">
+                                política de privacidad
+                            </a>
+                            .
+                        </p>
+                    </form>
+                </main>
+            </div>
+        </div>
     );
 };
 

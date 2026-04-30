@@ -20,6 +20,12 @@ export class ActividadService {
         return actividadesCaducadas;
     }
 
+    //obtiene todos los id de actividades en las que participa un usuario
+    static async getIdActividadesPorUsuario(idUsuario: number): Promise<number[]> {
+        const actividades = await ActividadModel.getActividadesDeUsuario(idUsuario);
+        return actividades.map(actividad => actividad.idActividad);
+    }
+
 
     static async marcarActividadComoFinalizada(idActividad: number): Promise<CreaActividad | null> {
         const estado: 'finalizada' = 'finalizada';
@@ -31,6 +37,22 @@ export class ActividadService {
     static async getEstadoDeActividad(idActividad: number): Promise<string | null> {
         const actividad = await ActividadModel.getActividadPorId(idActividad);
         return actividad ? actividad.estado : null;
+    }
+
+    //obtener los datos minimos de una actividad por id de actividad {idActividad, titulo, imagen}
+
+    static async getDatosBasicosActividadPorId(idActividad: number): Promise<{idActividad: number, titulo: string, imagen: any} | null> {
+        const actividad = await ActividadModel.getActividadPorId(idActividad);
+        if (!actividad) {
+            return null;
+        }
+
+
+        return {
+            idActividad: actividad.idActividad,
+            titulo: actividad.titulo,
+            imagen: actividad.imagenes && actividad.imagenes.length > 0 ? actividad.imagenes[0] : '' //si no tiene imagenes, devuelve una cadena vacía
+        };
     }
 
 

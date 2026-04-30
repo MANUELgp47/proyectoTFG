@@ -1,6 +1,7 @@
-import  {useEffect, useState} from "react";
+import {useEffect, useState} from "react";
 import {Link, useParams} from "react-router-dom";
 import {getActividadPorId, eliminarActividad} from "../services/actividadService";
+import {getTagsActividad} from "../services/tagService";
 import {
     eliminarParticipacion,
     getNumeroParticipantes,
@@ -10,31 +11,27 @@ import {
 import {getChatActividad} from "../services/chatService";
 import {useAuth} from "../context/AuthContext.tsx";
 import type {Actividad} from "../types.ts";
+import {getDatosMinimosUsuario} from "../services/usuarioService.ts";
+import type {Tag} from "../types.ts";
 import {
-    ArrowLeft, Bell,
+    Calendar,
     Clock,
-    Edit3,
+
     Eye,
-    FileText, LogIn, LogOut,
+    Globe, LogOut,
     MapPin,
-    MessageCircle,
-    Share2,
-    Trash2, User,
+    MessageCircle, Pencil,
+
+    Trash2,
     Users,
-    XCircle,
-    Zap
+    Zap,
+    Lock
 } from "lucide-react";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger
-} from "../components/ui/dropdown-menu.tsx";
+
+import TopBar from "../components/ui/TopBar.tsx";
 
 
 //estilo
-
 
 
 // Tipos locales mínimos para evitar `any`
@@ -52,10 +49,12 @@ export function ActividadDetalle() {
     const [numeroParticipantes, setNumeroParticipantes] = useState(0);
     const [miParticipacion, setParticipacion] = useState<Participacion | null>(null);
     const [idChatActividad, setIdChatActividad] = useState<number | null>(null);
-    const {idUsuario, rol, isAuthenticated, logout} = useAuth();
+    const {idUsuario, rol, } = useAuth();
     const idSesion = Number(idUsuario);
     //Es admin de la actividad?
     const [isAdminActividad, setIsAdminActividad] = useState(false);
+    const [usuarioMinimo, setUsuarioMinimo] = useState<any>(null);
+    const [tags, setTags] = useState<string[]>([]);
 
 
     useEffect(() => {
@@ -104,16 +103,52 @@ export function ActividadDetalle() {
     //Comprobar si el usuario es el creador de la actividad o admin para mostrar opciones de edición/borrado
     useEffect(() => {
 
-      if (actividad?.idCreador === idSesion) {
+        if (actividad?.idCreador === idSesion) {
             setIsAdminActividad(true);
-      }
+        }
 
-      //busca el idSesion en la lista Actividad.admins para ver si es admin de la actividad
-      if (actividad?.admins && actividad.admins.includes(idSesion)) {
+        //busca el idSesion en la lista Actividad.admins para ver si es admin de la actividad
+        if (actividad?.admins && actividad.admins.includes(idSesion)) {
             setIsAdminActividad(true);
-      }
+        }
 
     }, [actividad, idSesion, rol]);
+
+    //cargar los tags de la actividad
+    useEffect(() => {
+        const fetchTags = async () => {
+            if (actividad) {
+                try {
+                    const tags = await getTagsActividad(actividad.idActividad);
+                    setTags(tags.map((tag: Tag) => tag.nombre));
+                } catch (error) {
+                    console.error("Error al cargar tags de la actividad:", error);
+                }
+            }
+        }
+
+        fetchTags();
+    }, [actividad]);
+
+
+    useEffect(() => {
+        const fetchUsuariosMinimosActividades = async () => {
+
+            if (actividad?.idCreador) {
+                try {
+                    const usuario = await getDatosMinimosUsuario(actividad.idCreador);
+                    setUsuarioMinimo(usuario);
+                } catch (error) {
+                    console.error("Error al cargar datos mínimos del usuario:", error);
+                }
+            }
+
+
+        };
+
+        fetchUsuariosMinimosActividades();
+    }, [actividad]);
+
 
     if (loading) return <p>Cargando...</p>;
     if (!actividad) return <p>Actividad no encontrada.</p>;
@@ -166,274 +201,365 @@ export function ActividadDetalle() {
     };
 
 
+    const heroImg = actividad.imagenes ?? null;
+    const fechaInicio = new Date(actividad.fechaInicio);
+    const fechaFin = new Date(actividad.fechaFin);
+    const cupoMax = Number(actividad.participantesmax);
+    const sinCupo = cupoMax === 0;
+    const hayPlazas = sinCupo || cupoMax > numeroParticipantes;
+    const esPublica = actividad.publica ?? true; // adapta si tu campo se llama distinto
 
     return (
-        <div  className="min-h-screen bg-[#EEF2FB]"
-              style={{ fontFamily: "'Inter', ui-sans-serif, system-ui, sans-serif" }}>
+        <div className="min-h-screen bg-[#F8F9FB]">
+            <div className="max-w-[1200px] mx-auto px-6 py-6">
+                <TopBar/>
 
-            <div className="max-w-[1200px] mx-auto px-6 py-6 space-y-6">
-
-            {/* ========== HEADER SUPERIOR (Tus componentes) ========== */}
-            <header className="sticky top-0 z-[40] w-full bg-white/80 backdrop-blur-md border-b border-slate-200 px-6 py-3 flex justify-between items-center">
-                <Link to="/" className="flex items-center gap-2 no-underline group">
-                    <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white font-bold italic">K</div>
-                    <span className="text-xl font-black text-secondary italic group-hover:text-primary transition">Kinetic</span>
-                </Link>
-
-                <div className="flex items-center gap-4">
-                    {/* Campanita */}
-                    {isAuthenticated && (
-                        <Link to="/notificaciones">
-                            <button className="relative w-11 h-11 rounded-full bg-white flex items-center justify-center text-neutral hover:text-secondary transition shadow-sm border border-slate-100">
-                                <Bell className="w-5 h-5" />
-                                <span className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-tertiary" />
-                            </button>
-                        </Link>
+                {/* ============ HERO ============ */}
+                <div className="relative w-full aspect-[16/7] rounded-3xl overflow-hidden bg-black shadow-lg">
+                    {heroImg && (
+                        <img
+                            src={`http://localhost:3000/api${heroImg}`}
+                            alt={actividad.titulo}
+                            className="absolute inset-0 w-full h-full object-cover"
+                            onError={(e) =>
+                                ((e.currentTarget as HTMLImageElement).style.display = "none")
+                            }
+                        />
                     )}
+                    {/* Gradiente para legibilidad del título */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent"/>
 
-                    {/* Usuario / Login */}
-                    {!isAuthenticated ? (
-                        <Link to="/login">
-                            <button className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-primary text-white font-bold text-sm hover:bg-primary-600 transition shadow-lg shadow-primary/20">
-                                <LogIn className="w-4 h-4" /> Log in
-                            </button>
-                        </Link>
-                    ) : (
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <button className="w-11 h-11 rounded-full bg-primary flex items-center justify-center text-white hover:bg-primary-600 transition shadow-lg shadow-primary/20">
-                                    <User className="w-5 h-5" />
-                                </button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-52 rounded-2xl bg-white border border-slate-200 shadow-2xl p-2">
-                                {idUsuario != null && (
-                                    <DropdownMenuItem asChild className="rounded-xl">
-                                        <Link to={`/usuario/${idUsuario}`}>Mi perfil</Link>
-                                    </DropdownMenuItem>
-                                )}
-                                <DropdownMenuItem asChild className="rounded-xl">
-                                    <Link to="/misActividades">Mis actividades</Link>
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem onClick={() => logout()} className="text-red-600 focus:text-red-700 rounded-xl">
-                                    <LogOut className="w-4 h-4 mr-2" /> Cerrar sesión
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    )}
-                </div>
-            </header>
-            {/* ========== CABECERA / HERO ========== */}
-            <div className="relative h-[400px] w-full bg-black overflow-hidden md:rounded-b-[3.5rem] shadow-2xl">
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent z-10" />
+                    {/* Badges */}
+                    <div className="absolute top-6 left-6 flex flex-wrap gap-2">
+          <span
+              className={`px-3 py-1 rounded-full text-xs font-bold tracking-wider ${
+                  actividad.estado === "activa"
+                      ? "bg-tertiary text-secondary"
+                      : "bg-white/20 backdrop-blur text-white"
+              }`}
+          >
+            {(actividad.estado ?? "ACTIVA").toUpperCase()}
+          </span>
+                        <span
+                            className="px-3 py-1 rounded-full bg-white/20 backdrop-blur text-white text-xs font-bold tracking-wider">
+            {esPublica ? "ACTIVIDAD PÚBLICA" : "ACTIVIDAD PRIVADA"}
+          </span>
+                    </div>
 
-
-                {/* Botones superiores */}
-                <div className="absolute top-6 left-6 right-6 z-20 flex justify-between items-center">
-                    <Link to="/" className="p-3 bg-white/10 backdrop-blur-md rounded-full text-white hover:bg-white/20 transition">
-                        <ArrowLeft size={20} />
-                    </Link>
-                    <div className="flex gap-2">
-                        <button className="p-3 bg-white/10 backdrop-blur-md rounded-full text-white hover:bg-white/20 transition">
-                            <Share2 size={20} />
-                        </button>
+                    {/* Título */}
+                    <div className="absolute bottom-6 left-6 right-6 sm:bottom-10 sm:left-10 sm:right-10">
+                        <h1
+                            className="text-white text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.05] drop-shadow-lg"
+                            style={{fontFamily: "'Manrope', sans-serif"}}
+                        >
+                            {actividad.titulo}
+                        </h1>
                     </div>
                 </div>
 
-
-                {/* Título e Imágenes (Carousel Simplificado) */}
-                <div className="absolute bottom-12 left-6 right-6 z-20 max-w-7xl mx-auto">
-                    <div className="flex gap-2 mb-4">
-                        <span className={`text-[10px] font-black px-3 py-1 rounded-full uppercase ${actividad.estado === 'activa' ? 'bg-tertiary text-secondary' : 'bg-red-500 text-white'}`}>
-                            {actividad.estado}
-                        </span>
-                        <span className="bg-white/20 backdrop-blur-md text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest">
-                            Public Activity
-                        </span>
-                    </div>
-                    <h1 className="text-4xl md:text-6xl font-extrabold text-white font-heading leading-tight max-w-4xl tracking-tighter">
-                        {actividad.titulo}
-                    </h1>
-                </div>
-
-                {/* Renderizado de la primera imagen de fondo si existe */}
-                {actividad.imagenes && actividad.imagenes.length > 0 && (
-                    <img
-                        src={actividad.imagenes[0]}
-                        className="absolute inset-0 w-full h-full object-cover opacity-60"
-                        alt="Header"
-                    />
-                )}
-            </div>
-
-            <main className="max-w-7xl mx-auto px-6 -mt-12 relative z-30">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-                    {/* COLUMNA IZQUIERDA */}
-                    <div className="lg:col-span-2 space-y-8">
-
-                        {/* Info de Creador y Tags */}
-                        <div className="bg-white rounded-[2.5rem] p-6 shadow-sm border border-neutral-light flex flex-col md:flex-row justify-between items-center gap-4">
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-2xl bg-secondary flex items-center justify-center text-white font-bold text-xl">
-                                    {actividad.creador?.nombre?.charAt(0) || "U"}
+                {/* ============ CUERPO ============ */}
+                <div className="mt-6 grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-6">
+                    {/* ----- COLUMNA IZQUIERDA ----- */}
+                    <div className="space-y-6">
+                        {/* Creador + tags */}
+                        <div
+                            className="bg-white rounded-3xl p-6 shadow-sm flex flex-col sm:flex-row sm:items-center gap-4 justify-between">
+                            <Link
+                                to={
+                                    actividad.idCreador
+                                        ? `/usuario/${actividad.idCreador}`
+                                        : "#"
+                                }
+                                className="flex items-center gap-3 hover:opacity-80 transition"
+                            >
+                                <div
+                                    className="w-12 h-12 rounded-full bg-secondary overflow-hidden flex items-center justify-center text-white font-semibold">
+                                    {usuarioMinimo?.foto ? (
+                                        <img
+                                            src={usuarioMinimo?.foto}
+                                            alt={usuarioMinimo?.nombreUsuario}
+                                            className="w-full h-full object-cover"
+                                            onError={(e) =>
+                                                ((e.currentTarget as HTMLImageElement).style.display =
+                                                    "none")
+                                            }
+                                        />
+                                    ) : (
+                                        (usuarioMinimo?.nombreUsuario ?? "U").charAt(0).toUpperCase()
+                                    )}
                                 </div>
                                 <div>
-                                    <p className="text-[10px] font-black text-neutral uppercase tracking-widest">Organized by</p>
-                                    <p className="text-secondary font-bold text-lg">{actividad.creador?.nombre || "Usuario"}</p>
+                                    <div className="text-xs text-neutral">Creado por</div>
+                                    <div className="font-bold text-secondary">
+                                        {usuarioMinimo?.nombreUsuario ?? "Creador"}
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="flex gap-2">
-                                {/* Tags de ejemplo o reales */}
-                                <span className="px-4 py-2 bg-slate-100 text-neutral text-xs font-bold rounded-xl">#Activity</span>
-                                <span className="px-4 py-2 bg-slate-100 text-neutral text-xs font-bold rounded-xl">#Community</span>
-                            </div>
+                            </Link>
+
+                            {tags && tags.length > 0 && (
+                                <div className="flex flex-wrap gap-2">
+                                    {tags.map((tag: string) => (
+                                        <span
+
+                                            key={tag}
+                                            className="px-3 py-1 rounded-full bg-neutral-light text-secondary text-xs font-semibold"
+                                        >
+                    #{tag}
+                  </span>
+                                    ))}
+                                </div>
+                            )}
                         </div>
 
-                        {/* Descripción */}
-                        <div className="bg-white rounded-[2.5rem] p-8 shadow-sm border border-neutral-light">
-                            <div className="flex items-center gap-3 mb-6 text-primary">
-                                <FileText size={24} />
-                                <h2 className="text-2xl font-black text-secondary font-heading">About the Activity</h2>
-                            </div>
-                            <p className="text-neutral leading-relaxed text-lg whitespace-pre-line">
+                        {/* Sobre la actividad */}
+                        <div className="bg-white rounded-3xl p-7 shadow-sm">
+                            <h2
+                                className="text-xl font-extrabold text-secondary mb-4 flex items-center gap-2"
+                                style={{fontFamily: "'Manrope', sans-serif"}}
+                            >
+                                <span className="w-1 h-6 bg-primary rounded-full"/>
+                                Sobre la actividad
+                            </h2>
+                            <p className="text-neutral leading-relaxed whitespace-pre-wrap">
                                 {actividad.descripcion}
                             </p>
                         </div>
 
-                        {/* Fechas y Ubicación */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="bg-white rounded-[2.5rem] p-7 shadow-sm border border-neutral-light">
-                                <div className="flex items-center gap-3 mb-4 text-primary">
-                                    <Clock size={20} />
-                                    <h3 className="font-bold text-secondary">Date & Time</h3>
-                                </div>
-                                <div className="space-y-1">
-                                    <p className="text-sm font-bold text-secondary">Start: <span className="text-neutral font-medium">{new Date(actividad.fechaInicio).toLocaleString()}</span></p>
-                                    <p className="text-sm font-bold text-secondary">End: <span className="text-neutral font-medium">{new Date(actividad.fechaFin).toLocaleString()}</span></p>
+                        {/* Fecha + Ubicación */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="bg-primary-50 rounded-3xl p-6">
+                                <Calendar className="w-6 h-6 text-primary"/>
+                                <h3
+                                    className="mt-3 font-extrabold text-secondary"
+                                    style={{fontFamily: "'Manrope', sans-serif"}}
+                                >
+                                    Fecha y hora
+                                </h3>
+                                <div className="mt-3 space-y-2 text-sm">
+                                    <div>
+                                        <div className="text-[10px] font-bold tracking-wider text-neutral uppercase">
+                                            Inicio
+                                        </div>
+                                        <div className="text-secondary font-semibold">
+                                            {fechaInicio.toLocaleString()}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div className="text-[10px] font-bold tracking-wider text-neutral uppercase">
+                                            Fin
+                                        </div>
+                                        <div className="text-secondary font-semibold">
+                                            {fechaFin.toLocaleString()}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div className="bg-white rounded-[2.5rem] p-7 shadow-sm border border-neutral-light">
-                                <div className="flex items-center gap-3 mb-4 text-primary">
-                                    <MapPin size={20} />
-                                    <h3 className="font-bold text-secondary">Localización</h3>
-                                </div>
-                                <p className="text-sm font-bold text-secondary">{actividad.ubicacion}</p>
+                            <div className="bg-white rounded-3xl p-6 shadow-sm">
+                                <MapPin className="w-6 h-6 text-primary"/>
+                                <h3
+                                    className="mt-3 font-extrabold text-secondary"
+                                    style={{fontFamily: "'Manrope', sans-serif"}}
+                                >
+                                    Ubicación
+                                </h3>
+                                <p className="mt-3 text-secondary font-semibold">
+                                    {actividad.ubicacion}
+                                </p>
                             </div>
                         </div>
+
+                        {/* Galería extra (si hay más de 1 imagen) */}
+                        {actividad.imagenes && actividad.imagenes.length > 1 && (
+                            <div>
+                                <h2
+                                    className="text-xl font-extrabold text-secondary mb-4"
+                                    style={{fontFamily: "'Manrope', sans-serif"}}
+                                >
+                                    Galería
+                                </h2>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                    {actividad.imagenes.slice(1).map((url: string, i: number) => (
+                                        <div
+                                            key={i}
+                                            className="relative aspect-square bg-black rounded-2xl overflow-hidden"
+                                        >
+                                            <img
+                                                src={url}
+                                                alt={`Imagen ${i + 2}`}
+                                                className="absolute inset-0 w-full h-full object-cover"
+                                                onError={(e) =>
+                                                    ((e.currentTarget as HTMLImageElement).style.display =
+                                                        "none")
+                                                }
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
 
-
-
-
-                    {/* COLUMNA DERECHA (Panel de Control/Acciones) */}
-                    <div className="space-y-6">
-                        <div className="bg-white rounded-[3rem] p-8 shadow-xl border border-neutral-light sticky top-10">
-
-                            {/* Status de Participantes */}
-                            <div className="mb-8 space-y-4">
-                                <div className="flex justify-between items-center p-4 bg-slate-50 rounded-2xl">
-                                    <div className="flex items-center gap-2 text-xs font-bold text-neutral">
-                                        <Users size={16} className="text-primary"/> Capacity
-                                    </div>
-                                    <span className="text-sm font-black text-secondary">
-                                        {actividad.participantesmax === 0 ? "Sin limites" : `${numeroParticipantes} / ${actividad.participantesmax}`}
-                                    </span>
-                                </div>
-                                <p className="text-[10px] text-center text-neutral font-bold px-2">{participantesPublica}</p>
+                    {/* ----- COLUMNA DERECHA ----- */}
+                    <aside className="space-y-3">
+                        {/* Capacidad */}
+                        <div className="bg-white rounded-2xl px-5 py-4 shadow-sm flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <Users className="w-5 h-5 text-primary"/>
+                                <span className="font-semibold text-secondary text-sm">
+                Capacidad
+              </span>
                             </div>
+                            <span className="text-secondary font-bold text-sm">
+              {sinCupo
+                  ? "Sin límite"
+                  : `${numeroParticipantes}/${cupoMax} participantes`}
+            </span>
+                        </div>
 
-                            {/* ========== LÓGICA DE BOTONES ========== */}
-                            <div className="space-y-3">
-                                {miParticipacion ? (
-                                    <>
-                                        {/* Botón Chat (Si está aceptado) */}
-                                        {miParticipacion.aceptada && (
-                                            <button
-                                                onClick={() => window.location.href = `/ChatActividad/${idChatActividad}`}
-                                                className="w-full py-4 bg-tertiary text-secondary rounded-2xl font-black flex items-center justify-center gap-2 hover:brightness-95 transition shadow-lg shadow-tertiary/20"
-                                            >
-                                                <MessageCircle size={20} /> Activity Chat
-                                            </button>
-                                        )}
-
-                                        {/* Botón Editar (Admin de la actividad) */}
-                                        {isAdminActividad && actividad.estado === 'activa' && (
-                                            <button
-                                                onClick={() => window.location.href = `/ActualizarActividad/${actividad.idActividad}`}
-                                                className="w-full py-4 bg-primary text-white rounded-2xl font-black flex items-center justify-center gap-2 hover:bg-primary-600 transition shadow-lg shadow-primary/20"
-                                            >
-                                                <Edit3 size={20} /> Edit Activity
-                                            </button>
-                                        )}
-
-                                        {/* Botón Dejar de Participar */}
-                                        {miParticipacion.aceptada && actividad.estado === 'activa' && (
-                                            <button
-                                                onClick={handleDejarParticipar}
-                                                className="w-full py-4 bg-white border-2 border-red-100 text-red-500 rounded-2xl font-black flex items-center justify-center gap-2 hover:bg-red-50 transition"
-                                            >
-                                                <XCircle size={20} /> Leave Activity
-                                            </button>
-                                        )}
-
-                                        {/* Mensaje Pendiente */}
-                                        {!miParticipacion.aceptada && (
-                                            <div className="p-4 bg-amber-50 border border-amber-100 rounded-2xl text-center">
-                                                <p className="text-xs font-bold text-amber-700 uppercase tracking-tighter">Status: Pending Approval</p>
-                                            </div>
-                                        )}
-                                    </>
+                        {/* Privacidad */}
+                        <div className="bg-white rounded-2xl px-5 py-4 shadow-sm flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                {esPublica ? (
+                                    <Globe className="w-5 h-5 text-primary"/>
                                 ) : (
-                                    /* Botón Participar o Sin Plazas */
-                                    (Number(actividad.participantesmax) > numeroParticipantes || Number(actividad.participantesmax) === 0) ? (
-                                        <button
-                                            onClick={handleParticipar}
-                                            className="w-full py-4 bg-primary text-white rounded-2xl font-black text-lg shadow-lg shadow-primary/30 hover:bg-primary-600 transition flex items-center justify-center gap-2"
-                                        >
-                                            Join Now <Zap size={20} fill="currentColor"/>
-                                        </button>
-                                    ) : (
-                                        <div className="p-4 bg-slate-100 rounded-2xl text-center">
-                                            <p className="text-sm font-bold text-neutral">No spots available</p>
-                                        </div>
-                                    )
+                                    <Lock className="w-5 h-5 text-primary"/>
                                 )}
-
-                                {/* Ver Participantes (Siempre visible) */}
-                                <button
-                                    onClick={() => window.location.href = `/participantes/${id}`}
-                                    className="w-full py-4 text-secondary font-black text-sm flex items-center justify-center gap-2 hover:bg-slate-50 rounded-2xl transition"
-                                >
-                                    <Eye size={18} /> Participantes
-                                </button>
+                                <span className="font-semibold text-secondary text-sm">
+                Privacidad
+              </span>
                             </div>
+                            <span className="text-secondary font-bold text-sm">
+              {esPublica ? "Pública" : "Privada"}
+            </span>
+                        </div>
 
-                            {/* ========== BORRADO MODERACIÓN ========== */}
-                            {(rol === 'admin' || rol === 'mod') && (
-                                <div className="mt-8 pt-6 border-t border-dashed border-neutral-light space-y-2">
-                                    <p className="text-[10px] font-black text-neutral text-center uppercase mb-4 tracking-widest">Admin Tools</p>
-                                    <button
-                                        onClick={handleEliminarActividad}
-                                        className="w-full py-3 bg-red-600 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 hover:bg-red-700 transition"
-                                    >
-                                        <Trash2 size={16} /> Delete Activity (Staff)
-                                    </button>
-                                    {rol === 'admin' && (
+                        {/* CTA principal */}
+                        <div className="pt-2 space-y-2">
+                            {miParticipacion ? (
+                                <>
+                                    {/* Editar (admin de actividad) */}
+                                    {isAdminActividad && actividad.estado === "activa" && (
+                                        <Link to={`/ActualizarActividad/${actividad.idActividad}`}>
+                                            <button
+                                                className="w-full py-3.5 rounded-full bg-primary text-white font-bold text-sm hover:bg-primary-600 transition flex items-center justify-center gap-2">
+                                                <Pencil className="w-4 h-4"/>
+                                                Editar actividad
+                                            </button>
+                                        </Link>
+                                    )}
+
+                                    {/* Pendiente */}
+                                    {!miParticipacion.aceptada && (
+                                        <div
+                                            className="w-full py-3.5 rounded-full bg-neutral-light text-neutral font-semibold text-sm text-center flex items-center justify-center gap-2">
+                                            <Clock className="w-4 h-4"/>
+                                            Participación pendiente
+                                        </div>
+                                    )}
+
+                                    {/* Dejar de participar */}
+                                    {miParticipacion.aceptada && actividad.estado === "activa" && (
                                         <button
-                                            onClick={() => window.location.href = `/ActualizarActividad/${actividad.idActividad}`}
-                                            className="w-full py-3 border border-primary text-primary rounded-xl font-bold text-xs flex items-center justify-center gap-2 hover:bg-primary-50 transition"
+                                            onClick={handleDejarParticipar}
+                                            className="w-full py-3.5 rounded-full bg-white text-red-600 border border-red-200 font-bold text-sm hover:bg-red-50 transition flex items-center justify-center gap-2"
                                         >
-                                            <Edit3 size={16} /> Forced Edit
+                                            <LogOut className="w-4 h-4"/>
+                                            Dejar de participar
                                         </button>
                                     )}
+
+                                    {/* Ir al chat */}
+                                    {miParticipacion.aceptada && (
+                                        <Link to={`/ChatActividad/${idChatActividad}`}>
+                                            <button
+                                                className="w-full py-3.5 rounded-full bg-secondary text-white font-bold text-sm hover:opacity-90 transition flex items-center justify-center gap-2">
+                                                <MessageCircle className="w-4 h-4"/>
+                                                Chat de la actividad
+                                            </button>
+                                        </Link>
+                                    )}
+                                </>
+                            ) : hayPlazas ? (
+                                <button
+                                    onClick={handleParticipar}
+                                    className="w-full py-4 rounded-full bg-primary text-white font-bold text-base hover:bg-primary-600 transition flex items-center justify-center gap-2 shadow-lg shadow-primary/20"
+                                >
+                                    Unirme a la actividad
+                                    <Zap className="w-4 h-4 fill-white"/>
+                                </button>
+                            ) : (
+                                <div
+                                    className="w-full py-3.5 rounded-full bg-neutral-light text-neutral font-semibold text-sm text-center">
+                                    No hay plazas disponibles
                                 </div>
                             )}
+
+                            {/* Ver participantes */}
+                            <Link to={`/participantes/${id}`}>
+                                <button
+                                    className="w-full py-3 rounded-full bg-white text-primary border border-slate-200 font-semibold text-sm hover:bg-neutral-light transition flex items-center justify-center gap-2">
+                                    <Eye className="w-4 h-4"/>
+                                    Ver participantes
+                                </button>
+                            </Link>
                         </div>
-                    </div>
+
+                        {/* Avatars apilados (placeholder) */}
+                        {numeroParticipantes > 0 && (
+                            <div className="pt-4 flex flex-col items-center">
+                                <div className="flex -space-x-2">
+                                    {Array.from({length: Math.min(3, numeroParticipantes)}).map(
+                                        (_, i) => (
+                                            <div
+                                                key={i}
+                                                className="w-9 h-9 rounded-full bg-secondary ring-2 ring-white flex items-center justify-center text-white text-xs font-bold"
+                                            >
+                                                {String.fromCharCode(65 + i)}
+                                            </div>
+                                        ),
+                                    )}
+                                    {numeroParticipantes > 3 && (
+                                        <div
+                                            className="w-9 h-9 rounded-full bg-primary ring-2 ring-white flex items-center justify-center text-white text-xs font-bold">
+                                            +{numeroParticipantes - 3}
+                                        </div>
+                                    )}
+                                </div>
+                                <span className="mt-2 text-xs text-neutral">
+                {numeroParticipantes}{" "}
+                                    {numeroParticipantes === 1 ? "persona" : "personas"} ya se
+                                    {numeroParticipantes === 1 ? " ha unido" : " han unido"}
+              </span>
+                            </div>
+                        )}
+
+                        {/* Acciones de moderación */}
+                        {(rol === "admin" || rol === "mod") && (
+                            <div className="pt-6 mt-6 border-t border-slate-200 space-y-2">
+                                <div className="text-[10px] font-bold tracking-wider text-neutral uppercase mb-2">
+                                    Moderación
+                                </div>
+                                {rol === "admin" && (
+                                    <Link to={`/ActualizarActividad/${actividad.idActividad}`}>
+                                        <button
+                                            className="w-full py-2.5 rounded-xl bg-white text-primary border border-slate-200 font-semibold text-xs hover:bg-neutral-light transition flex items-center justify-center gap-2">
+                                            <Pencil className="w-3.5 h-3.5"/>
+                                            Editar (admin)
+                                        </button>
+                                    </Link>
+                                )}
+                                <button
+                                    onClick={handleEliminarActividad}
+                                    className="w-full py-2.5 rounded-xl bg-red-50 text-red-600 font-semibold text-xs hover:bg-red-100 transition flex items-center justify-center gap-2"
+                                >
+                                    <Trash2 className="w-3.5 h-3.5"/>
+                                    Eliminar actividad
+                                </button>
+                            </div>
+                        )}
+                    </aside>
                 </div>
-            </main>
             </div>
         </div>
     );

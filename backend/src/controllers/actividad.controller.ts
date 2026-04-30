@@ -8,7 +8,7 @@ import * as ActividadJob from '../jobs/actividad.job.js';
 import * as ChatActividadModel from '../models/chatActividad.model.js';
 import * as ActividadService from '../services/actividad.service.js';
 import {UsuarioService} from "../services/usuario.service.js";
-
+import { upload } from "../../multerConfig.js";
 
 /*
 export const getActividadesFiltradas= async (req: Request, res: Response) => {
@@ -155,11 +155,27 @@ export const getActividadesPorUsuario = async (req: Request, res: Response) => {
 export const createActividad = async (req: Request, res: Response) => {
     let actividad;
     try {
-        console.log("Valor de req.userId en createActividad:", req.userId);
+        console.log("Valor de req.userId en createActividad:", req.userId, "y req.body:", req.body);
         req.body.idCreador = req.userId;//asigna el id del usuario logueado como creador de la actividad
         if (!req.body.idCreador) {
             return res.status(400).json({message: 'ID del creador es requerido'});
         }
+
+        //imagenes
+
+        //sube la imagen
+        //const funcionUpload = upload.array('imagenes');
+
+        // Obtenemos las rutas de los NUEVOS archivos subidos por Multer
+        const nuevosArchivos = req.files as Express.Multer.File[];
+        const rutaImg = nuevosArchivos.map(f => `/uploads/${f.filename}`);
+
+        const todasLasImagenes = [ ...rutaImg];
+
+        req.body.imagenes = todasLasImagenes;
+
+
+
         actividad = await ActividadModel.crearActividad(req.body);
         res.status(201).json(actividad);
     } catch (error) {
@@ -243,6 +259,31 @@ export const updateActividad = async (req: Request, res: Response) => {
         if (estadoActividad === 'finalizada') {
             return res.status(400).json({message: 'No se puede actualizar una actividad finalizada'});
         }
+
+        //imagenes
+
+        //sube la imagen
+        //const funcionUpload = upload.array('imagenes');
+
+        // Obtenemos las rutas de los NUEVOS archivos subidos por Multer
+        const nuevosArchivos = req.files as Express.Multer.File[];
+        const nuevasRutas = nuevosArchivos.map(f => `/uploads/${f.filename}`);
+
+        const actividadVieja = await ActividadService.ActividadService.getActividadPorId(idActividad);
+        let imagenesViejas = [];
+        if (actividadVieja?.imagenes) {
+            imagenesViejas = actividadVieja.imagenes;
+        }
+
+
+
+        const todasLasImagenes = [ ...nuevasRutas];
+
+        req.body.imagenes = todasLasImagenes;
+
+
+
+
 
         const actividadActualizado = await ActividadModel.actualizarActividad(idActividad, req.body);
         if (actividadActualizado) {
@@ -461,6 +502,31 @@ export const editAdmins = async (req: Request, res: Response) => {
         res.status(500).json({message: 'Error del servidor'});
     }
 }
+
+//obtener los datos minimos de una actividad por id de actividad {idActividad, titulo, imagen}
+export const getDatosBasicosActividadPorId = async (req: Request, res: Response) => {
+    try {
+        const idParam = req.params.id;
+        if (!idParam) {
+            return res.status(400).json({message: 'ID requerido'});
+        }
+        const idActividad = Number.parseInt(idParam, 10);
+        if (Number.isNaN(idActividad)) {
+            return res.status(400).json({message: 'ID inválido'});
+        }
+
+        const datosBasicos = await ActividadService.ActividadService.getDatosBasicosActividadPorId(idActividad);
+        if (datosBasicos) {
+            res.json(datosBasicos);
+        } else {
+            res.status(404).json({message: 'Actividad no encontrada'});
+        }
+    } catch (error) {
+        console.error('Error al obtener datos básicos de la actividad por ID:', error);
+        res.status(500).json({message: 'Error del servidor'});
+    }
+}
+
 
 //edita expulsados
 export const editExpulsados = async (req: Request, res: Response) => {

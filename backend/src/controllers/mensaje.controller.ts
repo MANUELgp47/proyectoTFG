@@ -22,11 +22,40 @@ export const getMensajes = async (req: Request, res: Response) => {
 };
 export const getMensajePorId = async (req: Request, res: Response) => {
     const idMensaje = Number(req.params.id);
+
+    //
+
+
+
     try {
         const mensaje = await MensajedModel.getMensajePorId(idMensaje);
         if (!mensaje) {
             return res.status(404).json({message: 'Mensaje no encontrado'});
         }
+
+        //comprueba que el usuario que solicita el mensaje está en el chat individual o de actividad al que pertenece el mensaje
+        if (mensaje.idChatIndividual) {
+            const chatIndividual = await ChatIndividualModel.getChatIndividualPorId(mensaje.idChatIndividual);
+            if (!chatIndividual) {
+                return res.status(404).json({message: 'Chat individual no encontrado'});
+            }
+            if (req.userId !== chatIndividual.idUsuario1 && req.userId !== chatIndividual.idUsuario2) {
+                return res.status(403).json({message: 'No tienes permiso para ver este mensaje'});
+            }
+        } else if (mensaje.idChatActividad) {
+            const chatActividad = await ChatActividadModel.getChatActividadPorId(mensaje.idChatActividad);
+            if (!chatActividad) {
+                return res.status(404).json({message: 'Chat de actividad no encontrado'});
+            }
+            const estaEnActividad = await ServicioActividad.ActividadService.esUsuarioParticipante(chatActividad.idActividad, Number(req.userId));
+            if (!estaEnActividad) {
+                return res.status(403).json({message: 'No tienes permiso para ver este mensaje'});
+            }
+        } else {
+            return res.status(400).json({message: 'Mensaje no asociado a ningún chat'});
+        }
+
+
         res.json(mensaje);
     } catch (error) {
         console.error('Error al obtener mensaje por ID:', error);

@@ -11,6 +11,9 @@ router.get('/', ChatIndividualController.getChatsIndividual);
 // Obtener un chat individual por id emisor o receptor
 router.get('/:idUsuario', authMiddleware, ChatIndividualController.getChatIndividualPorUsuario);
 
+//obtener todos mis chats
+router.get('/chats/mios', authMiddleware, ChatIndividualController.getMisChatsIndividual);
+
 
 //crear un chat individual ht
 router.post('/:idReceptor',authMiddleware, ChatIndividualController.createChatIndividual);

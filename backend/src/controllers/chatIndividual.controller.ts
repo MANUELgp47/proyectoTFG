@@ -81,6 +81,19 @@ export const getChatIndividualPorUsuario = async (req: Request, res: Response) =
     }
 };
 
+// Obtener todos mis chats individuales
+export const getMisChatsIndividual = async (req: Request, res: Response) => {
+    const idUsuario = req.userId;
+    console.log("idUsuario obtener chats individuales", idUsuario);
+
+    try {
+        const chatsIndividuales = await ChatIndividualModel.getMisChatsIndividual(Number(idUsuario));
+        res.json(chatsIndividuales);
+    } catch (error) {
+        console.error('Error al obtener mis chats individuales:', error);
+        res.status(500).json({ message: 'Error del servidor' });
+    }
+}
 
 
 export const createChatIndividual = async (req: Request, res: Response) => {

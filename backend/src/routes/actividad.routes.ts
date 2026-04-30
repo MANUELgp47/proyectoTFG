@@ -3,6 +3,7 @@ import * as ActividadController from '../controllers/actividad.controller.js';
 import {finalizarActividad, getActividadesPorUsuario} from "../controllers/actividad.controller.js";
 import {authMiddleware} from "../middleware/auth.middleware.js";
 import * as ActividadTagController from "../controllers/actividadTag.controller.js";
+import { upload } from "../../multerConfig.js";
 
 const router = Router();
 
@@ -12,6 +13,9 @@ router.get('/', ActividadController.getActividades);
 //Obtener actividades en las que participo un usuario
 router.get('/misActividades', authMiddleware, ActividadController.getActividadesQueParticipo);
 
+//Obtener los datos basicos de una actividad por ID
+router.get('/:id/datosBasicos', authMiddleware, ActividadController.getDatosBasicosActividadPorId);
+
 //Obtener una actividad por ID
 router.get('/:id', authMiddleware, ActividadController.getActividadPorId);
 
@@ -19,10 +23,10 @@ router.get('/:id', authMiddleware, ActividadController.getActividadPorId);
 router.get('/usuario/:idUsuario', authMiddleware, ActividadController.getActividadesPorUsuario);
 
 //Crear una nueva actividad
-router.post('/', authMiddleware, ActividadController.createActividad);
+router.post('/', authMiddleware, upload.array('imagenes'), ActividadController.createActividad);
 
 //Actualizar una actividad existente
-router.put('/:id', authMiddleware,  ActividadController.updateActividad);
+router.put('/:id', authMiddleware, upload.array('imagenes'), ActividadController.updateActividad);
 
 //Eliminar una actividad
 router.delete('/:id', authMiddleware, ActividadController.deleteActividad);

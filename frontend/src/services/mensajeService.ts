@@ -12,6 +12,19 @@ export const getMensajesActividad = async (idChatActividad: number): Promise<Men
     return response.data;
 };
 
+//obtiene mensaje por id, si no lo encuentra devuelve null
+export const getMensajePorId = async (id: number): Promise<Mensaje | null> => {
+    try {
+        const response = await api.get(`mensaje/${id}`);
+        return response.data;
+    } catch (error: any) {
+        if (error.response && error.response.status === 404) {
+            return null; // No se encontró el mensaje
+        }
+        throw error; // Relanzar otros errores
+    }
+}
+
 
 //crear mensjae en chat individual
 export const crearMensajeChat = async (data: any): Promise<Mensaje> => {

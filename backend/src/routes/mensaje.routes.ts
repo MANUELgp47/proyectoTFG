@@ -17,6 +17,10 @@ router.get('/chat/:idChatIndividual', authMiddleware, MensajeController.getMensa
 //
 router.get('/chatActividad/:idChatActividad', authMiddleware, MensajeController.getMensajesPorChatActividad);
 
+
+//obtener un mensaje por id
+router.get('/:id', authMiddleware, MensajeController.getMensajePorId);
+
 //marcar un mensaje como leido por id en chats individuales
 router.put('/:idMensaje', authMiddleware, MensajeController.marcarMensajeComoLeidoIndividual);
 

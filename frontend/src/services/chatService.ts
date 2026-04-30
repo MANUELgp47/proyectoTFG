@@ -21,6 +21,12 @@ export const getChatIndividualPorUsuario = async (idUsuario: number): Promise<Ch
     }
 }
 
+//obtener todos mis chats individuales
+export const getMisChatsIndividual = async (): Promise<ChatIndividual[]> => {
+    const response = await api.get(`chatIndividual/chats/mios`);
+    return response.data;
+}
+
 
 
 
@@ -39,4 +45,10 @@ export const getChatActividad = async (idActividad: number): Promise<ChatActivid
         }
         throw error; // Relanzar otros errores
     }
+}
+
+//obtener todos mis chats de actividad
+export const getMisChatsActividad = async (): Promise<ChatActividad[]> => {
+    const response = await api.get(`chatActividad/chats/mios`);
+    return response.data;
 }

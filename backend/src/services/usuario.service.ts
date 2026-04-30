@@ -96,4 +96,13 @@ export class UsuarioService {
         const usuario = await UsuarioModel.getUsuarioPorId(idUsuario);
         return usuario ? usuario.rol : null;
     }
+
+    //obtenerDatosMinimosUsuarioPorId
+    static async obtenerDatosMinimosUsuarioPorId(idUsuario: number): Promise<{ idUsuario: number, nombreUsuario: string } | null> {
+        const usuario = await UsuarioModel.getUsuarioPorId(idUsuario);
+        if (usuario) {
+            return { idUsuario: usuario.idUsuario, nombreUsuario: usuario.nombreUsuario };
+        }
+        return null;
+    }
 }

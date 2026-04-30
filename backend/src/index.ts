@@ -1,5 +1,6 @@
 import express, {type Request, type Response} from 'express';
 import cors from 'cors';
+import path from 'path';
 import pool from './db.js'; // usa .js para importar el archivo db.ts porque es un módulo de Node.js
 import usuarioRoutes from './routes/usuario.routes.js';
 import actividadRoutes from './routes/actividad.routes.js';
@@ -18,6 +19,11 @@ import tagRoutes from "./routes/tag.routes.js";
 import actividadTagRoutes from "./routes/actividadTag.routes.js";
 import settingRoutes from "./routes/settings.routes.js";
 
+//imagenes
+import { fileURLToPath } from 'url';
+import  { dirname } from 'path';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const app = express();
 
@@ -41,7 +47,8 @@ app.use('/api/tag',tagRoutes);
 app.use('/api/actividadtag', actividadTagRoutes);
 app.use('/api/auth/', authRoutes);
 app.use('/api/settings', settingRoutes);
-
+//fotos
+app.use('/api/uploads', express.static(path.join(__dirname, './uploads')));
 
 //get para probar la conexión a la base de datos
 app.get('/test-db', async (req, res) => {

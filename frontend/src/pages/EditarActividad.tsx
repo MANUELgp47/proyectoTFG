@@ -6,7 +6,7 @@ import api from "../api/axios";
 export default function EditarActividad() {
     const {id} = useParams();
     const navigate = useNavigate();
-
+    const [archivos, setArchivos] = useState<FileList | null>(null);//para img
     const [actividad, setActividad] = useState<any>(null);
     const [error, setError] = useState("");
 
@@ -35,6 +35,12 @@ export default function EditarActividad() {
         return <p>Esta actividad no se puede editar al no estar activa.</p>;
     }
 
+    // Manejo de cambio de archivos (imágenes)
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files) {
+            setArchivos(e.target.files);
+        }
+    };
 
     const handleCancelar = async () => {
         try {
@@ -54,7 +60,7 @@ export default function EditarActividad() {
                 fechaFin: new Date(actividad.fechaFin).toISOString(),
                 ubicacion: actividad.ubicacion,
                 publica: actividad.publica,
-                estado: "cancelada", // 👈 aquí cambiamos el estado
+                estado: "cancelada", // aquí cambiamos el estado
                 imagenes: actividad.imagenes || []
             });
 
@@ -75,7 +81,7 @@ export default function EditarActividad() {
             const actividadId = Number(id);
             if (Number.isNaN(actividadId)) throw new Error('ID de actividad inválido');
 
-
+/*
             await updateActividad(actividadId, {
                 titulo: actividad.titulo,
                 descripcion: actividad.descripcion,
@@ -87,6 +93,38 @@ export default function EditarActividad() {
                 //  participantesmax: actividad.participantesmax,
                 imagenes: actividad.imagenes || []
             });
+*/
+
+                const formData = new FormData();
+
+                //  Añadimos los campos de texto
+                formData.append('titulo', actividad.titulo);
+                formData.append('descripcion', actividad.descripcion);
+                formData.append('fechaInicio', new Date(actividad.fechaInicio).toISOString());
+                formData.append('fechaFin', new Date(actividad.fechaFin).toISOString());
+                formData.append('ubicacion', actividad.ubicacion);
+                formData.append('publica', String(actividad.publica)); // FormData solo acepta strings o blobs
+                formData.append('estado', actividad.estado);
+
+                //  Gestionamos las imágenes
+                // Mandamos las URLs de las imágenes que YA estaban (para no borrarlas)
+              //  formData.append('imagenesPrevias', JSON.stringify(actividad.imagenes || []));
+
+                // Mandamos los ARCHIVOS nuevos (los que vienen del input file)
+                if (archivos) {
+                    Array.from(archivos).forEach((archivo) => {
+                        formData.append('imagenes', archivo); // 'imagenes' debe coincidir con upload.array('imagenes') en el back
+                    });
+                }
+
+                //Llamamos al service pasándole el formData
+                await updateActividad(actividadId, formData);
+
+
+
+
+
+
 
             navigate(`/usuario/${actividad.creadorId}/actividades`);
         } catch (err) {
@@ -155,11 +193,12 @@ export default function EditarActividad() {
                         setActividad({...actividad, ubicacion: e.target.value})
                     }
                 /><br/>
-                <textarea
-                    value={actividad.imagenes}
-                    onChange={(e) =>
-                        setActividad({...actividad, imagenes: e.target.value})
-                    }
+                <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="mb-4"
                 /><br/>
 
 

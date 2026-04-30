@@ -8,6 +8,11 @@ export const getTags = async (): Promise<Tag[]> => {
 };
 
 
+//obtiene los tags de una actividad
+export const getTagsActividad = async (idActividad: number): Promise<Tag[]> => {
+    const response = await api.get(`/tag/actividad/${idActividad}`);
+    return response.data;
+};
 
 //ActividadTag
 //asigna un tag a una actividad

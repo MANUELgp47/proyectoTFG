@@ -13,4 +13,10 @@ export const updateUsuario = async (usuarioData: any): Promise<any> => {
     return response.data;
 };
 
+//obtener datos minimos de usuario por id
+export const getDatosMinimosUsuario = async (idUsuario: number): Promise<any> => {
+    const response = await api.get(`/usuario/${idUsuario}/datosMinimos`);
+    return response.data;
+};
+
 

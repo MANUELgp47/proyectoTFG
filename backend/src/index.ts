@@ -18,6 +18,9 @@ import authRoutes from "./auth/auth.routes.js";
 import tagRoutes from "./routes/tag.routes.js";
 import actividadTagRoutes from "./routes/actividadTag.routes.js";
 import settingRoutes from "./routes/settings.routes.js";
+import dotenv from 'dotenv';
+
+dotenv.config({ path: '../ini.env' });
 
 //imagenes
 import { fileURLToPath } from 'url';
@@ -30,7 +33,11 @@ const app = express();
 app.use(cors()); // Permite todas las conexiones CORS desde otros puertos y dominios. para permitir al frondend acceder al backend
 app.use(express.json());// Middleware para parsear JSON y que Express pueda entender los datos en formato
 
-//rutas
+
+
+
+
+//rutas dev
 app.use('/api/usuario', usuarioRoutes);
 app.use('/api/actividad', actividadRoutes);
 app.use('/api/participacion', participacionRoutes);
@@ -50,8 +57,24 @@ app.use('/api/settings', settingRoutes);
 //fotos
 app.use('/api/uploads', express.static(path.join(__dirname, './uploads')));
 
+
+const frontendPath = path.join(__dirname, '../public/dist');
+app.use(express.static(frontendPath));
+
+
+app.get(/.*/, (req, res) => {
+    // Si la ruta empieza por /api y ha llegado aquí, es que la ruta de la API está mal escrita
+    if (req.path.startsWith('/api')) {
+        return res.status(404).json({ error: 'Ruta de API no encontrada' });
+    }
+
+    // Para todo lo demás (rutas de navegación de React), enviamos el index.html
+    res.sendFile(path.join(frontendPath, 'index.html'));
+});
+
+
 //get para probar la conexión a la base de datos
-app.get('/test-db', async (req, res) => {
+/*app.get('/test-db', async (req, res) => {
     try {
         console.log('Conectando a la base de datos...');
         const result = await pool.query('SELECT NOW()');
@@ -62,8 +85,10 @@ app.get('/test-db', async (req, res) => {
         res.status(500).send('Error en la base de datos');
 
     }
-});
+});*/
 
-app.listen(3000, () => {
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
     console.log('Servidor escuchando en puerto 3000');
 });

@@ -32,6 +32,16 @@ export default function VistaRecuerdo() {
     const [creadorMinimo, setcreadorioMinimo] = useState<any>(null);
     const [fotoCreador, setFotoCreador] = useState<string | null>(null);
 
+    //mapa de usuarios
+    const [mapaUsuarioMinimo, getmapaUsuarioMinimo] = useState<Record<number, {
+        idUsuario: number;
+        nombreUsuario: string;
+        imagenPerfil?: string | null;
+    }>>({});
+
+
+
+
 
     const [likesComentarios, setLikesComentarios] = useState<{ [idComentario: number]: number }>({});
     const [heDadoLikeComentarios, setHeDadoLikeComentarios] = useState<{ [idComentario: number]: boolean }>({});
@@ -126,6 +136,35 @@ export default function VistaRecuerdo() {
     }, [idRecuerdo]);
 
 
+    //mira los comentarios y obtiene los datos minimos de cada usuario que ha comentado y lo ordena por numero de idUsuario
+    useEffect(() => {
+        const fetchUsuariosComentarios = async () => {
+            try {
+                if (comentarios.length === 0) return;
+                const mapa: Record<number, {
+                    idUsuario: number;
+                    nombreUsuario: string;
+                    imagenPerfil?: string | null;
+                }> = {};
+                await Promise.all(comentarios.map(async (comentario) => {
+                    if (!mapa[comentario.idUsuario]) {
+                        const usuarioData = await getDatosMinimosUsuario(comentario.idUsuario);
+                        mapa[comentario.idUsuario] = {
+                            idUsuario: comentario.idUsuario,
+                            nombreUsuario: usuarioData.nombreUsuario,
+                            imagenPerfil: usuarioData.foto
+                        };
+                    }
+                }));
+                getmapaUsuarioMinimo(mapa);
+            } catch (err) {
+                console.error(err);
+            }
+        }
+        fetchUsuariosComentarios();
+    }, [comentarios]);
+
+
     const handleCrearComentario = async (texto: string) => {
 
         await crearComentario({idRecuerdo: Number(idRecuerdo), mensaje: texto});
@@ -190,6 +229,7 @@ export default function VistaRecuerdo() {
             window.location.href = "/";
         }
     }
+
 
 
     if (error) {
@@ -466,16 +506,17 @@ export default function VistaRecuerdo() {
                                     className="flex items-start gap-3"
                                 >
                                     <div className="w-9 h-9 rounded-full bg-secondary flex items-center justify-center text-white text-xs font-bold shrink-0">
-                                        {(c.nombreUsuario ?? c.idUsuario).toString().charAt(0).toUpperCase()}
+                                        {(c.idUsuario).toString().charAt(0).toUpperCase()
+                                        }
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <div className="bg-white rounded-2xl px-4 py-3 shadow-sm">
                                             <div className="flex items-center justify-between gap-4">
                       <span className="text-sm font-bold text-secondary">
-                        {c.nombreUsuario ?? `Usuario ${c.idUsuario}`}
+                        {mapaUsuarioMinimo[c.idUsuario]?.nombreUsuario ?? `Usuario ${c.idUsuario}`}
                       </span>
                                                 <span className="text-xs text-neutral">
-                        {c.fecha ? new Date(c.fecha).toLocaleDateString() : "Hace un rato"}
+                        {c.fechaCreacion ? new Date(c.fechaCreacion).toLocaleDateString() : "Hace un rato"}
                       </span>
                                             </div>
                                             <p className="mt-1 text-sm text-secondary leading-relaxed">

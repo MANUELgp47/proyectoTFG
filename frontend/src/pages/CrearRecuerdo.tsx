@@ -10,8 +10,8 @@ export default function CrearRecuerdo() {
     const [descripcion, setDescripcion] = useState("");
     const [error, setError] = useState("");
 
-    const [archivos, setArchivos] = useState<File[] | null>(null);
-    const [imagenUrl, setImagenUrl] = useState <string | null>(null);
+   // const [archivos, setArchivos] = useState<File[] | null>(null);
+//const [imagenUrl, setImagenUrl] = useState <string | null>(null);
 
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -50,7 +50,7 @@ export default function CrearRecuerdo() {
             setError("Error al crear el recuerdo");
         }
     };
-
+/*
     const handleFile = (file: File) => {
         setArchivos(file);
         if (file && file.type.startsWith('image/')) {// Solo aceptamos imágenes
@@ -58,7 +58,7 @@ export default function CrearRecuerdo() {
             // Creamos una URL temporal para ver la previsualización local
             setImagenUrl(URL.createObjectURL(file));
         }
-    };
+    };*/
 
     return (
         <div>

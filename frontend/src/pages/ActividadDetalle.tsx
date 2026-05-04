@@ -153,7 +153,8 @@ export function ActividadDetalle() {
     if (loading) return <p>Cargando...</p>;
     if (!actividad) return <p>Actividad no encontrada.</p>;
 
-    const participantesPublica = actividad.publica ? "Esta actividad es pública." : `Participantes: ${numeroParticipantes} / ${actividad.participantesmax}`;
+   // const participantesPublica = actividad.publica ? "Esta actividad es pública." : `Participantes: ${numeroParticipantes} / ${actividad.participantesmax}`;
+
     const handleParticipar = async () => {
         try {
             // llama a tu endpoint participar

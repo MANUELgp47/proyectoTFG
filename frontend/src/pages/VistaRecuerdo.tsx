@@ -5,7 +5,7 @@ import {getRecuerdoPorId, eliminarRecuerdos} from "../services/recuerdoService";
 import {Link, useParams} from "react-router-dom";
 import type {Recuerdo, Usuario, Comentario} from "../types.ts";
 import {getParticipacionesPorActividad} from "../services/participacionService";
-import {getUsuario} from "../services/usuarioService";
+import {getUsuario, getDatosMinimosUsuario} from "../services/usuarioService";
 import {getComentarioByIdRecuerdo, crearComentario, eliminarComentario} from "../services/comentarioService.ts";
 import {
     crearLike,
@@ -29,6 +29,9 @@ export default function VistaRecuerdo() {
     const [likes, setLikes] = useState<number>(0);
     const [heDadoLike, setHeDadoLike] = useState<boolean | null>(null);
     const [heDadoLikeLoaded, setHeDadoLikeLoaded] = useState<boolean>(false);
+    const [creadorMinimo, setcreadorioMinimo] = useState<any>(null);
+    const [fotoCreador, setFotoCreador] = useState<string | null>(null);
+
 
     const [likesComentarios, setLikesComentarios] = useState<{ [idComentario: number]: number }>({});
     const [heDadoLikeComentarios, setHeDadoLikeComentarios] = useState<{ [idComentario: number]: boolean }>({});
@@ -68,6 +71,16 @@ export default function VistaRecuerdo() {
 
                 setHeDadoLike(heDadoLikeBool);
                 setHeDadoLikeLoaded(true);
+
+                // Obtener datos mínimos del creador para mostrar su nombre e inicial en la vista del recuerdo
+                if (data.idUsuario) {
+                    const creadorData = await getDatosMinimosUsuario(data.idCreador);
+                    setcreadorioMinimo(creadorData);
+                    //foto del creador
+                    if (creadorData?.foto) {
+                        setFotoCreador(creadorData.foto);
+                    }
+                }
 
             } catch (err) {
                 console.error(err);
@@ -273,22 +286,22 @@ export default function VistaRecuerdo() {
 
                             <div className="mt-6 pt-6 border-t border-slate-100 flex items-center gap-3">
                                 <div className="w-11 h-11 rounded-full bg-secondary overflow-hidden flex items-center justify-center text-white text-sm font-semibold">
-                                    {recuerdo.creador?.foto ? (
+                                    {fotoCreador ? (
                                         <img
-                                            src={recuerdo.creador.foto}
-                                            alt={recuerdo.creador.nombre}
+                                            src={fotoCreador}
+                                            alt={creadorMinimo?.nombreUsuario}
                                             className="w-full h-full object-cover"
                                             onError={(e) =>
                                                 ((e.currentTarget as HTMLImageElement).style.display = "none")
                                             }
                                         />
                                     ) : (
-                                        (recuerdo.creador?.nombre ?? "U").charAt(0).toUpperCase()
+                                        (creadorMinimo?.nombreUsuario ?? "U").charAt(0).toUpperCase()
                                     )}
                                 </div>
                                 <div>
                                     <div className="text-sm font-bold text-secondary">
-                                        {recuerdo.creador?.nombre ?? "Creador"}
+                                        {creadorMinimo?.nombreUsuario ?? "Creador"}
                                     </div>
                                     <div className="text-xs text-neutral">Creador del recuerdo</div>
                                 </div>

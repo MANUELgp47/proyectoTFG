@@ -53,16 +53,19 @@ export default function EditarActividad() {
             );
             if (!confirmar) return;
 
-            await updateActividad(actividadId, {
-                titulo: actividad.titulo,
-                descripcion: actividad.descripcion,
-                fechaInicio: new Date(actividad.fechaInicio).toISOString(),
-                fechaFin: new Date(actividad.fechaFin).toISOString(),
-                ubicacion: actividad.ubicacion,
-                publica: actividad.publica,
-                estado: "cancelada", // aquí cambiamos el estado
-                imagenes: actividad.imagenes || []
-            });
+            const formData = new FormData();
+            formData.append('titulo', actividad.titulo);
+            formData.append('descripcion', actividad.descripcion);
+            formData.append('fechaInicio', new Date(actividad.fechaInicio).toISOString());
+            formData.append('fechaFin', new Date(actividad.fechaFin).toISOString());
+            formData.append('ubicacion', actividad.ubicacion);
+            formData.append('publica', String(actividad.publica));
+            formData.append('estado', actividad.estado);
+// añadir archivos si hay
+            if (archivos) {// Si hay archivos nuevos seleccionados, los añadimos al FormData
+                Array.from(archivos).forEach(file => formData.append('imagenes', file));
+            }
+            await updateActividad(actividadId, formData);
 
             // Actualizamos en frontend
             setActividad({...actividad, estado: "cancelada"});
@@ -81,49 +84,44 @@ export default function EditarActividad() {
             const actividadId = Number(id);
             if (Number.isNaN(actividadId)) throw new Error('ID de actividad inválido');
 
-/*
-            await updateActividad(actividadId, {
-                titulo: actividad.titulo,
-                descripcion: actividad.descripcion,
-                fechaInicio: new Date(actividad.fechaInicio).toISOString(),
-                fechaFin: new Date(actividad.fechaFin).toISOString(),
-                ubicacion: actividad.ubicacion,
-                publica: actividad.publica,
-                estado: actividad.estado,
-                //  participantesmax: actividad.participantesmax,
-                imagenes: actividad.imagenes || []
-            });
-*/
+            /*
+                        await updateActividad(actividadId, {
+                            titulo: actividad.titulo,
+                            descripcion: actividad.descripcion,
+                            fechaInicio: new Date(actividad.fechaInicio).toISOString(),
+                            fechaFin: new Date(actividad.fechaFin).toISOString(),
+                            ubicacion: actividad.ubicacion,
+                            publica: actividad.publica,
+                            estado: actividad.estado,
+                            //  participantesmax: actividad.participantesmax,
+                            imagenes: actividad.imagenes || []
+                        });
+            */
 
-                const formData = new FormData();
+            const formData = new FormData();
 
-                //  Añadimos los campos de texto
-                formData.append('titulo', actividad.titulo);
-                formData.append('descripcion', actividad.descripcion);
-                formData.append('fechaInicio', new Date(actividad.fechaInicio).toISOString());
-                formData.append('fechaFin', new Date(actividad.fechaFin).toISOString());
-                formData.append('ubicacion', actividad.ubicacion);
-                formData.append('publica', String(actividad.publica)); // FormData solo acepta strings o blobs
-                formData.append('estado', actividad.estado);
+            //  Añadimos los campos de texto
+            formData.append('titulo', actividad.titulo);
+            formData.append('descripcion', actividad.descripcion);
+            formData.append('fechaInicio', new Date(actividad.fechaInicio).toISOString());
+            formData.append('fechaFin', new Date(actividad.fechaFin).toISOString());
+            formData.append('ubicacion', actividad.ubicacion);
+            formData.append('publica', String(actividad.publica)); // FormData solo acepta strings o blobs
+            formData.append('estado', actividad.estado);
 
-                //  Gestionamos las imágenes
-                // Mandamos las URLs de las imágenes que YA estaban (para no borrarlas)
-              //  formData.append('imagenesPrevias', JSON.stringify(actividad.imagenes || []));
+            //  Gestionamos las imágenes
+            // Mandamos las URLs de las imágenes que YA estaban (para no borrarlas)
+            //  formData.append('imagenesPrevias', JSON.stringify(actividad.imagenes || []));
 
-                // Mandamos los ARCHIVOS nuevos (los que vienen del input file)
-                if (archivos) {
-                    Array.from(archivos).forEach((archivo) => {
-                        formData.append('imagenes', archivo); // 'imagenes' debe coincidir con upload.array('imagenes') en el back
-                    });
-                }
+            // Mandamos los ARCHIVOS nuevos (los que vienen del input file)
+            if (archivos) {
+                Array.from(archivos).forEach((archivo) => {
+                    formData.append('imagenes', archivo); // 'imagenes' debe coincidir con upload.array('imagenes') en el back
+                });
+            }
 
-                //Llamamos al service pasándole el formData
-                await updateActividad(actividadId, formData);
-
-
-
-
-
+            //Llamamos al service pasándole el formData
+            await updateActividad(actividadId, formData);
 
 
             navigate(`/usuario/${actividad.creadorId}/actividades`);

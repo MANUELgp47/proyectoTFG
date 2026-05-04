@@ -26,8 +26,8 @@ const Login = () => {
                 contrasena,
             });
 
-            console.log("Token guardado en localStorage:", response.token); // Verificar que el token se recibe correctamente
-            console.log("Token guardado en localStorage:", response);
+          //  console.log("Token guardado en localStorage:", response.token); // Verificar que el token se recibe correctamente
+          //  console.log("Token guardado en localStorage:", response);
 
 
             // Guardar token en contexto global

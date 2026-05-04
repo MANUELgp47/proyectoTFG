@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Código compilado
+dist/
+build/
+
+# Variables de entorno
+.env

@@ -1,15 +1,15 @@
 //Muestra el chat de una actividad específica. El ID de la actividad se obtiene de la URL.
 import {useEffect, useState} from "react";
 import {Navigate, useParams} from "react-router-dom";
-import {getChatActividad} from "../services/chatService";
+//import {getChatActividad} from "../services/chatService";
 import {crearMensajeChat, getMensajesActividad} from "../services/mensajeService";
-import type {ChatActividad, Mensaje} from "../types.ts";
+import type { Mensaje} from "../types.ts";
 import {useAuth} from "../context/AuthContext.tsx";
 
 export default function VistaChatActividad() {
-    const {idActividad} = useParams<{ idActividad: string }>();
-    const [chat, setChat] = useState<ChatActividad | null>(null);
-    const [error, setError] = useState("");
+ //   const {idActividad} = useParams<{ idActividad: string }>();
+//    const [chat, setChat] = useState<ChatActividad | null>(null);
+//    const [error, setError] = useState("");
     const { loading, idUsuario, isAuthenticated } = useAuth();
     const idSesion = idUsuario;
     const [mensajes, setMensajes] = useState<Mensaje[] | null>(null);
@@ -30,8 +30,8 @@ export default function VistaChatActividad() {
     if (idSesion == null) {
         return <div>Cargando sesión...</div>;
     }
-
-    useEffect(() => {
+/*
+    useEffect(() => {// Cargar el chat de la actividad al montar el componente
         const cargarChat = async () => {
             try {
                 const chatData = await getChatActividad(Number(idActividad));
@@ -49,7 +49,7 @@ export default function VistaChatActividad() {
 
         cargarChat();
     }, [idActividad]);
-
+*/
 
     useEffect(() => {
         let mounted = true;

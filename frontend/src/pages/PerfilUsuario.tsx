@@ -24,6 +24,7 @@ export default function PerfilUsuario() {
     //idUsuario por parametero
     const {idUsuarios} = useParams<{ idUsuarios: string }>();
     const [usuario, setUsuario] = useState<Usuario | null>(null);
+    const [imagen, setImagen] = useState<string | null>(null);
     const [amistad, setAmistad] = useState<Amistad | null>(null);
     const [solicitud, setSolicitud] = useState<SolicitudAmistad | null>(null);
     const {idUsuario} = useAuth();
@@ -38,6 +39,7 @@ export default function PerfilUsuario() {
                 const data = await getUsuario(Number(idUsuarios));
 
                 setUsuario(data);
+                setImagen(data.foto);
             } catch (error) {
 
                 console.error("Error al cargar usuario:", error);
@@ -207,14 +209,15 @@ export default function PerfilUsuario() {
             <div className="max-w-[1200px] mx-auto px-6 py-8">
                 <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
                     {/* ============ COLUMNA PRINCIPAL ============ */}
+
                     <main className="space-y-8">
                         {/* --- Cabecera de perfil --- */}
                         <section className="bg-white rounded-3xl p-8 shadow-sm flex flex-col md:flex-row gap-8 items-start">
                             {/* Avatar */}
                             <div className="w-40 h-40 rounded-full bg-black overflow-hidden shrink-0 ring-4 ring-white shadow-lg">
-                                {usuario.foto ? (
+                                {imagen ? (
                                     <img
-                                        src={usuario.foto}
+                                        src={imagen}
                                         alt={usuario.nombreUsuario}
                                         className="w-full h-full object-cover"
                                         onError={(e) => {

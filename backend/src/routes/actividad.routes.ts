@@ -3,7 +3,8 @@ import * as ActividadController from '../controllers/actividad.controller.js';
 import {finalizarActividad, getActividadesPorUsuario} from "../controllers/actividad.controller.js";
 import {authMiddleware} from "../middleware/auth.middleware.js";
 import * as ActividadTagController from "../controllers/actividadTag.controller.js";
-import { upload } from "../../multerConfig.js";
+import { upload } from "../cloudinaryConfig.js";
+
 
 const router = Router();
 

@@ -1,9 +1,27 @@
+// typescript
+// Archivo: `frontend/src/pages/Registro.tsx`
 import { useState } from 'react';
 import { register } from '../api/auth.api';
 import {Navigate} from "react-router-dom";
-//import { login } from '../api/auth.api';
 import { Link } from "react-router-dom";
 import { Camera, Pencil, ArrowRight, CheckCircle2 } from "lucide-react";
+
+function Field({
+    label,
+    children,
+}: {
+    label: string;
+    children: React.ReactNode;
+}) {
+    return (
+        <div>
+            <label className="text-[10px] font-bold tracking-[0.18em] text-neutral uppercase block mb-2">
+                {label}
+            </label>
+            {children}
+        </div>
+    );
+}
 
 const Register = () => {
     const [form, setForm] = useState({
@@ -27,7 +45,9 @@ const Register = () => {
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
     ) => {
-        const { name, value } = e.target;
+        const target = e.target as HTMLInputElement;
+        const { name } = target;
+        const value = target.type === 'checkbox' ? target.checked : target.value;
         setForm((prev) => ({
             ...prev,
             [name]: value,
@@ -47,35 +67,17 @@ const Register = () => {
             // await login({ nombre_email: form.email, contrasena: form.contrasena });
             <Navigate to="/"/>
 
-
         } catch (err) {
+            console.error(err);
             setError('Error al crear usuario');
         } finally {
             setLoading(false);
         }
     };
 
-    function Field({
-                       label,
-                       children,
-                   }: {
-        label: string;
-        children: React.ReactNode;
-    }) {
-        return (
-            <div>
-                <label className="text-[10px] font-bold tracking-[0.18em] text-neutral uppercase block mb-2">
-                    {label}
-                </label>
-                {children}
-            </div>
-        );
-    }
-
     return (
         <div className="min-h-screen bg-[#F8F9FB] flex items-center justify-center p-4 sm:p-6">
             <div className="w-full max-w-[1200px] grid grid-cols-1 lg:grid-cols-2 bg-white rounded-3xl shadow-xl overflow-hidden min-h-[700px]">
-                {/* ============ PANEL IZQUIERDO ============ */}
                 <aside
                     className="relative hidden lg:flex flex-col justify-between p-12 text-white overflow-hidden"
                     style={{
@@ -83,7 +85,6 @@ const Register = () => {
                             "linear-gradient(135deg, #003C94 0%, #0056D2 50%, #1E40AF 100%)",
                     }}
                 >
-                    {/* Olas decorativas */}
                     <div
                         className="absolute inset-0 opacity-30"
                         style={{
@@ -99,7 +100,6 @@ const Register = () => {
                         }}
                     />
 
-                    {/* Contenido */}
                     <div className="relative">
                         <div className="flex items-center gap-2 text-xl font-extrabold">
                             <CheckCircle2 className="w-6 h-6" />
@@ -122,7 +122,6 @@ const Register = () => {
                         </p>
                     </div>
 
-                    {/* Testimonio */}
                     <div className="relative bg-white/10 backdrop-blur-md rounded-2xl p-5 mt-8">
                         <p className="text-sm italic text-white/90 leading-relaxed">
                             "Escribir algo aquí para llenar el espacio"
@@ -141,7 +140,6 @@ const Register = () => {
                     </div>
                 </aside>
 
-                {/* ============ PANEL DERECHO (FORMULARIO) ============ */}
                 <main className="p-8 sm:p-12 overflow-y-auto">
                     <div className="flex items-end justify-between mb-8">
                         <h2
@@ -162,7 +160,6 @@ const Register = () => {
                     </p>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
-                        {/* Foto de perfil (placeholder visual) */}
                         <div className="flex flex-col items-center">
                             <div className="relative">
                                 <div className="w-24 h-24 rounded-full bg-neutral-light border-2 border-dashed border-primary/40 flex items-center justify-center">
@@ -181,12 +178,13 @@ const Register = () => {
             </span>
                         </div>
 
-                        {/* Fila 1: Nombre de usuario + Ubicación */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             <Field label="Nombre de usuario">
                                 <input
+                                    type="text"
                                     name="nombreUsuario"
                                     placeholder="@username"
+                                    value={form.nombreUsuario}
                                     onChange={handleChange}
                                     required
                                     className="form-underline-input"
@@ -194,20 +192,23 @@ const Register = () => {
                             </Field>
                             <Field label="Ubicación">
                                 <input
+                                    type="text"
                                     name="ubicacion"
                                     placeholder="Tu ciudad"
+                                    value={form.ubicacion}
                                     onChange={handleChange}
                                     className="form-underline-input"
                                 />
                             </Field>
                         </div>
 
-                        {/* Fila 2: Nombre + Apellido */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             <Field label="Nombre">
                                 <input
+                                    type="text"
                                     name="nombre"
                                     placeholder="Nombre"
+                                    value={form.nombre}
                                     onChange={handleChange}
                                     required
                                     className="form-underline-input"
@@ -215,8 +216,10 @@ const Register = () => {
                             </Field>
                             <Field label="Apellido">
                                 <input
+                                    type="text"
                                     name="apellido"
                                     placeholder="Apellido"
+                                    value={form.apellido}
                                     onChange={handleChange}
                                     required
                                     className="form-underline-input"
@@ -224,54 +227,53 @@ const Register = () => {
                             </Field>
                         </div>
 
-                        {/* Email */}
                         <Field label="Correo electrónico">
                             <input
                                 type="email"
                                 name="email"
                                 placeholder="ejemplo@correo.com"
+                                value={form.email}
                                 onChange={handleChange}
                                 required
                                 className="form-underline-input"
                             />
                         </Field>
 
-                        {/* Contraseña */}
                         <Field label="Contraseña">
                             <input
                                 type="password"
                                 name="contrasena"
                                 placeholder="••••••••"
+                                value={form.contrasena}
                                 onChange={handleChange}
                                 required
                                 className="form-underline-input"
                             />
                         </Field>
 
-                        {/* Fecha de nacimiento */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             <Field label="Fecha de nacimiento">
                                 <input
                                     type="date"
                                     name="fechaNac"
+                                    value={form.fechaNac}
                                     onChange={handleChange}
                                     className="form-underline-input"
                                 />
                             </Field>
                         </div>
 
-                        {/* Biografía */}
                         <Field label="Biografía">
             <textarea
                 name="biografia"
                 placeholder="Cuéntanos sobre ti..."
+                value={form.biografia}
                 onChange={handleChange}
                 rows={3}
                 className="form-underline-input resize-none"
             />
                         </Field>
 
-                        {/* Mensajes */}
                         {error && (
                             <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">
                                 {error}
@@ -283,7 +285,6 @@ const Register = () => {
                             </div>
                         )}
 
-                        {/* CTA */}
                         <button
                             type="submit"
                             disabled={loading}
@@ -297,7 +298,6 @@ const Register = () => {
                             {!loading && <ArrowRight className="w-4 h-4" />}
                         </button>
 
-                        {/* Términos */}
                         <p className="text-center text-[10px] tracking-wider text-neutral uppercase">
                             Al hacer click en crear cuenta aceptas nuestros{" "}
                             <a href="#" className="text-primary font-bold hover:underline">

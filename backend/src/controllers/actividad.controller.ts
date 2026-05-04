@@ -8,7 +8,7 @@ import * as ActividadJob from '../jobs/actividad.job.js';
 import * as ChatActividadModel from '../models/chatActividad.model.js';
 import * as ActividadService from '../services/actividad.service.js';
 import {UsuarioService} from "../services/usuario.service.js";
-import { upload } from "../../multerConfig.js";
+import {upload} from "../../multerConfig.js";
 
 /*
 export const getActividadesFiltradas= async (req: Request, res: Response) => {
@@ -167,13 +167,20 @@ export const createActividad = async (req: Request, res: Response) => {
         //const funcionUpload = upload.array('imagenes');
 
         // Obtenemos las rutas de los NUEVOS archivos subidos por Multer
-        const nuevosArchivos = req.files as Express.Multer.File[];
-        const rutaImg = nuevosArchivos.map(f => `/uploads/${f.filename}`);
+        /*  const nuevosArchivos = req.files as Express.Multer.File[];
+          const rutaImg = nuevosArchivos.map(f => `/uploads/${f.filename}`);*/
 
-        const todasLasImagenes = [ ...rutaImg];
+
+        //Cloudinary
+        // 1. Casteamos a 'any' o al tipo específico de Cloudinary para evitar errores de TS
+        const nuevosArchivos = (req.files as any[]) || [];
+
+        // 2. Extraemos directamente la URL que nos da Cloudinary
+        const rutaImg = nuevosArchivos.map(f => f.path);
+
+        const todasLasImagenes = [...rutaImg];
 
         req.body.imagenes = todasLasImagenes;
-
 
 
         actividad = await ActividadModel.crearActividad(req.body);
@@ -276,13 +283,9 @@ export const updateActividad = async (req: Request, res: Response) => {
         }
 
 
-
-        const todasLasImagenes = [ ...nuevasRutas];
+        const todasLasImagenes = [...nuevasRutas];
 
         req.body.imagenes = todasLasImagenes;
-
-
-
 
 
         const actividadActualizado = await ActividadModel.actualizarActividad(idActividad, req.body);
@@ -353,7 +356,7 @@ export const finalizarActividad = async (req: Request, res: Response) => {
         const esCreador: boolean = await ActividadService.ActividadService.esCreadorActividad(idActividad, req.userId!) || await UsuarioService.getRolPorIdUsuario(Number(req.userId)) === 'admin';
         const esAdminActividad: boolean = await ActividadService.ActividadService.esAdminActividad(idActividad, req.userId!);
 
-        if (esCreador == false && esAdminActividad ) {
+        if (esCreador == false && esAdminActividad) {
             return res.status(400).json({menssage: 'No eres el creador de la actividad'});
         }
 
@@ -496,8 +499,7 @@ export const editAdmins = async (req: Request, res: Response) => {
             res.status(400).json({message: 'Acción inválida'});
         }
 
-    }
-    catch (error) {
+    } catch (error) {
         console.error('Error al editar admins de la actividad:', error);
         res.status(500).json({message: 'Error del servidor'});
     }
@@ -549,7 +551,7 @@ export const editExpulsados = async (req: Request, res: Response) => {
     try {
         if (action === 'add') {
             //quitar de admin si es admin
-            if (esAdmin){
+            if (esAdmin) {
                 await ActividadModel.removeAdminActividad(idActividad, idExpulsado);
             }
             await ActividadModel.addExpulsadoActividad(idActividad, idExpulsado);
@@ -573,8 +575,7 @@ export const editExpulsados = async (req: Request, res: Response) => {
             res.status(400).json({message: 'Acción inválida'});
         }
 
-    }
-    catch (error) {
+    } catch (error) {
         console.error('Error al editar expulsados de la actividad:', error);
         res.status(500).json({message: 'Error del servidor'});
     }

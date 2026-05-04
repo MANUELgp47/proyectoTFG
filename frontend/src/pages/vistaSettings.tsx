@@ -196,8 +196,8 @@ export default function VistaSettings() {
                                 style={{ fontFamily: "'Manrope', sans-serif" }}
                             >
                                 {/* 👇 Adapta a tu campo real (settings.fechaRegistro / usuario.fechaRegistro) */}
-                                {settings?.fechaRegistro //obtenerlo del usuario, no de los settings
-                                    ? new Date(settings.fechaRegistro).toLocaleDateString("es", {
+                                {usuario?.fechaRegistro //obtenerlo del usuario, no de los settings
+                                    ? new Date(usuario?.fechaRegistro).toLocaleDateString("es", {
                                         day: "numeric",
                                         month: "short",
                                         year: "numeric",

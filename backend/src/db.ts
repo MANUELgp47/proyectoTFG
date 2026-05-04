@@ -4,7 +4,11 @@ import dotenv from 'dotenv';
 dotenv.config({ path: '../ini.env' });
 
 const pool = new Pool({
-    host: process.env.DB_HOST,
+  /*  connectionString: process.env.DATABASE_URL,
+    ssl: {
+        rejectUnauthorized: false,
+    },*/
+   host: process.env.DB_HOST,
     port: Number(process.env.DB_PORT),
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,

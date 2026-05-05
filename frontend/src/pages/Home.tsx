@@ -512,7 +512,7 @@ export default function Home() {
                                     <div className="relative w-full aspect-[4/3] rounded-2xl bg-black overflow-hidden">
                                         {imagenUrl && (
                                             <img
-                                                src={`http://localhost:3000/api${imagenUrl}`}
+                                                src={imagenUrl}
                                                 alt={act.titulo}
                                                 className="absolute inset-0 w-full h-full object-cover"
                                                 onError={(e) => {

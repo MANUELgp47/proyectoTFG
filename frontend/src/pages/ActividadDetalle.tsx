@@ -219,7 +219,7 @@ export function ActividadDetalle() {
                 <div className="relative w-full aspect-[16/7] rounded-3xl overflow-hidden bg-black shadow-lg">
                     {heroImg && (
                         <img
-                            src={`http://localhost:3000/api${heroImg}`}
+                            src={heroImg[0]}
                             alt={actividad.titulo}
                             className="absolute inset-0 w-full h-full object-cover"
                             onError={(e) =>

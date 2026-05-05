@@ -1,8 +1,9 @@
-import { v2 as cloudinary } from 'cloudinary';
-import { CloudinaryStorage } from 'multer-storage-cloudinary';
+import {v2 as cloudinary} from 'cloudinary';
+import {CloudinaryStorage} from 'multer-storage-cloudinary';
 import multer from 'multer';
 import dotenv from 'dotenv';
-dotenv.config({ path: './ini.env' });
+
+dotenv.config({path: './ini.env'});
 
 // 1. Configuración de Cloudinary
 const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
@@ -22,7 +23,7 @@ cloudinary.config({
 // 2. Configuración del Almacenamiento (Cloudinary Storage)
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
-    params: async (req, file) => {
+    params: async (req: any, file: any) => {
         return {
             folder: 'tfg_actividades', // Nombre de la carpeta en Cloudinary
             allowed_formats: ['jpg', 'png', 'webp'],
@@ -31,4 +32,4 @@ const storage = new CloudinaryStorage({
     },
 });
 
-export const upload = multer({ storage: storage });
+export const upload = multer({storage: storage});

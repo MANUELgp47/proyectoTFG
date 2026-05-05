@@ -8,7 +8,7 @@ import * as ActividadJob from '../jobs/actividad.job.js';
 import * as ChatActividadModel from '../models/chatActividad.model.js';
 import * as ActividadService from '../services/actividad.service.js';
 import {UsuarioService} from "../services/usuario.service.js";
-import {upload} from "../../multerConfig.js";
+
 
 /*
 export const getActividadesFiltradas= async (req: Request, res: Response) => {

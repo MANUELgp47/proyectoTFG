@@ -74,7 +74,7 @@ app.get(/.*/, (req, res) => {
 
 
 //get para probar la conexión a la base de datos
-/*app.get('/test-db', async (req, res) => {
+app.get('/test-db', async (req, res) => {
     try {
         console.log('Conectando a la base de datos...');
         const result = await pool.query('SELECT NOW()');
@@ -85,7 +85,7 @@ app.get(/.*/, (req, res) => {
         res.status(500).send('Error en la base de datos');
 
     }
-});*/
+});
 
 const PORT = process.env.PORT || 3000;
 

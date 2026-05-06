@@ -5,8 +5,23 @@ import {useEffect, useState} from 'react';
 import {useParams} from 'react-router-dom';
 import {getActividadPorId, addAdmin, removeAdmin, addExpulsado, removeExpulsado} from '../services/actividadService';
 import type {Usuario, Actividad} from '../types';
-import {getParticipacionesPorActividad} from "../services/participacionService";
+import {
+    getParticipacionesAceptadasPorActividad,
+    getParticipacionesPorActividad
+} from "../services/participacionService";
 import {useAuth} from '../context/AuthContext';
+import {getPrivacidad} from "@/services/settingsService.ts";
+import {getDatosMinimosUsuario} from "@/services/usuarioService.ts";
+
+
+/*
+* TODO: Plan
+*  crear un mapa de IDusuarios, otro UsuariosMinimosDatos, UsuarioPrivacidad
+* si la actividad es publica, no mostrar usuarios privados
+* si hay usuarios privados y es publica mostrar otra lista de participantes privados solo a los admins/creador
+* */
+
+
 
 export function VistaParticipantes() {
  //   const {idActividad} = useParams<{ idActividad: string }>();
@@ -20,30 +35,98 @@ export function VistaParticipantes() {
     const auth = useAuth();
     const idSesion = auth.idUsuario;
     const rolSesion = auth.rol; // rol global (admin/mod) si aplica
+    //mapa privacidad de cada usuario
+    //const [privacidadUsuarios, setPrivacidadUsuarios] = useState<{[id: number]: boolean}>({}); // idUsuario -> privacidad:boolean
+    const [participantesPrivados, setParticipantesPrivados] = useState<Usuario[]>([]); // lista de participantes privados (si la actividad es pública)
+    const [datosMinimosUsuarios, setDatosMinimosUsuarios] = useState<{[id: number]: {nombre: string}}>({}); // idUsuario -> datos mínimos (nombre)
+
+
+
+
+
+    //primero carga la actividad
+    useEffect(() => {
+        const cargarActividad = async () => {
+            try {
+                if (idActividad != undefined && idActividad != null) {
+                    const actividadData = await getActividadPorId(Number(idActividad));
+                    setActividad(actividadData);
+                }
+            } catch (error) {
+                console.error('Error cargando actividad:', error);
+            }
+        };
+        cargarActividad();
+    }, [ idActividad]);
+
 
     useEffect(() => {
         const fetchData = async () => {
             try {
+
+
 
                 console.log('Cargando participantes para actividad id:', idActividad);
 
                 if (idActividad != undefined && idActividad != null) {
 
                     console.log('Cargando id:', idActividad);
-                    const participantesData = await getParticipacionesPorActividad(Number(idActividad));
-                    const usuarios: Usuario[] = participantesData.map((p: any) => p.usuario ? p.usuario : p);
+                    const participantesData = await getParticipacionesAceptadasPorActividad(Number(idActividad));
+
+                    //crea un mapa de los usuarios participantes con su idUsuario como clave y el objeto Usuario como valor| no constante para poder modificarlo luego
+               //     const usuarios: Usuario[] = participantesData.map((p: any) => p.usuario ? p.usuario : p);
+
+
+                    //recorre el array y obtiene los participantes privados privacidad.actividadPublica
+                  /*  if (actividad?.publica===false){
+                        const privados: Usuario[] = [];
+                        for (const p of usuarios) {
+                            const privacidad = await getPrivacidad(p.idUsuario);
+                            if (!privacidad.actividadPublica) {
+                                privados.push(p);
+                                //saca al usuario del array usuarios
+                                setParticipantes(prev => prev.filter(u => u.idUsuario !== p.idUsuario));// lo saca de la lista de participantes públicos y lo mete en la lista de participantes privados
+
+                            }
+                        }
+                        setParticipantesPrivados(privados);
+                    }
                     setParticipantes(usuarios);
 
-                    const actividadData = await getActividadPorId(Number(idActividad));
-                    setActividad(actividadData);
+*/
+                    //recorre participantesData y si su privacidad es actividadPublica false, lo mete en participantesPrivados, si no en participantes
+                    if (actividad && actividad.publica===true){
+                        console.log("Actividad es pública, filtrando participantes según su privacidad");
+                        const privados: Usuario[] = [];
+                        const publicos: Usuario[] = [];
+                        for (const p of participantesData) {
+                            const usuario: Usuario = p.usuario ? p.usuario : p;
+                            const privacidad = await getPrivacidad(usuario.idUsuario);
+                            if (!privacidad.actividadPublica) {
+                                privados.push(usuario);
+                            } else {
+                                publicos.push(usuario);
+                            }
+                        }
+                        console.log("Participantes públicos:", publicos, "Participantes privados:", privados);
+                        setParticipantes(publicos);
+                        setParticipantesPrivados(privados);
+
+                    }else if (actividad) {
+                        console.log("Actividad no es pública, mostrando todos los participantes sin filtrar por privacidad");
+                        const usuarios: Usuario[] = participantesData.map((p: any) => p.usuario ? p.usuario : p);
+                        setParticipantes(usuarios);
+                    }
+
+
 
                     // extraer expulsados si existen en la actividad
-                    if (actividadData && actividadData.expulsados) {
-                        setExpulsados(actividadData.expulsados);
+                    if (actividad && actividad.expulsados) {
+                        setExpulsados(actividad.expulsados);
                     } else {
                         setExpulsados([]);
                     }
-                    console.log('Participantes cargados:', usuarios);
+                //    console.log('Participantes cargados:', usuarios);
                 }
             } catch (error) {
                 console.error(error);
@@ -53,7 +136,7 @@ export function VistaParticipantes() {
         };
 
         fetchData();
-    }, [idActividad]);
+    }, [idActividad, actividad]);
 
     if (loading) {
         return <div>Cargando participantes...</div>;
@@ -187,6 +270,44 @@ export function VistaParticipantes() {
                     </li>
                 ))}
             </ul>
+            {/*TODO : Poner que esto solo aparezca si actividad.publica===true y ademas soy admin o creador*/}
+            {puedeGestionar && actividad?.publica===true && (
+                <div>
+            <h2>Participantes privados</h2>
+            <ul style={{ listStyle: 'none', padding: 0 }}>
+                {participantesPrivados.map((participante) => (
+                    <li key={participante.idUsuario} style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        padding: '10px 0',          // Espacio arriba y abajo de la línea
+                        borderBottom: '1px solid #ccc' // La línea divisoria
+                    }}>
+                        <a href={`/usuario/${participante.idUsuario}`}>{participante.idUsuario}</a>
+
+                        {/* Botones de gestión (solo si la sesión puede gestionar) */}
+                        {puedeGestionar && pesertaEsGestionable(participante.idUsuario, idSesion as number, actividad) && (
+                            <>
+                                {/* Expulsar */}
+                                <button onClick={() => handleExpulsar(participante.idUsuario)}
+                                        style={{backgroundColor: 'red', color: 'white'}}>Expulsar
+                                </button>
+
+                                {/* Promover a admin / quitar admin (si la actividad tiene admins) */}
+                                {actividad && actividad.admins && actividad.admins.includes(participante.idUsuario) ? (
+                                    <button onClick={() => handleAddAdmin(participante.idUsuario, false)}>Quitar
+                                        admin</button>
+                                ) : (
+                                    <button onClick={() => handleAddAdmin(participante.idUsuario, true)}>Hacer
+                                        admin</button>
+                                )}
+                            </>
+                        )}
+                    </li>
+                ))}
+            </ul>
+                </div>
+    )}
 
             {/* Sección expulsados, solo visible para quien pueda gestionar */}
             {puedeGestionar && (

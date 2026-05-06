@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import * as RercuerdoController from '../controllers/recuerdo.controller.js';
 import {authMiddleware} from "../middleware/auth.middleware.js";
+import {upload} from "../cloudinaryConfig.js";
 
 const router = Router();
 
@@ -14,7 +15,7 @@ router.get('/:id', authMiddleware, RercuerdoController.getRecuerdoPorId);
 router.get('/usuario/:idUsuario', authMiddleware, RercuerdoController.getRecuerdosPorUsuario);
 
 //crear una nuevo recuerdo
-router.post('/',authMiddleware, RercuerdoController.createRecuerdo);
+router.post('/',authMiddleware, upload.array('imagenes'), RercuerdoController.createRecuerdo);
 
 //eliminar una recuerdo por id
 router.delete('/:id', authMiddleware, RercuerdoController.deleteRecuerdoPorId);

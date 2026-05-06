@@ -6,7 +6,7 @@ export const getMySettings = async () => {
 }
 
 export const getPrivacidad = async (idUsuario:number) => {
-    const response = await api.get(`/settings/privacidad${idUsuario}`);
+    const response = await api.get(`/settings/privacidad/${idUsuario}`);
     return response.data;
 }
 

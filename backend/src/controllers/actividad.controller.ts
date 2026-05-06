@@ -267,25 +267,34 @@ export const updateActividad = async (req: Request, res: Response) => {
             return res.status(400).json({message: 'No se puede actualizar una actividad finalizada'});
         }
 
-        //imagenes
+        //Cloudinary
+        // 1. Casteamos a 'any' o al tipo específico de Cloudinary para evitar errores de TS
+        const nuevosArchivos = (req.files as any[]) || [];
 
-        //sube la imagen
-        //const funcionUpload = upload.array('imagenes');
+        // 2. Extraemos directamente la URL que nos da Cloudinary
+        const rutaImg = nuevosArchivos.map(f => f.path);
 
-        // Obtenemos las rutas de los NUEVOS archivos subidos por Multer
-        const nuevosArchivos = req.files as Express.Multer.File[];
-        const nuevasRutas = nuevosArchivos.map(f => `/uploads/${f.filename}`);
+        //const todasLasImagenes = [...rutaImg];
+
+       //todasLasImagenes;
 
         const actividadVieja = await ActividadService.ActividadService.getActividadPorId(idActividad);
-        let imagenesViejas = [];
-        if (actividadVieja?.imagenes) {
-            imagenesViejas = actividadVieja.imagenes;
+        //let imagenesViejas ;
+       //si la actividad vieja tiene imagenes las añadimos a todasLasImagenes
+
+        //si rutaImg tiene una imagen, entonces la actualizamos, si no mantenemos la que ya estaba en la actividad vieja
+        let nuevasRutas: string[] = [];
+        console.log("rutaImg:", rutaImg, "actividadVieja.imagenes:", actividadVieja?.imagenes);
+        if (rutaImg.length > 0) {
+            nuevasRutas = rutaImg;
+        } else if (actividadVieja && actividadVieja.imagenes) {
+            nuevasRutas = actividadVieja.imagenes;
         }
 
 
-        const todasLasImagenes = [...nuevasRutas];
+        //const todasLasImagenes = [...nuevasRutas];
 
-        req.body.imagenes = todasLasImagenes;
+        req.body.imagenes = nuevasRutas;
 
 
         const actividadActualizado = await ActividadModel.actualizarActividad(idActividad, req.body);

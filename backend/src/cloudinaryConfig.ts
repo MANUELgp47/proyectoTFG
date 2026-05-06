@@ -30,6 +30,6 @@ const storage = new CloudinaryStorage({
             public_id: Date.now() + '-' + file.originalname.split('.')[0], // Nombre del archivo
         };
     },
-});
+});//esto puede subir varios archivos a la vez a cloudinary, multer se encarga de manejar la subida de varios archivos
 
 export const upload = multer({storage: storage});

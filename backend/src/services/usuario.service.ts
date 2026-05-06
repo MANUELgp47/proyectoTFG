@@ -1,6 +1,7 @@
 import type {CrearUsuario} from '../types/usuario.js';
 import * as UsuarioModel from '../models/usuario.model.js';
 import bcrypt from 'bcrypt';
+import * as SettingsModel from '../models/settings.model.js';
 
 export class UsuarioService {
 
@@ -51,6 +52,18 @@ export class UsuarioService {
     static async obtenerUsuarioPorId(idUsuario: number): Promise<CrearUsuario | null> {
         const usuario = await UsuarioModel.getUsuarioPorId(idUsuario);
         return usuario;
+    }
+
+    //obtiene privacidad de un usuario por id
+    static async obtenerPrivacidadPorId(idUsuario: number): Promise<{ perfilPublico: boolean, actividadPublica: boolean } | null> {
+        const settings = await SettingsModel.getSettings(idUsuario);
+        if (!settings) {
+            return null;
+        }
+        return {
+            perfilPublico: settings.perfilPublico,
+            actividadPublica: settings.actividadPublica
+        };
     }
 
 

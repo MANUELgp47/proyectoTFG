@@ -126,7 +126,7 @@ export default function CrearActividad() {
     const handleFile = (file: File) => {
         setArchivo(file);
         if (file && file.type.startsWith('image/')) {// Solo aceptamos imágenes
-            setArchivo(file);
+          //  setArchivo(file);
             // Creamos una URL temporal para ver la previsualización local
             setImagenUrl(URL.createObjectURL(file));
         }

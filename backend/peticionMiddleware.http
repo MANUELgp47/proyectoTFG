@@ -359,3 +359,10 @@ Content-Type: application/json
 
 GET http://localhost:3000/api/chatActividad/chats/mios
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsImlhdCI6MTc3NzMwNjIyNiwiZXhwIjoxNzc4MTcwMjI2fQ.d2mAux49ir0c-30ebDX5NX50j8YhsnXKd7eGKxvf1ic
+
+
+
+#### privacidad usuario
+GET http://localhost:3000/api/settings/privacidad/15
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsImlhdCI6MTc3Nzk5NTk1NCwiZXhwIjoxNzc4ODU5OTU0fQ.N_y8yzC2Enj6uMy_PPoAG6KHK9zaNDGpFW_nft7WFks
+

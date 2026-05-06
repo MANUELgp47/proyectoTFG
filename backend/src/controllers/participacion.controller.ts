@@ -243,6 +243,34 @@ export const getParticipacionesPorActividad = async (req: Request, res: Response
     }
 }
 
+//obtiene participaciones aceptadas de una actividad
+export const getParticipacionesAceptadasPorActividad = async (req: Request, res: Response) => {
+    const idActividad = req.params.idActividad;
+
+    if (idActividad === undefined) {
+        return res.status(400).json({message: 'idActividad es requerido'});
+    }
+    //comprobar que la actividad existe
+    const actividadExiste = await ActividadService.existeActividad(Number(idActividad));
+    if (!actividadExiste) {
+        return res.status(404).json({message: 'La actividad no existe'});
+    }
+
+    //si la actividad es privada y no soy participante no puedo ver las participaciones aceptadas
+    const esParticipante = await ActividadService.esUsuarioParticipante(Number(idActividad), req.userId!);
+    const actividad = await ActividadService.getActividadPorId(Number(idActividad));
+    if (actividad && !actividad.publica && !esParticipante) {
+        return res.status(403).json({message: 'No tienes permiso para ver las participaciones de esta actividad'});
+    }
+
+    try {
+        const participacions = await ParticipacionModel.getParticipacionesAceptadasPorActividad(Number(idActividad));
+        res.json(participacions);
+    } catch (error) {
+        console.error('Error al obtener participacions por actividad:', error);
+        res.status(500).json({message: 'Error del servidor'});
+    }
+}
 
 //Eliminar una participacion
 export const eliminarParticipacion = async (req: Request, res: Response) => {

@@ -6,6 +6,7 @@ import * as UsuarioModel from '../models/usuario.model.js';
 import {ActividadService} from "../services/actividad.service.js";
 import {RecuerdoService} from '../services/recuerdo.service.js';
 import {UsuarioService} from "../services/usuario.service.js";
+import {AmistadService} from "../services/amistad.service.js";
 
 export const getRecuerdos = async (req: Request, res: Response) => {
     try {
@@ -21,6 +22,20 @@ export const getRecuerdoPorId = async (req: Request, res: Response) => {
     const idRecuerdo = req.params.id ? parseInt(req.params.id, 10) : NaN;
     if (undefined === idRecuerdo) {
         return res.status(400).json({message: 'ID inválido'});
+    }
+
+
+    //si el usuario tiene perfil privado, y no soy su amigo, no puedo ver el recuerdo (si el recuerdo es de un usuario con perfil privado)
+    const idUsuario = req.userId;
+    const idCreadorRecuerdo = await RecuerdoService.getIdCreadorRecuerdo(idRecuerdo);
+    if (idCreadorRecuerdo) {
+        const esAmigo = await AmistadService.existeAmistad(Number(idUsuario), idCreadorRecuerdo);
+        const perfilPublico = await UsuarioService.obtenerPrivacidadPorId(idCreadorRecuerdo);
+        if (perfilPublico && !perfilPublico.perfilPublico && !esAmigo && idUsuario !== idCreadorRecuerdo) {
+            return res.status(403).json({message: 'No tienes permiso para ver este recuerdo'});
+        }
+    }else{
+        return res.status(404).json({message: 'Recuerdo no encontrado'});
     }
 
     //existe el recuerdo
@@ -122,6 +137,22 @@ export const createRecuerdo = async (req: Request, res: Response) => {
     }
 
     req.body.idUsuario = req.userId; // Asegura que el recuerdo se asocie al usuario autenticado
+
+
+
+    //imagenes
+    //Cloudinary
+    // 1. Casteamos a 'any' o al tipo específico de Cloudinary para evitar errores de TS
+    const nuevosArchivos = (req.files as any[]) || [];
+
+    // 2. Extraemos directamente la URL que nos da Cloudinary
+    const rutaImg = nuevosArchivos.map(f => f.path);
+
+    const todasLasImagenes = [...rutaImg];
+
+    req.body.imagenes = todasLasImagenes;
+
+    console.log('Imágenes procesadas para el recuerdo:', todasLasImagenes, 'Archivos originales:', req.files);
 
     if (todoCorrecto) {
     try {

@@ -16,6 +16,9 @@ router.post('/', UsuarioController.createUsuario);
 //obtiene los datos minimos de usuario por id {idUsuario, nombreUsuario}
 router.get('/:idUsuario/datosMinimos', authMiddleware, UsuarioController.getDatosMinimosUsuarioID);
 
+//Obtener el perfil de un usuario por id
+router.get('/perfil/:idUsuario', authMiddleware, UsuarioController.getPerfilUsuarioID);
+
 //Actualizar un usuario existente
 //router.put('/:id', UsuarioController.updateUsuario);
 router.put('/', authMiddleware, UsuarioController.updateUsuario);

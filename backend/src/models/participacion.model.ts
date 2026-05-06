@@ -25,6 +25,12 @@ export const getNumeroParticipantesPorActividad = async (idActividad: number): P
     return parseInt(result.rows[0].count, 10);
 };
 
+//devuelve todas las participaciones aceptadas de una actividad
+export const getParticipacionesAceptadasPorActividad = async (idActividad: number): Promise<Participacion[]> => {
+    const result = await pool.query("SELECT * FROM participacion WHERE id_actividad = $1 AND aceptada = true", [idActividad]);
+    return result.rows.map(mapearParticipacion);
+};
+
 //todas las participaciones de un usuario
 export const getParticipacionesPorUsuario = async (idUsuario: number): Promise<Participacion[]> => {
     const result = await pool.query("SELECT * FROM participacion WHERE id_usuario = $1", [idUsuario]);

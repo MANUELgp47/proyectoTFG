@@ -7,6 +7,14 @@ export const getUsuario = async (id: number): Promise<any> => {
     return response.data;
 };
 
+//obtiene el perfil de un usuario por su id
+export const getPerfilUsuario = async (idUsuario: number): Promise<any> => {
+   // console.log("obteniendo perfil de usuario con id:", idUsuario);
+    const response = await api.get(`/usuario/perfil/${idUsuario}`);
+    //console.log("respuesta del servidor:", response.data);
+    return response.data;
+};
+
 //actualizar usuario
 export const updateUsuario = async (usuarioData: any): Promise<any> => {
     const response = await api.put(`/usuario/`, usuarioData);

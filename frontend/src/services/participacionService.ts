@@ -18,6 +18,12 @@ export const getParticipacionesPorActividad = async (idActividad: number) => {
     return response.data;
 };
 
+//obtiene participaciones aceptadas de una actividad
+export const getParticipacionesAceptadasPorActividad = async (idActividad: number) => {
+    const response = await api.get(`/participacion/actividad/${idActividad}/aceptadas`);
+    return response.data;
+};
+
 //participar en una actividad
 export const participarEnActividad = async (idActividad: number) => {
     const response = await api.post(`/participacion`, {idActividad});

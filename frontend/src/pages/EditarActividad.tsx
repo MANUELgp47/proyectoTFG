@@ -6,7 +6,8 @@ import api from "../api/axios";
 export default function EditarActividad() {
     const {id} = useParams();
     const navigate = useNavigate();
-    const [archivos, setArchivos] = useState<FileList | null>(null);//para img
+
+    const [archivos, setArchivos] = useState<File | null>(null);//para img
     const [actividad, setActividad] = useState<any>(null);
     const [error, setError] = useState("");
 
@@ -36,10 +37,15 @@ export default function EditarActividad() {
     }
 
     // Manejo de cambio de archivos (imágenes)
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+ /*   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
             setArchivos(e.target.files);
         }
+    };
+*/
+    const handleFileChange = (file: File) => {
+        setArchivos(file);
+
     };
 
     const handleCancelar = async () => {
@@ -61,9 +67,9 @@ export default function EditarActividad() {
             formData.append('ubicacion', actividad.ubicacion);
             formData.append('publica', String(actividad.publica));
             formData.append('estado', actividad.estado);
-// añadir archivos si hay
-            if (archivos) {// Si hay archivos nuevos seleccionados, los añadimos al FormData
-                Array.from(archivos).forEach(file => formData.append('imagenes', file));
+            // Mandamos los ARCHIVOS nuevos (los que vienen del input file)
+            if (archivos) {
+                formData.append('imagenes', archivos); // 'imagenes' debe coincidir con upload.array('imagenes') en el back
             }
             await updateActividad(actividadId, formData);
 
@@ -115,9 +121,7 @@ export default function EditarActividad() {
 
             // Mandamos los ARCHIVOS nuevos (los que vienen del input file)
             if (archivos) {
-                Array.from(archivos).forEach((archivo) => {
-                    formData.append('imagenes', archivo); // 'imagenes' debe coincidir con upload.array('imagenes') en el back
-                });
+                formData.append('imagenes', archivos); // 'imagenes' debe coincidir con upload.array('imagenes') en el back
             }
 
             //Llamamos al service pasándole el formData
@@ -195,7 +199,7 @@ export default function EditarActividad() {
                     type="file"
                     multiple
                     accept="image/*"
-                    onChange={handleFileChange}
+                    onChange={(e) => e.target.files?.[0] && handleFileChange(e.target.files[0])}
                     className="mb-4"
                 /><br/>
 

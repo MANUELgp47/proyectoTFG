@@ -1,6 +1,6 @@
 //Este es le perfil de usuario, donde se muestra su informacion personal, un boton para editar su perfil(aun no funcional) y un boton para ver las actividades creadas por el usuario
 import { useEffect, useState} from "react";
-import {getUsuario} from "../services/usuarioService";
+import {getPerfilUsuario, getUsuario} from "../services/usuarioService";
 import {Link, useParams} from "react-router-dom";
 import {useAuth} from "../context/AuthContext";
 import {getAmistadEntreUsuarios, eliminarAmistad} from '../services/amistadService';
@@ -20,26 +20,68 @@ import {
 } from "../components/ui/sheet";
 import TopBar from "../components/ui/TopBar.tsx";
 
+//interfaz tipo usuario solo id y nombreUsuario para mostrar en el perfil si el usuario es privado
+
+interface usuarioPerfil {
+    idUsuario: number;
+    nombreUsuario: string;
+}
+
 export default function PerfilUsuario() {
     //idUsuario por parametero
     const {idUsuarios} = useParams<{ idUsuarios: string }>();
-    const [usuario, setUsuario] = useState<Usuario | null>(null);
+    const [usuario, setUsuario] = useState<Usuario | any>(null);
     const [imagen, setImagen] = useState<string | null>(null);
+    const [perfil, setPerfil] = useState<usuarioPerfil>(null);
     const [amistad, setAmistad] = useState<Amistad | null>(null);
     const [solicitud, setSolicitud] = useState<SolicitudAmistad | null>(null);
     const {idUsuario} = useAuth();
     const idSesion = idUsuario;
     const [recuerdos, setRecuerdos] = useState<any[]>([]);
+    const [perfilPublico, setPerfilPublico] = useState<boolean>(false);
+   // const [somosAmigos, setSomosAmigos] = useState<boolean>(false);
 
+   /* useEffect(() => {
+        //si no hay sesión, el perfil es privado por defecto
+        if (idSesion === null) {
+            setPerfilPublico(false);
+        }
+
+    }, [ idSesion]);*/
 
     useEffect(() => {
         const fetchUsuario = async () => {
 
             try {
-                const data = await getUsuario(Number(idUsuarios));
+              //  if (idSesion !== null) {
 
-                setUsuario(data);
-                setImagen(data.foto);
+                    //si somos amigos
+             /*       const amistadData = await getAmistadEntreUsuarios(idSesion, Number(idUsuarios));
+                    setAmistad(amistadData);
+                    if (amistadData || idSesion === Number(idUsuarios)) {
+                        setSomosAmigos(true);
+                    } else {
+                        setSomosAmigos(false);
+                    }*/
+
+                    console.log("Fetch Usuario");
+                    const data = await getPerfilUsuario(Number(idUsuarios));
+
+
+                    setUsuario(data);
+                    setImagen(data.foto);
+
+                    //publico o privado
+                    if (usuario.idUsuario && !usuario.nombre) {
+                        setPerfilPublico(false);
+                    } else if (usuario.nombre) {
+                        setPerfilPublico(true);
+                    }
+
+                    /*  const perfilData = await getPerfilUsuario(Number(idUsuarios));
+                      setPerfil(perfilData);
+                      console.log("perfil", perfilData);*/
+          //      }
             } catch (error) {
 
                 console.error("Error al cargar usuario:", error);
@@ -325,9 +367,9 @@ export default function PerfilUsuario() {
                             </h2>
 
 
-                            {recuerdos.length === 0 ? (
-                                <div className="bg-white rounded-3xl p-12 text-center text-neutral">
-                                    No ha creado ningún recuerdo aún.
+                            {recuerdos.length === 0 || !perfilPublico && !amistad && Number(idSesion) !== Number(idUsuarios)  ? (
+                                <div className="bg-white rounded-3xl p-12 text-center text-neutral">{recuerdos.length === 0 ?(" No ha creado ningún recuerdo aún."):("Perfil privado")}
+
                                 </div>
                             ) : (
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -385,6 +427,7 @@ export default function PerfilUsuario() {
 
                     {/* ============ COLUMNA DERECHA ============ */}
                     {/* Aside sólo visible en desktop */}
+
                     <aside className="hidden lg:block">
                         {sidebarContent}
                     </aside>

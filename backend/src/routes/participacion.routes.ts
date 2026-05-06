@@ -20,6 +20,9 @@ router.get('/:idActividad', authMiddleware, ParticipaciónController.getParticip
 //obtiene todas las participaciones de una actividad
 router.get('/actividad/:idActividad', authMiddleware, ParticipaciónController.getParticipacionesPorActividad);
 
+//obtiene participaciones aceptadas de una actividad
+router.get('/actividad/:idActividad/aceptadas', authMiddleware, ParticipaciónController.getParticipacionesAceptadasPorActividad);
+
 //Crear una nueva participacion
 router.post('/', authMiddleware, ParticipaciónController.createParticipacion);
 

@@ -2,6 +2,7 @@ import type {Request, Response} from 'express';
 import * as ChatIndividualModel from '../models/chatIndividual.model.js';
 import {AmistadService} from "../services/amistad.service.js";
 import * as UsuarioService from "../services/usuario.service.js";
+import * as chatIndividualService from "../services/chatIndividual.service.js";
 
 export const getChatsIndividual = async (req: Request, res: Response) => {
     try {
@@ -12,6 +13,29 @@ export const getChatsIndividual = async (req: Request, res: Response) => {
         res.status(500).json({ message: 'Error del servidor' });
     }
 };
+
+
+//devuelve true si existe un chat entre dos usuarios, false si no existe
+export const existeChatEntreUsuarios = async (req: Request, res: Response) => {
+    const idUsuario1 = Number(req.params.idUsuario1);
+    const idUsuario2 = req.userId;
+
+    //comprueba que existe el ususario idUsuario1
+    const usuario1 = await UsuarioService.UsuarioService.existeUsuarioPorId(idUsuario1);
+    if (!usuario1) {
+        return res.status(404).json({ message: 'Usuario 1 no encontrado' });
+    }
+
+   // console.log("idUsuario1", idUsuario1, "idUsuario2", idUsuario2);
+    try {
+        const existeChat = await chatIndividualService.ChatIndividualService.existeChatEntreUsuarios(idUsuario1, Number(idUsuario2));
+        res.json({ existe: existeChat });
+    } catch (error) {
+        console.error('Error al verificar existencia de chat entre usuarios:', error);
+        res.status(500).json({ message: 'Error del servidor' });
+    }
+}
+
 
 export const getChatIndividualPorId = async (req: Request, res: Response) => {
     const idChatIndividual = Number(req.params.id);
@@ -47,7 +71,7 @@ export const getChatIndividualPorUsuarios = async (req: Request, res: Response) 
 
 //obtener chat individual por id de usuario emisor o receptor
 export const getChatIndividualPorUsuario = async (req: Request, res: Response) => {
-
+    try {
     console.log("req.params.idUsuario", req.params.idUsuario, "req.userId", req.userId);
 
     const idParametro = Number(req.params.idUsuario);
@@ -62,11 +86,10 @@ export const getChatIndividualPorUsuario = async (req: Request, res: Response) =
     //exsiste el usuario idParametro
     const usuario = await UsuarioService.UsuarioService.existeUsuarioPorId(idParametro);
     if (!usuario) {
-
         return res.status(404).json({ message: 'Usuario no encontrado' });
     }
 
-    try {
+
 
         const chatIndividual = await ChatIndividualModel.getChatIndividualPorUsuarios(idUsuario, idParametro);
 

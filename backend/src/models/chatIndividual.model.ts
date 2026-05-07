@@ -80,3 +80,15 @@ export const eliminarChatIndividual = async (idChatIndividual: number): Promise<
 
     return result.rowCount === 1;// Devuelve true si se eliminó una fila, false si no
 };
+
+//existe chat entre dos usuarios? devuelve true si existe, false si no existe
+export const existeChatEntreUsuarios = async (idUsuario1: number, idUsuario2: number): Promise<boolean> => {
+   // console.log("Comprobando existencia de chat entre usuarios: " + idUsuario1 + " y " + idUsuario2);
+    const result = await pool.query(
+        `SELECT 1 FROM chat_individual 
+         WHERE (id_usuario1 = $1 AND id_usuario2 = $2)
+            OR (id_usuario1 = $2 AND id_usuario2 = $1)`,
+        [idUsuario1, idUsuario2]
+    );
+    return result.rows.length > 0; // Devuelve true si se encontró al menos un chat, false si no
+};

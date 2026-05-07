@@ -48,3 +48,15 @@ export const eliminarAmistad = async (idUsuario1: number, idUsuario2: number): P
 
     return result.rowCount === 1;
 };
+
+//numero de amistades de un usuario
+export const getNumeroAmistadesPorUsuario = async (idUsuario: number): Promise<number> => {
+    const result = await pool.query(
+        `SELECT COUNT(*) AS numero_amistades
+         FROM amistad
+         WHERE id_usuario1 = $1 OR id_usuario2 = $1`,
+        [idUsuario]
+    );
+
+    return parseInt(result.rows[0].numero_amistades, 10);
+};

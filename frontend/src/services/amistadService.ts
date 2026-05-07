@@ -7,6 +7,12 @@ export const getAmistades = async (idUsuario: number): Promise<any> => {
     return response.data;
 };
 
+//numero de amistades de un usuario
+export const getNumeroAmistades = async (idUsuario: number): Promise<number> => {
+    const response = await api.get(`amistad/usuario/${idUsuario}/numero`);
+    return response.data.numeroAmistades;
+};
+
 //devuelve amistades entre dos usuarios, si no hay amistad devuelve null
 export const getAmistadEntreUsuarios = async (idUsuario1: number, idUsuario2: number): Promise<any> => {
     const response = await api.get(`amistad/entre/${idUsuario1}/${idUsuario2}`);

@@ -71,8 +71,12 @@ export const existeUsuarioPorNombreUsuario = async (nombreUsuario: string): Prom
     const result = await pool.query("SELECT 1 FROM usuario WHERE nombre_usuario = $1", [nombreUsuario]);
     return result.rows.length > 0;
 };
-//verificar si existe usuario por id
+//verificar si existe usuario por id, si no devuelve false, si existe devuelve true
 export const existeUsuarioPorId = async (idUsuario: number): Promise<boolean> => {
+    //comprueba que los datos de entrada son correctos
+    /*if (typeof idUsuario !== "number" || isNaN(idUsuario) || idUsuario <= 0) {
+        return false;
+    }*/
     const result = await pool.query("SELECT 1 FROM usuario WHERE id_usuario = $1", [idUsuario]);
     return result.rows.length > 0;
 };

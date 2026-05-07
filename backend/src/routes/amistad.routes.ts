@@ -14,6 +14,9 @@ router.get('/usuario/:idUsuario', AmistadController.getAmistadesPorUsuario);
 // Obtener amistad entre dos usuarios
 router.get('/entre/:idUsuario1/:idUsuario2', AmistadController.getAmistadPorUsuarios);
 
+// Obtener numero de amistades de un usuario
+router.get('/usuario/:idUsuario/numero', AmistadController.getNumeroAmistadesPorUsuario);
+
 //crear una nueva amistad TODO: Ver si solo se tiene acceso si se acepta una solicitud de amistad
 router.post('/:idUsuario2', authMiddleware, AmistadController.createAmistad);
 

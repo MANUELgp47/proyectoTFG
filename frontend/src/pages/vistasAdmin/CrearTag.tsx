@@ -1,8 +1,6 @@
-//Pagina en la que el admin puede crear un nuevo tag. Ademas muestra los tags existentes y permite eliminarlos.
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { crearTag, getTags, eliminarTag } from '../../services/tagService';
-import {useAuth} from "../../context/AuthContext";
+import { useAuth } from '../../context/AuthContext';
 import type { Tag } from '../../types';
 
 export default function CrearTag() {
@@ -14,14 +12,17 @@ export default function CrearTag() {
     const [tags, setTags] = useState<Tag[]>([]);
     const [loading, setLoading] = useState(false);
 
+    // Imagen para el tag
+    const [imagenFile, setImagenFile] = useState<File | null>(null);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
+
     useEffect(() => {
-        // Si el rol está definido y no es admin, redirigir
         if (auth.rol && auth.rol !== 'admin') {
             window.location.href = '/';
             return;
         }
 
-        // cargar tags
         const cargarTags = async () => {
             setLoading(true);
             try {
@@ -38,16 +39,52 @@ export default function CrearTag() {
         cargarTags();
     }, [auth.rol]);
 
+    useEffect(() => {
+        // limpiar URL cuando cambie imagen o al desmontar
+        return () => {
+            if (previewUrl) URL.revokeObjectURL(previewUrl);
+        };
+    }, [previewUrl]);
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0] ?? null;
+        if (!file) return;
+        // opcional: validar tipo/tamaño aquí
+        if (previewUrl) URL.revokeObjectURL(previewUrl);
+        setImagenFile(file);
+        setPreviewUrl(URL.createObjectURL(file));
+    };
+
+    const handleAddImageClick = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleRemoveImage = () => {
+        if (previewUrl) URL.revokeObjectURL(previewUrl);
+        setPreviewUrl(null);
+        setImagenFile(null);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
         setSuccess("");
 
         try {
-            await crearTag({ nombre });
+            // Si hay imagen usamos FormData para enviar multipart
+            if (imagenFile) {
+                const fd = new FormData();
+                fd.append('nombre', nombre);
+                fd.append('imagen', imagenFile); // nombre campo: 'imagen' (ajustar backend si hace falta)
+                await crearTag(fd);
+            } else {
+                await crearTag({ nombre });
+            }
+
             setSuccess("Tag creado exitosamente");
             setNombre("");
-            // refrescar lista
+            handleRemoveImage();
             const t = await getTags();
             setTags(t);
         } catch (err) {
@@ -63,7 +100,6 @@ export default function CrearTag() {
         try {
             await eliminarTag(idTag);
             setSuccess('Tag eliminado correctamente');
-            // actualizar lista localmente
             setTags(prev => prev.filter(t => t.idTag !== idTag));
         } catch (err) {
             console.error('Error al eliminar tag:', err);
@@ -73,13 +109,12 @@ export default function CrearTag() {
 
     return (
         <div className="container mt-5">
-            <h2>Crear Nuevo Tag</h2>
+            <h1>Crear Nuevo Tag</h1>
 
             {loading && <p>Cargando tags...</p>}
             {error && <div className="alert alert-danger">{error}</div>}
             {success && <div className="alert alert-success">{success}</div>}
 
-            {/* Formulario solo visible para admin (si rol undefined, mostramos hasta que se resuelva) */}
             {(!auth.rol || auth.rol === 'admin') && (
                 <form onSubmit={handleSubmit}>
                     <div className="mb-3">
@@ -93,6 +128,31 @@ export default function CrearTag() {
                             required
                         />
                     </div>
+
+                    <div className="mb-3">
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/*"
+                            style={{ display: 'none' }}
+                            onChange={handleFileChange}
+                        />
+                        <button type="button" className="btn btn-secondary me-2" onClick={handleAddImageClick}>
+                            Añadir imagen
+                        </button>
+                        {imagenFile && (
+                            <button type="button" className="btn btn-danger" onClick={handleRemoveImage}>
+                                Eliminar imagen
+                            </button>
+                        )}
+                    </div>
+
+                    {previewUrl && (
+                        <div className="mb-3">
+                            <img src={previewUrl} alt="preview" style={{ maxWidth: 200, maxHeight: 200 }} />
+                        </div>
+                    )}
+
                     <button type="submit" className="btn btn-primary">Crear Tag</button>
                 </form>
             )}

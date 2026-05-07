@@ -1,8 +1,10 @@
 import * as amistadModel from '../models/amistad.model.js';
-import type { Request, Response } from 'express';
+import {type Request, type Response} from 'express';
 import {UsuarioService} from "./usuario.service.js";
 import * as AmistadModel from "../models/amistad.model.js";
 import type {Amistad} from "../types/amistad.js";
+import * as SettingsModelo from "../models/settings.model.js";
+import type {Settings} from "../types/settings.js";
 
 export class AmistadService {
     //obtener si existe una amistad entre dos usuarios
@@ -59,6 +61,35 @@ export class AmistadService {
 
         }
 
+        //comprueba que existen los usuarios, que si el usuario en cuestión tiene perfil privado yo tengo que ser amigo. y que no estoy en la lista de bloqueados del otro usuario
+
+
+    }
+    //tengo permiso? TODO hacer cuando todos los users tengan settings
+    static async tengoPermisoParaVerPerfil(yo: number, idUsuario2: number) : Promise<boolean> {
+        //existen los usuarios
+      /*      const usuario2 = await UsuarioService.existeUsuarioPorId(idUsuario2);
+            const usuarioYo = await UsuarioService.existeUsuarioPorId(yo);
+            if (!usuario2 || !usuarioYo) {
+                return false;
+            }
+
+        //si perfil privado y yo no amigo, no tengo permiso
+        const settingsUsuario2 = await SettingsModelo.getSettings(idUsuario2);
+        if (!settingsUsuario2?.perfilPublico) {//si perfil privado
+            const soyAmigo = await AmistadService.existeAmistad(yo, idUsuario2);
+            if (!soyAmigo) {//si perfil privado y no soy amigo, no tengo permiso
+                console.log("no soy amigo y perfil privado");
+                return false;
+            }
+        }
+
+        //si yo bloqueado por el otro usuario, no tengo permiso
+        if (settingsUsuario2?.usuariosBloqueados && settingsUsuario2.usuariosBloqueados.includes(yo)) {
+            return false;
+        }
+*/
+        return true;
     }
 
 

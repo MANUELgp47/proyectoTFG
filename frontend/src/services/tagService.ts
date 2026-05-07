@@ -39,6 +39,28 @@ export const crearTag = async (tag: { nombre: string }): Promise<Tag> => {
     return response.data;
 };
 
+/*
+*
+export async function crearTag(payload: { nombre: string } | FormData) {
+    if (payload instanceof FormData) {
+        const res = await fetch(`${API_BASE}/tags`, {
+            method: 'POST',
+            body: payload // multipart/form-data; browser añade el boundary
+        });
+        if (!res.ok) throw new Error('Error creando tag con imagen');
+        return res.json();
+    } else {
+        const res = await fetch(`${API_BASE}/tags`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        if (!res.ok) throw new Error('Error creando tag');
+        return res.json();
+    }
+}
+* */
+
 //elimina un tag
 export const eliminarTag = async (idTag: number): Promise<void> => {
     const response = await api.delete(`/tag/${idTag}`);

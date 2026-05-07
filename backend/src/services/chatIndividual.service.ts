@@ -7,4 +7,9 @@ export class ChatIndividualService {
         const usuarios = await ChatIndividualModel.getChatIndividualPorId(idChatIndividual);
         return usuarios;
     }
+
+    //existe chat entre dos usuarios?
+    static async existeChatEntreUsuarios(idUsuario1: number, idUsuario2: number): Promise<boolean> {
+        return await ChatIndividualModel.existeChatEntreUsuarios(idUsuario1, idUsuario2);
+    }
 }

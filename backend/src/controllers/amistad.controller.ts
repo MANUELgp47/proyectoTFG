@@ -16,6 +16,18 @@ export const getAmistades = async (req: Request, res: Response) => {
 //amistad por usuarios
 export const getAmistadPorUsuarios = async (req: Request, res: Response) => {
     const {idUsuario1, idUsuario2} = req.params;
+
+    //tengo permiso? tengo que tener permiso para ver el perfil de ambos usuarios para ver su amistad
+    const permiso = await AmistadService.tengoPermisoParaVerPerfil(Number(req.userId), Number(idUsuario1));
+    if (!permiso) {
+        return res.status(403).json({ message: 'No tienes permiso para ver las amistades de este usuario' });
+    }
+
+    const permiso2 = await AmistadService.tengoPermisoParaVerPerfil(Number(req.userId), Number(idUsuario2));
+    if (!permiso) {
+        return res.status(403).json({ message: 'No tienes permiso para ver las amistades de este usuario' });
+    }
+
     try {
 
         if (!AmistadService.existeAmistad(Number(idUsuario1), Number(idUsuario2))) {
@@ -35,9 +47,29 @@ export const getAmistadPorUsuarios = async (req: Request, res: Response) => {
     }
 };
 
+//numero de amistades de un usuario
+export const getNumeroAmistadesPorUsuario = async (req: Request, res: Response) => {
+    const {idUsuario} = req.params;
+    try {
+        const numeroAmistades = await AmistadModel.getNumeroAmistadesPorUsuario(Number(idUsuario));
+        res.json({ numeroAmistades });
+    } catch (error) {
+        console.error('Error al obtener número de amistades del usuario:', error);
+        res.status(500).json({ message: 'Error del servidor' });
+    }
+}
+
 //todas las amistades de un usuario
 export const getAmistadesPorUsuario = async (req: Request, res: Response) => {
     const {idUsuario} = req.params;
+
+    //tengo permiso? TODO hacer cuando todos los users tengan settings
+    const permiso = await AmistadService.tengoPermisoParaVerPerfil(Number(req.userId), Number(idUsuario));
+        if (!permiso) {
+            return res.status(403).json({ message: 'No tienes permiso para ver las amistades de este usuario' });
+        }
+
+
     try {
         const amistades = await AmistadModel.getAmistadesPorUsuario(Number(idUsuario));
         res.json(amistades);

@@ -156,57 +156,104 @@ export default function Home() {
 
 
     useEffect(() => {
+        let cancelled = false;
+
         const fetchUltimosMensajes = async () => {
-            console.log("fetch ultimos mensajes");
             const mensajesMap: { [key: number]: string } = {};
-
-            for (const chat of chatsIndividuales) {
-                if (chat.ultimoMensaje === Number) {
-                    const mensaje = await getMensajePorId(chat.ultimoMensaje);
-                    if (mensaje) {
-                        console.log("introducido mensaje", mensaje.contenido);
-                        mensajesMap[chat.ultimoMensaje] = mensaje.contenido;
-                    }
+            try {
+                // recopilar ids únicos y válidos (>0)
+                const ids = new Set<number>();
+                for (const chat of chatsIndividuales) {
+                    const id = Number(chat.ultimoMensaje);
+                    if (Number.isInteger(id) && id > 0) ids.add(id);
                 }
-            }
-
-            for (const chat of chatsActividad) {
-                if (chat.ultimoMensaje === Number) {
-                    const mensaje = await getMensajePorId(chat.ultimoMensaje);
-                    if (mensaje) {
-                        mensajesMap[chat.ultimoMensaje] = mensaje.contenido;
-                    }
+                for (const chat of chatsActividad) {
+                    const id = Number(chat.ultimoMensaje);
+                    if (Number.isInteger(id) && id > 0) ids.add(id);
                 }
-            }
 
-            setUltimosMensajes(mensajesMap);
-            console.log("mensajesMap", mensajesMap);
+                if (ids.size === 0) {
+                    if (!cancelled) setUltimosMensajes({});
+                    return;
+                }
+
+                // obtener mensajes en paralelo y construir el mapa
+                const results = await Promise.all(
+                    Array.from(ids).map(async (id) => {
+                        try {
+                            const mensaje = await getMensajePorId(id);
+                            return mensaje && mensaje.contenido ? { id, contenido: mensaje.contenido } : null;
+                        } catch (e) {
+                            console.error('Error al obtener mensaje', id, e);
+                            return null;
+                        }
+                    })
+                );
+
+                for (const r of results) {
+                    if (r) mensajesMap[r.id] = r.contenido;
+                }
+
+                if (!cancelled) setUltimosMensajes(mensajesMap);
+                console.log('mensajesMap', mensajesMap);
+            } catch (err) {
+                console.error('fetchUltimosMensajes error', err);
+            }
         };
 
         fetchUltimosMensajes();
+
+        return () => {
+            cancelled = true;
+        };
     }, [chatsIndividuales, chatsActividad]);
 
     //sacamos los id de los usuarios con los que tenemos chat individual para obtener los datos minimos y los mapea por el id del chatIndividual
 
     useEffect(() => {
+        let cancelled = false;
+
         const fetchUsuariosMinimos = async () => {
             const usuariosMap: Record<number, { idUsuario: number; nombreUsuario: string }> = {};
+            const cachePorUsuario: Record<number, { idUsuario: number; nombreUsuario: string } | null> = {};
 
-            for (const chat of chatsIndividuales) {
-                const idOtroUsuario = chat.idUsuario1 === idUsuario ? chat.idUsuario2 : chat.idUsuario1;
-                if (!usuariosMap[idOtroUsuario]) {
-                    const datosMinimos = await getDatosMinimosUsuario(idOtroUsuario);
-                    if (datosMinimos) {
-                        usuariosMap[chat.idChatIndividual] = datosMinimos;
-                    }
-                }
+            try {
+                // solicitar datos en paralelo pero asegurando que cada usuario se pida una sola vez
+                await Promise.all(
+                    chatsIndividuales.map(async (chat: any) => {
+                        const idOtroUsuario = chat.idUsuario1 === idUsuario ? chat.idUsuario2 : chat.idUsuario1;
+                        if (!idOtroUsuario) return;
+
+                        if (cachePorUsuario[idOtroUsuario] === undefined) {
+                            try {
+                                const datosMinimos = await getDatosMinimosUsuario(idOtroUsuario);
+                                cachePorUsuario[idOtroUsuario] = datosMinimos ?? null;
+                            } catch (e) {
+                                console.error('Error obteniendo datosMinimos usuario', idOtroUsuario, e);
+                                cachePorUsuario[idOtroUsuario] = null;
+                            }
+                        }
+
+                        // guardar por idChatIndividual para usar en la UI
+                        if (cachePorUsuario[idOtroUsuario]) {
+                            usuariosMap[chat.idChatIndividual] = cachePorUsuario[idOtroUsuario] as { idUsuario: number; nombreUsuario: string };
+                        }
+                    })
+                );
+
+                console.log('usuariosMap', usuariosMap);
+                if (!cancelled) setUsuariosMinimos(usuariosMap);
+            } catch (e) {
+                console.error('fetchUsuariosMinimos error', e);
             }
-
-            setUsuariosMinimos(usuariosMap);
         };
 
         fetchUsuariosMinimos();
-    }, [chatsIndividuales]);
+
+        return () => {
+            cancelled = true;
+        };
+    }, [chatsIndividuales, idUsuario]);
 
     //obtenemos los datos basicos de las actividades con chat para mostrar el nombre de la actividad en el chat de actividad y los mapea por el id del chatActividad
 
@@ -232,7 +279,7 @@ export default function Home() {
 
     //obtiene los id de los usuarios del array de las actividades,
     //hace un map ordenado por id de los usuario(datos minimos)
-    useEffect(() => {
+  /*  useEffect(() => {
         const fetchUsuariosMinimosActividades = async () => {
             const usuariosMap: Record<number, { idUsuario: number; nombreUsuario: string }> = {};
 
@@ -252,7 +299,7 @@ export default function Home() {
         };
 
         fetchUsuariosMinimosActividades();
-    }, [actividades]);
+    }, [actividades]);*/
 
     //numero de participantes de cada actividad
     useEffect(() => {
@@ -592,23 +639,30 @@ export default function Home() {
                 <section>
 
 
-                        <h2 className="text-2xl font-bold text-secondary mt-16 mb-6">Mis Chats Individuales</h2>
-                        <div className="space-y-4">
-                            {chatsIndividuales.map((chat) => (
-                                <Link to={`/ChatIndividual/${chat.idChatIndividual}`}>
-                                <div key={chat.idChatIndividual} className="p-4 bg-white rounded-lg shadow">
-                                    <h3 className="text-lg font-semibold text-secondary">Chat Individual
-                                        ID: {chat.idChatIndividual}</h3>
-                                    <h2>Usuario: {usuariosMinimos[chat.idChatIndividual]?.nombreUsuario}</h2>
-                                    <p className="text-sm text-neutral">Último mensaje
-                                        : {ultimosMensajes[chat.ultimoMensaje]}</p>
+                    <h2 className="text-2xl font-bold text-secondary mt-16 mb-6">Mis Chats Individuales</h2>
+                    <div className="space-y-4">
+                        {chatsIndividuales.map((chat) => (
+                            <Link
+                                key={chat.idChatIndividual}
+                                to={`/ChatIndividual/${chat.idChatIndividual}`}
+                            >
+                                <div className="p-4 bg-white rounded-lg shadow">
+                                    <h3 className="text-lg font-semibold text-secondary">
+                                        Chat Individual ID: {chat.idChatIndividual}
+                                    </h3>
+                                    <h2>
+                                        Usuario: {usuariosMinimos[chat.idChatIndividual]?.nombreUsuario }
+                                    </h2>
+                                    <p className="text-sm text-neutral">
+                                        Último mensaje: {ultimosMensajes[Number(chat.ultimoMensaje)] ?? 'Sin mensajes'}
+                                    </p>
                                 </div>
-                                </Link>
-                            ))}
-                            {chatsIndividuales.length === 0 && (
-                                <p className="text-sm text-neutral">No tienes chats individuales.</p>
-                            )}
-                        </div>
+                            </Link>
+                        ))}
+                        {chatsIndividuales.length === 0 && (
+                            <p className="text-sm text-neutral">No tienes chats individuales.</p>
+                        )}
+                    </div>
                    
 
 
@@ -622,7 +676,7 @@ export default function Home() {
 
                                     <h2>Actividad {actividadesMinimas[chat.idChatActividad]?.titulo}</h2>
                                     <p className="text-sm text-neutral">Último mensaje
-                                        : {ultimosMensajes[chat.ultimoMensaje]}</p>
+                                        : {ultimosMensajes[chat.ultimoMensaje] ?? 'Sin mensajes'}</p>
                                 </div> </Link>
                             ))}
                             {chatsActividad.length === 0 && (

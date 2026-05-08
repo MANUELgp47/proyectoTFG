@@ -24,7 +24,7 @@ export const getAmistadPorUsuarios = async (req: Request, res: Response) => {
     }
 
     const permiso2 = await AmistadService.tengoPermisoParaVerPerfil(Number(req.userId), Number(idUsuario2));
-    if (!permiso) {
+    if (!permiso2) {
         return res.status(403).json({ message: 'No tienes permiso para ver las amistades de este usuario' });
     }
 

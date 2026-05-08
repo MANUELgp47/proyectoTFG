@@ -38,7 +38,7 @@ export function VistaParticipantes() {
     //mapa privacidad de cada usuario
     //const [privacidadUsuarios, setPrivacidadUsuarios] = useState<{[id: number]: boolean}>({}); // idUsuario -> privacidad:boolean
     const [participantesPrivados, setParticipantesPrivados] = useState<Usuario[]>([]); // lista de participantes privados (si la actividad es pública)
-    const [datosMinimosUsuarios, setDatosMinimosUsuarios] = useState<{[id: number]: {nombre: string}}>({}); // idUsuario -> datos mínimos (nombre)
+    //const [datosMinimosUsuarios, setDatosMinimosUsuarios] = useState<{[id: number]: {nombre: string}}>({}); // idUsuario -> datos mínimos (nombre)
 
 
 

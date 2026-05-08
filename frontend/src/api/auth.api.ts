@@ -26,9 +26,10 @@ interface RegisterRequest {
     fotoPerfil: string; //opcional
     biografia: string;//opcional
     ubicacion: string;//opcional
+    imagen: string;
 }
 
-export const register = async (data: RegisterRequest) => {
+export const register = async (data: RegisterRequest | FormData) => {
     const response = await api.post('/usuario', data);
     return response.data;
 };

@@ -8,6 +8,7 @@ import * as ActividadJob from '../jobs/actividad.job.js';
 import * as ChatActividadModel from '../models/chatActividad.model.js';
 import * as ActividadService from '../services/actividad.service.js';
 import {UsuarioService} from "../services/usuario.service.js";
+import {AmistadService} from "../services/amistad.service.js";
 
 
 /*
@@ -109,13 +110,17 @@ export const getActividadPorId = async (req: Request, res: Response) => {
 //get actividades por id de usuario (las actividades que ha creado un usuario)
 export const getActividadesPorUsuario = async (req: Request, res: Response) => {
     try {
-        //comprueba que el usuario que hace la petición exsiste
 
+        //tengo permiso
+        const permiso = await AmistadService.tengoPermisoParaVerPerfil(Number(req.userId), Number(req.params.idUsuario));
+        if (!permiso) {
+            return res.status(403).json({message: 'No tienes permiso para ver las actividades de este usuario'});
+        }
+
+        //comprueba que el usuario que hace la petición exsiste
         const idSolicitante = req.userId;
 
         if (!idSolicitante) {
-
-
             return res.status(400).json({message: 'ID de usuario solicitane requerido'});
         }
 
@@ -141,7 +146,7 @@ export const getActividadesPorUsuario = async (req: Request, res: Response) => {
         }
 
 
-        //TODO si queremos podemos poner que solo lo vea si son amigos. Y pasar como parametro el nombre y no el id
+
 
 
         const actividades = await ActividadService.ActividadService.getActividadesDeUsuario(Number(idUsuario));

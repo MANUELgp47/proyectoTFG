@@ -275,9 +275,9 @@ export function ActividadDetalle() {
                             >
                                 <div
                                     className="w-12 h-12 rounded-full bg-secondary overflow-hidden flex items-center justify-center text-white font-semibold">
-                                    {usuarioMinimo?.foto ? (
+                                    {usuarioMinimo?.imagen ? (
                                         <img
-                                            src={usuarioMinimo?.foto}
+                                            src={usuarioMinimo?.imagen}
                                             alt={usuarioMinimo?.nombreUsuario}
                                             className="w-full h-full object-cover"
                                             onError={(e) =>

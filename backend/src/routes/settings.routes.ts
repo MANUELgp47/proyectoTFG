@@ -14,4 +14,10 @@ router.get('/privacidad/:idUsuario', authMiddleware, SettingsController.getMyPri
 //Actualizar mis settings
 router.put('/', authMiddleware, SettingsController.actualizarSettings);
 
+//lo he bloqueado?
+router.get('/loHeBloqueado/:idUsuario', authMiddleware, SettingsController.getloHeBloqueado);
+
+//me ha bloqueado?
+router.get('/meHaBloqueado/:idUsuario', authMiddleware, SettingsController.getmeHaBloqueado);
+
 export default router;

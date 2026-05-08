@@ -34,13 +34,14 @@ export const crearUsuario = async (usuario: CrearUsuario): Promise<Usuario> => {
         fotoPerfil,
         biografia,
         ubicacion,
+        imagen,
     } = usuario;
 
     const result = await pool.query(
         `INSERT INTO usuario
-         (nombre_usuario, nombre, apellidos, email, contraseña, fecha_nac, sexo, foto_perfil, biografia, ubicacion)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`,
-        [nombreUsuario, nombre, apellidos, email, contrasena, fechaNac, sexo, fotoPerfil, biografia, ubicacion]
+         (nombre_usuario, nombre, apellidos, email, contraseña, fecha_nac, sexo, foto_perfil, biografia, ubicacion, imagen)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *`,
+        [nombreUsuario, nombre, apellidos, email, contrasena, fechaNac, sexo, fotoPerfil, biografia, ubicacion, imagen]
     );
 
     return mapearUsuario(result.rows[0]);// Retorna el usuario creado y mapeado para que los atributos coincidan con la interfaz Usuario

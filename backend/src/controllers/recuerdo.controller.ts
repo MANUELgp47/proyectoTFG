@@ -58,6 +58,13 @@ export const getRecuerdoPorId = async (req: Request, res: Response) => {
 };
 
 export const getRecuerdosPorUsuario = async (req: Request, res: Response) => {
+
+    //tengo permiso?
+    const permiso = await AmistadService.tengoPermisoParaVerPerfil(Number(req.userId), Number(req.params.idUsuario));
+    if (!permiso) {
+        return res.status(403).json({message: 'No tienes permiso para ver los recuerdos de este usuario'});
+    }
+
     const idUsuario = req.params.idUsuario ? parseInt(req.params.idUsuario, 10) : NaN;
     if (undefined === idUsuario) {
         return res.status(400).json({message: 'ID inválido'});

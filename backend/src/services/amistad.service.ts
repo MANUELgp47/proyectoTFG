@@ -67,8 +67,13 @@ export class AmistadService {
     }
     //tengo permiso? TODO hacer cuando todos los users tengan settings
     static async tengoPermisoParaVerPerfil(yo: number, idUsuario2: number) : Promise<boolean> {
+        //soy yo mismo, tengo permiso
+        if (yo === idUsuario2) {
+            return true;
+        }
+
         //existen los usuarios
-      /*      const usuario2 = await UsuarioService.existeUsuarioPorId(idUsuario2);
+            const usuario2 = await UsuarioService.existeUsuarioPorId(idUsuario2);
             const usuarioYo = await UsuarioService.existeUsuarioPorId(yo);
             if (!usuario2 || !usuarioYo) {
                 return false;
@@ -88,7 +93,7 @@ export class AmistadService {
         if (settingsUsuario2?.usuariosBloqueados && settingsUsuario2.usuariosBloqueados.includes(yo)) {
             return false;
         }
-*/
+
         return true;
     }
 

@@ -19,6 +19,7 @@ export const mapearUsuario = (row: any): Usuario => {
         biografia: row.biografia,
         fechaRegistro: row.fecha_registro,
         ultimaConexion: row.ultima_conexion,
+        imagen: row.imagen,
         rol: row.rol,
         ubicacion: row.ubicacion,
     };

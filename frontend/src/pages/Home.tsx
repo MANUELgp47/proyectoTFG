@@ -53,7 +53,16 @@ export default function Home() {
     //datos minimos de usuario: id, nombre
     const [usuariosMinimos, setUsuariosMinimos] = useState<Record<number, {
         idUsuario: number;
-        nombreUsuario: string
+        nombreUsuario: string;
+        imagen: string | undefined;
+
+    }>>({});
+
+    const [usuariosMinimosActividad, setUsuariosMinimosActividad] = useState<Record<number, {
+        idUsuario: number;
+        nombreUsuario: string;
+        imagen: string | undefined;
+
     }>>({});
 
     //vuelvo a obtener las actividades por ser mas sencillo
@@ -214,7 +223,7 @@ export default function Home() {
         let cancelled = false;
 
         const fetchUsuariosMinimos = async () => {
-            const usuariosMap: Record<number, { idUsuario: number; nombreUsuario: string }> = {};
+            const usuariosMap: Record<number, { idUsuario: number; nombreUsuario: string ; imagen: string| undefined  }> = {};
             const cachePorUsuario: Record<number, { idUsuario: number; nombreUsuario: string } | null> = {};
 
             try {
@@ -236,7 +245,7 @@ export default function Home() {
 
                         // guardar por idChatIndividual para usar en la UI
                         if (cachePorUsuario[idOtroUsuario]) {
-                            usuariosMap[chat.idChatIndividual] = cachePorUsuario[idOtroUsuario] as { idUsuario: number; nombreUsuario: string };
+                            usuariosMap[chat.idChatIndividual] = cachePorUsuario[idOtroUsuario] as { idUsuario: number; nombreUsuario: string ; imagen : string| undefined};
                         }
                     })
                 );
@@ -279,9 +288,9 @@ export default function Home() {
 
     //obtiene los id de los usuarios del array de las actividades,
     //hace un map ordenado por id de los usuario(datos minimos)
-  /*  useEffect(() => {
+    useEffect(() => {
         const fetchUsuariosMinimosActividades = async () => {
-            const usuariosMap: Record<number, { idUsuario: number; nombreUsuario: string }> = {};
+            const usuariosMap: Record<number, { idUsuario: number; nombreUsuario: string; imagen : string| undefined }> = {};
 
             for (const actividad of actividades) {
                 if (actividad.idCreador) {
@@ -295,11 +304,11 @@ export default function Home() {
                 }
             }
 
-            setUsuariosMinimos(usuariosMap);
+            setUsuariosMinimosActividad(usuariosMap);
         };
 
         fetchUsuariosMinimosActividades();
-    }, [actividades]);*/
+    }, [actividades]);
 
     //numero de participantes de cada actividad
     useEffect(() => {
@@ -542,8 +551,8 @@ export default function Home() {
                         {actividades.map((act) => {
                             const imagenUrl: string | null = act.imagenes ?? null;
                             const creadorNombre: string =
-                                usuariosMinimos[act.idCreador]?.nombreUsuario ?? "Nombre creador";
-                            const creadorFoto: string | null = act.creador?.foto ?? null;
+                                usuariosMinimosActividad[act.idCreador]?.nombreUsuario ?? "Nombre creador";
+                            const creadorFoto: string | null = usuariosMinimosActividad[act.idCreador]?.imagen ?? null;
                             const fecha: string = act.fechaInicio ?? "12 Jun • 19:00";
                             const ubicacion: string = act.ubicacion ?? "Ubicación de ejemplo";
                             const participantes: number = participaciones[act?.idActividad] ?? 3;

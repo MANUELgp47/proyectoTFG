@@ -16,7 +16,7 @@ import {
 } from "../services/likeService.ts";
 import {useAuth} from "../context/AuthContext.tsx";
 
-import { Heart, Share2, Users, Trash2, Calendar, Ticket } from "lucide-react";
+import {Heart, Share2, Users, Trash2, Calendar, Ticket} from "lucide-react";
 import TopBar from "../components/ui/TopBar.tsx";
 
 export default function VistaRecuerdo() {
@@ -30,17 +30,13 @@ export default function VistaRecuerdo() {
     const [heDadoLike, setHeDadoLike] = useState<boolean | null>(null);
     const [heDadoLikeLoaded, setHeDadoLikeLoaded] = useState<boolean>(false);
     const [creadorMinimo, setcreadorioMinimo] = useState<any>(null);
-    const [fotoCreador, setFotoCreador] = useState<string | null>(null);
 
     //mapa de usuarios
     const [mapaUsuarioMinimo, getmapaUsuarioMinimo] = useState<Record<number, {
         idUsuario: number;
         nombreUsuario: string;
-        imagenPerfil?: string | null;
+        imagen?: string | null;
     }>>({});
-
-
-
 
 
     const [likesComentarios, setLikesComentarios] = useState<{ [idComentario: number]: number }>({});
@@ -84,13 +80,10 @@ export default function VistaRecuerdo() {
 
                 // Obtener datos mínimos del creador para mostrar su nombre e inicial en la vista del recuerdo
                 if (data.idUsuario) {
-                    const creadorData = await getDatosMinimosUsuario(data.idCreador);
+                    const creadorData = await getDatosMinimosUsuario(data.idUsuario);
                     setcreadorioMinimo(creadorData);
-                    //foto del creador
-                    if (creadorData?.foto) {
-                        setFotoCreador(creadorData.foto);
-                    }
                 }
+                console.log("Datos creador", creadorMinimo);
 
             } catch (err) {
                 console.error(err);
@@ -152,11 +145,11 @@ export default function VistaRecuerdo() {
                         mapa[comentario.idUsuario] = {
                             idUsuario: comentario.idUsuario,
                             nombreUsuario: usuarioData.nombreUsuario,
-                            imagenPerfil: usuarioData.foto
+                            imagenPerfil: usuarioData.imagen
                         };
                     }
                 }));
-                getmapaUsuarioMinimo(mapa);
+                getmapaUsuarioMinimo(mapa);//ordenado por idUsuario
             } catch (err) {
                 console.error(err);
             }
@@ -231,7 +224,6 @@ export default function VistaRecuerdo() {
     }
 
 
-
     if (error) {
         return <div>{error}</div>;
     }
@@ -243,20 +235,21 @@ export default function VistaRecuerdo() {
     return (
         <div className="min-h-screen bg-[#F8F9FB]">
             <div className="max-w-[1200px] mx-auto px-6 py-6">
-                <TopBar />
+                <TopBar/>
 
                 <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-8">
                     {/* ============ COLUMNA IZQUIERDA ============ */}
                     <section>
                         {/* Badge */}
-                        <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-tertiary text-secondary text-xs font-bold tracking-wider">
+                        <span
+                            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-tertiary text-secondary text-xs font-bold tracking-wider">
             RECUERDO PUBLICADO
           </span>
 
                         {/* Título */}
                         <h1
                             className="mt-4 text-4xl sm:text-5xl font-extrabold text-secondary tracking-tight leading-tight"
-                            style={{ fontFamily: "'Manrope', sans-serif" }}
+                            style={{fontFamily: "'Manrope', sans-serif"}}
                         >
                             {recuerdo.titulo}
                         </h1>
@@ -264,7 +257,7 @@ export default function VistaRecuerdo() {
                         {/* Metadatos */}
                         <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-neutral">
             <span className="flex items-center gap-1.5">
-              <Calendar className="w-4 h-4 text-primary" />
+              <Calendar className="w-4 h-4 text-primary"/>
                 {recuerdo.fechaCreacion
                     ? new Date(recuerdo.fechaCreacion).toLocaleDateString()
                     : "Fecha de ejemplo"}
@@ -276,7 +269,7 @@ export default function VistaRecuerdo() {
                                         to={`/actividad/${recuerdo.idActividad}`}
                                         className="flex items-center gap-1.5 italic hover:text-primary transition"
                                     >
-                                        <Ticket className="w-4 h-4 text-primary" />
+                                        <Ticket className="w-4 h-4 text-primary"/>
                                         {recuerdo.titulo}
                                     </Link>
                                 </>
@@ -304,7 +297,7 @@ export default function VistaRecuerdo() {
                                 onClick={() => navigator.clipboard?.writeText(window.location.href)}
                                 className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-secondary font-semibold text-sm hover:bg-white transition"
                             >
-                                <Share2 className="w-4 h-4" />
+                                <Share2 className="w-4 h-4"/>
                                 Compartir
                             </button>
 
@@ -313,7 +306,7 @@ export default function VistaRecuerdo() {
                                 href="#participantes"
                                 className="ml-auto inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-white font-semibold text-sm hover:bg-primary-600 transition"
                             >
-                                <Users className="w-4 h-4" />
+                                <Users className="w-4 h-4"/>
                                 Ver participantes ({participantes.length})
                             </a>
                         </div>
@@ -325,10 +318,11 @@ export default function VistaRecuerdo() {
                             </p>
 
                             <div className="mt-6 pt-6 border-t border-slate-100 flex items-center gap-3">
-                                <div className="w-11 h-11 rounded-full bg-secondary overflow-hidden flex items-center justify-center text-white text-sm font-semibold">
-                                    {fotoCreador ? (
+                                <div
+                                    className="w-11 h-11 rounded-full bg-secondary overflow-hidden flex items-center justify-center text-white text-sm font-semibold">
+                                    {creadorMinimo?.imagen ? (
                                         <img
-                                            src={fotoCreador}
+                                            src={creadorMinimo?.imagen}
                                             alt={creadorMinimo?.nombreUsuario}
                                             className="w-full h-full object-cover"
                                             onError={(e) =>
@@ -340,9 +334,15 @@ export default function VistaRecuerdo() {
                                     )}
                                 </div>
                                 <div>
+                                    <Link
+                                        key={recuerdo.idUsuario}
+                                        to={`/usuario/${recuerdo.idUsuario}`}
+                                        className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white text-secondary text-sm font-medium hover:bg-neutral-light transition"
+                                    >
                                     <div className="text-sm font-bold text-secondary">
                                         {creadorMinimo?.nombreUsuario ?? "Creador"}
                                     </div>
+                                    </Link>
                                     <div className="text-xs text-neutral">Creador del recuerdo</div>
                                 </div>
 
@@ -352,7 +352,7 @@ export default function VistaRecuerdo() {
                                         onClick={() => handleEliminarRecuerdo()}
                                         className="ml-auto inline-flex items-center gap-2 px-3 py-2 rounded-lg text-red-600 text-xs font-semibold hover:bg-red-50 transition"
                                     >
-                                        <Trash2 className="w-3.5 h-3.5" />
+                                        <Trash2 className="w-3.5 h-3.5"/>
                                         Eliminar
                                     </button>
                                 )}
@@ -365,7 +365,7 @@ export default function VistaRecuerdo() {
                         <div className="flex items-center justify-between mb-4">
                             <h2
                                 className="text-xl font-extrabold text-secondary"
-                                style={{ fontFamily: "'Manrope', sans-serif" }}
+                                style={{fontFamily: "'Manrope', sans-serif"}}
                             >
                                 Galería de momentos
                             </h2>
@@ -408,7 +408,8 @@ export default function VistaRecuerdo() {
                                                         }
                                                     />
                                                     {isLast && extra > 0 && (
-                                                        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center text-white text-2xl font-extrabold">
+                                                        <div
+                                                            className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center text-white text-2xl font-extrabold">
                                                             +{extra}
                                                         </div>
                                                     )}
@@ -419,7 +420,8 @@ export default function VistaRecuerdo() {
                                 )}
                             </div>
                         ) : (
-                            <div className="w-full aspect-video bg-black rounded-2xl flex items-center justify-center text-neutral text-sm">
+                            <div
+                                className="w-full aspect-video bg-black rounded-2xl flex items-center justify-center text-neutral text-sm">
                                 No hay imágenes
                             </div>
                         )}
@@ -430,7 +432,7 @@ export default function VistaRecuerdo() {
                 <section id="participantes" className="mt-12">
                     <h2
                         className="text-2xl font-extrabold text-secondary mb-5"
-                        style={{ fontFamily: "'Manrope', sans-serif" }}
+                        style={{fontFamily: "'Manrope', sans-serif"}}
                     >
                         Participantes ({participantes.length})
                     </h2>
@@ -442,8 +444,19 @@ export default function VistaRecuerdo() {
                                     to={`/usuario/${p.idUsuario}`}
                                     className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white text-secondary text-sm font-medium hover:bg-neutral-light transition"
                                 >
-                                    <div className="w-6 h-6 rounded-full bg-secondary flex items-center justify-center text-white text-xs font-bold">
-                                        {p.nombreUsuario.charAt(0).toUpperCase()}
+                                    <div
+                                        className="w-6 h-6 rounded-full bg-secondary flex items-center justify-center overflow-hidden">
+                                        {p.imagen ? (
+                                            <img
+                                                src={p.imagen}
+                                                alt={p.nombreUsuario}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            <span className="text-white text-xs font-bold">
+      {p.nombreUsuario.charAt(0).toUpperCase()}
+    </span>
+                                        )}
                                     </div>
                                     {p.nombreUsuario}
                                 </Link>
@@ -458,7 +471,7 @@ export default function VistaRecuerdo() {
                 <section className="mt-12">
                     <h2
                         className="text-2xl font-extrabold text-secondary mb-5"
-                        style={{ fontFamily: "'Manrope', sans-serif" }}
+                        style={{fontFamily: "'Manrope', sans-serif"}}
                     >
                         Comentarios <span className="text-neutral font-normal">({comentarios.length})</span>
                     </h2>
@@ -475,7 +488,8 @@ export default function VistaRecuerdo() {
                         className="bg-white rounded-3xl p-5 shadow-sm"
                     >
                         <div className="flex items-start gap-3">
-                            <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-white text-xs font-bold shrink-0">
+                            <div
+                                className="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-white text-xs font-bold shrink-0">
                                 {(idUsuario ?? "U").toString().charAt(0).toUpperCase()}
                             </div>
                             <textarea
@@ -505,19 +519,33 @@ export default function VistaRecuerdo() {
                                     key={c.idComentario}
                                     className="flex items-start gap-3"
                                 >
-                                    <div className="w-9 h-9 rounded-full bg-secondary flex items-center justify-center text-white text-xs font-bold shrink-0">
-                                        {(c.idUsuario).toString().charAt(0).toUpperCase()
-                                        }
+                                    <div className="w-9 h-9 rounded-full bg-secondary overflow-hidden flex items-center justify-center text-white text-xs font-bold shrink-0">
+                                        {mapaUsuarioMinimo[c.idUsuario]?.imagenPerfil ? (
+                                            <img
+                                                src={mapaUsuarioMinimo[c.idUsuario]!.imagenPerfil!}
+                                                alt={mapaUsuarioMinimo[c.idUsuario]?.nombreUsuario ?? `Usuario ${c.idUsuario}`}
+                                                className="w-full h-full object-cover"
+                                                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+                                            />
+                                        ) : (
+                                            <span className="text-white text-xs font-bold">
+      {(mapaUsuarioMinimo[c.idUsuario]?.nombreUsuario ?? c.idUsuario.toString()).charAt(0).toUpperCase()}
+    </span>
+                                        )}
                                     </div>
+
                                     <div className="flex-1 min-w-0">
                                         <div className="bg-white rounded-2xl px-4 py-3 shadow-sm">
                                             <div className="flex items-center justify-between gap-4">
-                      <span className="text-sm font-bold text-secondary">
-                        {mapaUsuarioMinimo[c.idUsuario]?.nombreUsuario ?? `Usuario ${c.idUsuario}`}
-                      </span>
+                                                <Link
+                                                    to={`/usuario/${c.idUsuario}`}
+                                                    className="text-sm font-bold text-secondary hover:underline"
+                                                >
+                                                    {mapaUsuarioMinimo[c.idUsuario]?.nombreUsuario ?? `Usuario ${c.idUsuario}`}
+                                                </Link>
                                                 <span className="text-xs text-neutral">
-                        {c.fechaCreacion ? new Date(c.fechaCreacion).toLocaleDateString() : "Hace un rato"}
-                      </span>
+        {c.fechaCreacion ? new Date(c.fechaCreacion).toLocaleDateString() : "Hace un rato"}
+      </span>
                                             </div>
                                             <p className="mt-1 text-sm text-secondary leading-relaxed">
                                                 {c.mensaje}
@@ -545,7 +573,7 @@ export default function VistaRecuerdo() {
                                                     onClick={() => handleEliminaComentario(c.idComentario)}
                                                     className="inline-flex items-center gap-1 text-xs font-semibold text-red-500 hover:text-red-600 transition"
                                                 >
-                                                    <Trash2 className="w-3.5 h-3.5" />
+                                                    <Trash2 className="w-3.5 h-3.5"/>
                                                     Eliminar
                                                 </button>
                                             )}

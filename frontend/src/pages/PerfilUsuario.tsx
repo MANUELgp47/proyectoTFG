@@ -8,6 +8,7 @@ import type {Usuario, Amistad, SolicitudAmistad, ChatIndividual} from '../types.
 import {CrearSolicitud, getSolicitudAmistad} from "../services/solicitudAmistadService";
 import {getChatIndividualPorUsuario, crearChatIndividual, existeChatConmigo} from "../services/chatService";
 import {getRecuerdosPorUsuario} from "../services/recuerdoService.ts";
+import {getloHeBloqueado, getmeHaBloqueado, bloquear, desbloquear} from "../services/settingsService.ts";
 //css
 import {Calendar, MapPin, MessageSquare, Pencil, UserMinus, UserPlus} from "lucide-react";
 import {Users} from "lucide-react"; // añádelo a tu línea de lucide-react
@@ -32,7 +33,7 @@ export default function PerfilUsuario() {
     //idUsuario por parametero
     const {idUsuarios} = useParams<{ idUsuarios: string }>();
     const [usuario, setUsuario] = useState<Usuario | any>(null);
-    const [imagen, setImagen] = useState<string | null>(null);
+
     const [perfil, setPerfil] = useState<usuarioPerfil>(null);
     const [amistad, setAmistad] = useState<Amistad | null>(null);
     const [solicitud, setSolicitud] = useState<SolicitudAmistad | null>(null);
@@ -43,6 +44,8 @@ export default function PerfilUsuario() {
     // const [somosAmigos, setSomosAmigos] = useState<boolean>(false);
     const [numeroAmistades, setNumeroAmistades] = useState<number>(0);//no está funcionando
     const [existeChat, setExisteChat] = useState<boolean>(false);
+    const [loHeBloqueado, setLoHeBloqueado] = useState<boolean>(false);
+    const [meHanBloqueado, setMeHanBloqueado] = useState<boolean>(false);
     /* useEffect(() => {
          //si no hay sesión, el perfil es privado por defecto
          if (idSesion === null) {
@@ -71,7 +74,7 @@ export default function PerfilUsuario() {
 
 
                       setUsuario(data);
-                      setImagen(data.foto);
+
 
                       //publico o privado
                       if (data.idUsuario && !data.nombre) {
@@ -108,6 +111,16 @@ export default function PerfilUsuario() {
                 return;
             }
 
+            //bloqueo
+            const lobloquee = await getloHeBloqueado(Number(idUsuarios));
+            setLoHeBloqueado(lobloquee);
+            const mehanbloqueado = await getmeHaBloqueado(Number(idUsuarios));
+            setMeHanBloqueado(mehanbloqueado);
+
+            //si hay bloqueo, no cargar amistad ni solicitud
+            if (lobloquee || mehanbloqueado) {
+                return;
+            }
             const fetchedSolicitud = await getSolicitudAmistad(Number(idUsuarios));
             setSolicitud(fetchedSolicitud);
             const fetchedAmistad = await getAmistadEntreUsuarios(idSesion, Number(idUsuarios));
@@ -130,6 +143,10 @@ export default function PerfilUsuario() {
     useEffect(() => {
         const fetchRecuerdos = async () => {
             try {
+                if (meHanBloqueado){
+                    setRecuerdos([]);
+                    return;
+                }
                 const recuerdosData = await getRecuerdosPorUsuario(Number(idUsuarios));
                 setRecuerdos(recuerdosData);
             } catch (error) {
@@ -205,6 +222,31 @@ export default function PerfilUsuario() {
             console.error('Error al abrir/crear chat:', error);
             alert('No se pudo abrir el chat. Inténtalo de nuevo.');
         }
+
+    }
+
+    //bloquear y desbloquear usuario
+    const handlebloquear = async () => {
+
+        const confirmar = window.confirm("¿Estás seguro de que quieres bloquear a este usuario? No podrás ver su perfil ni sus recuerdos, y él no podrá ver tu perfil ni tus recuerdos.");
+        if (confirmar) {
+            await bloquear(Number(idUsuarios));
+            setLoHeBloqueado(true);
+            alert("Usuario bloqueado");
+        }
+        //actualizar la página para que no se vea el perfil ni los recuerdos
+         window.location.reload();
+
+    }
+    const handleDesbloquear = async () => {
+
+        const confirmar = window.confirm("¿Quieres desbloquear a este usuario? Podrás ver su perfil y sus recuerdos, y él podrá ver tu perfil y tus recuerdos.");
+        if (confirmar) {
+            await desbloquear(Number(idUsuarios));
+            setLoHeBloqueado(false);
+            alert("Usuario desbloqueado");
+        }
+        window.location.reload();
 
     }
 
@@ -293,9 +335,9 @@ export default function PerfilUsuario() {
                             {/* Avatar */}
                             <div
                                 className="w-40 h-40 rounded-full bg-black overflow-hidden shrink-0 ring-4 ring-white shadow-lg">
-                                {imagen ? (
+                                {usuario.imagen ? (
                                     <img
-                                        src={imagen}
+                                        src={usuario.imagen}
                                         alt={usuario.nombreUsuario}
                                         className="w-full h-full object-cover"
                                         onError={(e) => {
@@ -373,9 +415,30 @@ export default function PerfilUsuario() {
                                             </button>
                                         </>
                                     )}
+                                    {!loHeBloqueado && Number(idSesion) !== Number(idUsuarios) ? (
+                                        <>
+                                            <button
+                                                onClick={handlebloquear}
+                                                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-amber-700 text-white font-semibold text-sm hover:bg-primary-600 transition"
+                                            >
+                                                <MessageSquare className="w-4 h-4"/>
+                                                Bloquear usuario
+                                            </button>
+                                        </>
+                                    ): Number(idSesion) !== Number(idUsuarios) && (
+                                        <>
+                                            <button
+                                                onClick={handleDesbloquear}
+                                                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-white font-semibold text-sm hover:bg-primary-600 transition"
+                                            >
+                                                <MessageSquare className="w-4 h-4"/>
+                                                Desbloquear usuario
+                                            </button>
+                                        </>
+                                        )}
 
                                     {/* No amigo + no solicitud + no soy yo → Enviar solicitud */}
-                                    {!amistad &&
+                                    {!amistad && !loHeBloqueado && !meHanBloqueado &&
                                         solicitud?.estado !== "pendiente" &&
                                         Number(idSesion) !== Number(idUsuarios) && (
                                             <button

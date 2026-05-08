@@ -111,10 +111,10 @@ export class UsuarioService {
     }
 
     //obtenerDatosMinimosUsuarioPorId
-    static async obtenerDatosMinimosUsuarioPorId(idUsuario: number): Promise<{ idUsuario: number, nombreUsuario: string } | null> {
+    static async obtenerDatosMinimosUsuarioPorId(idUsuario: number): Promise<{ idUsuario: number, nombreUsuario: string, imagen: string | undefined } | null> {
         const usuario = await UsuarioModel.getUsuarioPorId(idUsuario);
         if (usuario) {
-            return { idUsuario: usuario.idUsuario, nombreUsuario: usuario.nombreUsuario };
+            return { idUsuario: usuario.idUsuario, nombreUsuario: usuario.nombreUsuario, imagen: usuario.imagen };
         }
         return null;
     }

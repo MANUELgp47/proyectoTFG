@@ -1,7 +1,9 @@
+// frontend/src/components/ui/TopBar.tsx
 import { Link } from "react-router-dom";
-import {Bell, User, LogOut, LogIn, Home} from "lucide-react";
+import { Bell, User, LogOut, LogIn, Home } from "lucide-react";
+import { getDatosMinimosUsuario } from "../../services/usuarioService.ts";
 
-
+import { useEffect, useState } from "react";
 
 import {
     DropdownMenu,
@@ -10,24 +12,40 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "./dropdown-menu";
-import {useAuth} from "../../context/AuthContext.tsx";
-
-
-
+import { useAuth } from "../../context/AuthContext.tsx";
 
 interface TopBarProps {
-    children?: React.ReactNode; // contenido central opcional (buscador, filtros, etc.)
+    children?: React.ReactNode;
+}
+
+interface UsuarioMinimo {
+    imagen?: string;
+    nombreUsuario?: string;
 }
 
 export default function TopBar({ children }: TopBarProps) {
-    const {isAuthenticated, logout, idUsuario, rol} = useAuth();
+    const { isAuthenticated, logout, idUsuario, rol } = useAuth();
+    const [usuarioMinimo, setUsuarioMinimo] = useState<UsuarioMinimo | null>(null);
+
+    useEffect(() => {
+        const fetchDatosMinimos = async () => {
+            if (idUsuario != null) {
+                try {
+                    const datos = await getDatosMinimosUsuario(idUsuario);
+                    setUsuarioMinimo(datos);
+                } catch (error) {
+                    console.error("Error al obtener datos mínimos de usuario:", error);
+                }
+            }
+        };
+
+        fetchDatosMinimos();
+    }, [idUsuario]);
 
     return (
         <header className="flex items-center gap-3 mb-6">
-            {/* Contenido central opcional (buscador, filtros...) */}
             <div className="flex-1 flex items-center gap-3">{children}</div>
 
-            {/* Botón Home */}
             <Link to="/">
                 <button
                     type="button"
@@ -38,7 +56,6 @@ export default function TopBar({ children }: TopBarProps) {
                 </button>
             </Link>
 
-            {/* Campanita */}
             {isAuthenticated && (
                 <Link to="/notificaciones">
                     <button
@@ -52,7 +69,6 @@ export default function TopBar({ children }: TopBarProps) {
                 </Link>
             )}
 
-            {/* Usuario */}
             {!isAuthenticated ? (
                 <Link to="/login">
                     <button
@@ -68,12 +84,22 @@ export default function TopBar({ children }: TopBarProps) {
                     <DropdownMenuTrigger asChild>
                         <button
                             type="button"
-                            className="w-11 h-11 rounded-full bg-primary flex items-center justify-center text-white hover:bg-primary-600 transition"
+                            className="w-11 h-11 rounded-full bg-primary flex items-center justify-center text-white hover:bg-primary-600 transition overflow-hidden"
                             aria-label="Usuario"
+                            style={
+                                usuarioMinimo?.imagen
+                                    ? {
+                                        backgroundImage: `url(${usuarioMinimo.imagen})`,
+                                        backgroundSize: "cover",
+                                        backgroundPosition: "center",
+                                    }
+                                    : undefined
+                            }
                         >
-                            <User className="w-5 h-5" />
+                            {!usuarioMinimo?.imagen && <User className="w-5 h-5" />}
                         </button>
                     </DropdownMenuTrigger>
+
                     <DropdownMenuContent
                         align="end"
                         className="w-52 rounded-xl bg-white border border-slate-200 shadow-xl"

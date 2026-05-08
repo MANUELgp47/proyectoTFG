@@ -16,6 +16,7 @@ export interface Usuario {
     fechaRegistro?: string;    // timestamp ISO
     ultimaConexion?: string;   // timestamp ISO
     ubicacion?: string;
+    imagen?: string;
     rol: 'admin' | 'dev' | 'user' | 'mod' | 'baneado';
 }
 

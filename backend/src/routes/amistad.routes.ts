@@ -9,10 +9,10 @@ const router = Router();
 router.get('/', AmistadController.getAmistades);
 
 // Obtener amistades de un usuario
-router.get('/usuario/:idUsuario', AmistadController.getAmistadesPorUsuario);
+router.get('/usuario/:idUsuario', authMiddleware, AmistadController.getAmistadesPorUsuario);
 
 // Obtener amistad entre dos usuarios
-router.get('/entre/:idUsuario1/:idUsuario2', AmistadController.getAmistadPorUsuarios);
+router.get('/entre/:idUsuario1/:idUsuario2', authMiddleware,AmistadController.getAmistadPorUsuarios);
 
 // Obtener numero de amistades de un usuario
 router.get('/usuario/:idUsuario/numero', AmistadController.getNumeroAmistadesPorUsuario);

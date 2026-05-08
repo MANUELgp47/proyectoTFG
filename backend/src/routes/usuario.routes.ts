@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import * as UsuarioController from '../controllers/usuario.controller.js';
 import {authMiddleware} from "../middleware/auth.middleware.js";
+import {upload} from "../cloudinaryConfig.js";
 
 const router = Router();
 
@@ -11,7 +12,7 @@ router.get('/:idUsuario', authMiddleware, UsuarioController.getUsuarioID);
 router.get('/', UsuarioController.getUsuarios);
 
 //Crear un nuevo usuario
-router.post('/', UsuarioController.createUsuario);
+router.post('/', upload.array('imagen'), UsuarioController.createUsuario);
 
 //obtiene los datos minimos de usuario por id {idUsuario, nombreUsuario}
 router.get('/:idUsuario/datosMinimos', authMiddleware, UsuarioController.getDatosMinimosUsuarioID);
@@ -21,7 +22,7 @@ router.get('/perfil/:idUsuario', authMiddleware, UsuarioController.getPerfilUsua
 
 //Actualizar un usuario existente
 //router.put('/:id', UsuarioController.updateUsuario);
-router.put('/', authMiddleware, UsuarioController.updateUsuario);
+router.put('/', authMiddleware, upload.array('imagen'),UsuarioController.updateUsuario);
 
 //eliminar un usuario
 router.delete('/', authMiddleware, UsuarioController.deleteUsuario);

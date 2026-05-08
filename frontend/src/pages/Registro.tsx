@@ -1,6 +1,6 @@
 // typescript
 // Archivo: `frontend/src/pages/Registro.tsx`
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { register } from '../api/auth.api';
 import {Navigate} from "react-router-dom";
 import { Link } from "react-router-dom";
@@ -35,11 +35,15 @@ const Register = () => {
         fotoPerfil: '',
         biografia: '',
         ubicacion: '',
+        imagen: '',
     });
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+
+    const [fotoFile, setFotoFile] = useState<File | null>(null);
+    const [preview, setPreview] = useState<string | null>(null);
 
     // Maneja cambios en los campos del formulario
     const handleChange = (
@@ -54,6 +58,14 @@ const Register = () => {
         }));
     };
 
+    // Limpiar object URLs
+    useEffect(() => {
+        return () => {
+            if (preview) URL.revokeObjectURL(preview);
+        };
+    }, [preview]);
+
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
@@ -61,12 +73,20 @@ const Register = () => {
         setLoading(true);
 
         try {
-            await register(form);
-            setSuccess('Usuario creado correctamente');
-            // TODO ejecuta login automático después de registro exitoso
-            // await login({ nombre_email: form.email, contrasena: form.contrasena });
-            <Navigate to="/"/>
+            if (fotoFile) {
+                const formData = new FormData();
+                // añade todos los campos del form (como strings)
+                Object.entries(form).forEach(([key, value]) => {
+                    formData.append(key, value as any);
+                });
+                formData.append('imagen', fotoFile);
+                await register(formData); // register debe aceptar FormData en el backend
+            } else {
+                await register(form);
+            }
 
+            setSuccess('Usuario creado correctamente');
+            <Navigate to="/" />
         } catch (err) {
             console.error(err);
             setError('Error al crear usuario');
@@ -74,6 +94,21 @@ const Register = () => {
             setLoading(false);
         }
     };
+
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0] ?? null;
+        setFotoFile(file);
+        if (file) {
+            const url = URL.createObjectURL(file);
+            setPreview(url);
+        } else {
+            setPreview(null);
+        }
+    };
+
+
+
 
     return (
         <div className="min-h-screen bg-[#F8F9FB] flex items-center justify-center p-4 sm:p-6">
@@ -161,14 +196,32 @@ const Register = () => {
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="flex flex-col items-center">
+
                             <div className="relative">
-                                <div className="w-24 h-24 rounded-full bg-neutral-light border-2 border-dashed border-primary/40 flex items-center justify-center">
-                                    <Camera className="w-7 h-7 text-primary/70" />
+                                <div className="w-24 h-24 rounded-full bg-neutral-light border-2 border-dashed border-primary/40 flex items-center justify-center overflow-hidden">
+                                    {preview ? (
+                                        <img
+                                            src={preview}
+                                            alt={form.nombreUsuario || 'Foto'}
+                                            className="w-full h-full object-cover"
+                                        />
+                                    ) : (
+                                        <Camera className="w-7 h-7 text-primary/70" />
+                                    )}
                                 </div>
+
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleFileChange}
+                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer rounded-full"
+                                    aria-label="Subir foto"
+                                />
+
                                 <button
                                     type="button"
                                     className="absolute bottom-0 right-0 w-7 h-7 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary-600 transition shadow-md"
-                                    aria-label="Subir foto"
+                                    aria-label="Editar foto"
                                 >
                                     <Pencil className="w-3.5 h-3.5" />
                                 </button>

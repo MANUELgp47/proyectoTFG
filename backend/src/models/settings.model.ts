@@ -48,3 +48,17 @@ export const actualizarSettings = async (idUsuario: number, settings: Partial<Cr
     if (result.rows.length === 0) return null;
     return mapearSettings(result.rows[0]);
 };
+
+
+//hay bloqueo entre dos usuarios y viceversa y devuelve true si hay bloqueo, false si no hay bloqueo
+export const hayBloqueo = async (idUsuario1: number, idUsuario2: number): Promise<boolean> => {
+
+    const result = await pool.query("SELECT usuarios_bloqueados FROM settings WHERE id_usuario = $1", [idUsuario1]);
+    const result2 = await pool.query("SELECT usuarios_bloqueados FROM settings WHERE id_usuario = $1", [idUsuario2]);
+
+    if (result.rows.length === 0 || result2.rows.length === 0) return false;// Si no se encuentran los settings de alguno de los usuarios, asumimos que no hay bloqueo
+
+    const bloqueados1: number[] = result.rows[0].usuarios_bloqueados || [];// Si el campo usuarios_bloqueados es null, lo tratamos como un array vacío
+    const bloqueados2: number[] = result2.rows[0].usuarios_bloqueados || [];
+    return bloqueados1.includes(idUsuario2) || bloqueados2.includes(idUsuario1);// Si alguno de los usuarios ha bloqueado al otro, devolvemos true
+};

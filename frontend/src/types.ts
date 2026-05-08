@@ -7,6 +7,7 @@ export interface Usuario {
     ubicacion?: string;
     biografia?: string;
     fechaRegistro: string;
+    imagen?: string;
 }
 
 export interface Amistad {
@@ -32,7 +33,7 @@ export interface Mensaje {
     leido: boolean;
 }
 
-export interface ChatIndividual{
+export interface ChatIndividual {
 
     idChatIndividual: number;
     idUsuario1: number;
@@ -49,7 +50,7 @@ export interface Tag {
 
 export interface ChatActividad {
     idChatActividad: number;
-    idActividad:  number;
+    idActividad: number;
     fechaCreacion: string; // timestamp ISO
     ultimoMensaje?: number;
 }
@@ -70,6 +71,7 @@ export interface Actividad {
     expulsados?: number[]; // IDs de usuarios expulsados
     estado: 'activa' | 'finalizada' | 'cancelada';
 }
+
 /*
 export interface Actividad {
     idActividad: number;
@@ -113,12 +115,12 @@ export interface Settings {
     usuariosBloqueados: number[]; // Array de IDs de usuarios bloqueados
 }
 
-export interface Notificacion{
+export interface Notificacion {
     idNotificacion: number;
-    idUsuarioReceptor:  number;
+    idUsuarioReceptor: number;
     mensaje: string;
     fechaCreacion: string; // timestamp ISO
-    tipo: 'solicitud_amistad' | 'chat_individual_lleno' | 'chat_individual' |'chat_actividad_lleno' | 'chat_actividad' |'union_actividad' | 'creacion_actividad' | 'actualizacion_actividad' | 'solicitud_union_actividad' | 'posibilidad_recuerdo' | 'creacion_recuerdo';
+    tipo: 'solicitud_amistad' | 'chat_individual_lleno' | 'chat_individual' | 'chat_actividad_lleno' | 'chat_actividad' | 'union_actividad' | 'creacion_actividad' | 'actualizacion_actividad' | 'solicitud_union_actividad' | 'posibilidad_recuerdo' | 'creacion_recuerdo';
     leida: boolean;
     idUsuarioEmisor: number; // Opcional, solo para ciertos tipos de notificaciones
     idReferencia: number;//(id_actividad, id_chat_individual, id_chat_actividad, id_solicitud_amistad)

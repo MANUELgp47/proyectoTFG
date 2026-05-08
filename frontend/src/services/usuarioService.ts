@@ -16,7 +16,7 @@ export const getPerfilUsuario = async (idUsuario: number): Promise<any> => {
 };
 
 //actualizar usuario
-export const updateUsuario = async (usuarioData: any): Promise<any> => {
+export const updateUsuario = async (usuarioData: FormData) => {
     const response = await api.put(`/usuario/`, usuarioData);
     return response.data;
 };

@@ -10,6 +10,8 @@ import * as ServicioActividad from "../services/actividad.service.js";
 import * as ServicioNotificacion from "../services/notificacion.service.js";
 import * as ServicioChatActividad from "../services/chatActividad.service.js";
 import {marcarMensajeLeidoPorChatIndividual} from "../models/mensaje.model.js";
+import * as SettingsService from "../services/settingsService.js";
+import * as ServicioChatIndividual from "../services/chatIndividual.service.js";
 
 export const getMensajes = async (req: Request, res: Response) => {
     try {
@@ -172,6 +174,18 @@ export const createMensaje = async (req: Request, res: Response) => {
         if (req.body.contenido == null || req.body.contenido.trim() === '') {
             return res.status(400).json({message: 'El contenido del mensaje no puede estar vacío'});
         }
+
+
+        //
+        const usuariosChat =  await ServicioChatIndividual.ChatIndividualService.getUsuariosPorIdChatIndividual(req.body.idChatIndividual);
+
+
+        //permiso? Compruebo (en caso de ser chat individual) que no hay bloqueo por ninguno de los usuarios
+        const bloqueo = await SettingsService.SettingsService.hayBloqueoEntreUsuarios( usuariosChat!.idUsuario1, usuariosChat!.idUsuario2);
+        if (bloqueo) {
+            return res.status(403).json({message: 'No puedes enviar mensajes en este chat porque hay un bloqueo entre los usuarios'});
+        }
+
 
         req.body.idEmisor = idEmisor;
         const mensaje = await MensajedModel.crearMensaje(req.body);

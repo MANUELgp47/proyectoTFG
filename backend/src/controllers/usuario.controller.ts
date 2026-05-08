@@ -42,7 +42,7 @@ export const getDatosMinimosUsuarioID = async (req: Request, res: Response) => {
 //obtener el perfil de un usuario por id, ejecuta el getDatosMinimosUsuarioPorId o getUsuarioPorId dependiendo de susu settings de privacidad
 export const getPerfilUsuarioID = async (req: Request, res: Response) => {
     try {
-        console.log("perfil usuario",  req.params.idUsuario);
+        console.log("perfil usuario", req.params.idUsuario);
         const idParam = req.params.idUsuario;
         if (!idParam) {
             return res.status(400).json({message: 'ID requerido'});
@@ -63,8 +63,7 @@ export const getPerfilUsuarioID = async (req: Request, res: Response) => {
         } else {
             res.status(404).json({message: 'Usuario no encontrado'});
         }
-    }
-    catch (error) {
+    } catch (error) {
         console.error('Error al obtener perfil de usuario por ID:', error);
         res.status(500).json({message: 'Error del servidor'});
     }
@@ -98,6 +97,20 @@ export const getUsuarioID = async (req: Request, res: Response) => {
 
 export const createUsuario = async (req: Request, res: Response) => {
     try {
+
+
+
+        //imagen sola
+        const nuevoArchivo = (req.file as any) ?? ((req.files as any[])?.[0]) ?? null;
+        const rutaImg = nuevoArchivo?.path ?? "";
+       // console.log("Ruta imagen ", rutaImg);
+        if (rutaImg) {
+            req.body.imagen = rutaImg;
+        } else {
+            req.body.imagen = null;
+        }
+
+
         const usuario = await UsuarioService.UsuarioService.crearUsuario(req.body);
         res.status(201).json(usuario);
     } catch (error) {
@@ -127,6 +140,20 @@ export const updateUsuario = async (req: Request, res: Response) => {
             req.body.contrasena = hash;
             console.log(req.body.contrasena);
         }
+
+        //imagen sola
+        const nuevoArchivo = (req.file as any) ?? ((req.files as any[])?.[0]) ?? null;
+        const rutaImg = nuevoArchivo?.path ?? "";
+        const usuarioExistente = await UsuarioService.UsuarioService.obtenerUsuarioPorId(req.userId);
+        let nuevasRutas: string = "";
+        console.log("rutaImg:", rutaImg, "usuario.imagen:", usuarioExistente?.imagen);
+        if (rutaImg) {
+            nuevasRutas = rutaImg;
+        } else if (usuarioExistente && usuarioExistente.imagen) {
+            nuevasRutas = usuarioExistente.imagen;
+        }
+        req.body.imagen = nuevasRutas;
+
 
         const usuarioActualizado = await UsuarioModel.actualizarUsuario(req.userId, req.body);
         if (usuarioActualizado) {

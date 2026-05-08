@@ -6,6 +6,7 @@ import * as AmistadModel from '../models/amistad.model.js';
 import * as AmistadService from '../services/amistad.service.js';
 import * as UsuarioService from '../services/usuario.service.js';
 import * as SolicitudAmistadService from '../services/solicitudAmistad.service.js';
+import * as SettingsService from '../services/settingsService.js';
 
 export const getAllSolicitudesAmistad = async (req: Request, res: Response) => {
     try {
@@ -65,6 +66,13 @@ export const crearSolicitudAmistad = async (req: Request, res: Response) => {
         if (idEmisor === idReceptor) {
             return res.status(400).json({message: 'No se puede enviar una solicitud de amistad a uno mismo'});
         }
+        //valida que no haya bloqueo entre los usuarios
+        const bloqueoEntreUsuarios = await  SettingsService.SettingsService.hayBloqueoEntreUsuarios(idEmisor, idReceptor);
+        if (bloqueoEntreUsuarios) {
+            return res.status(403).json({message: 'No puedes enviar una solicitud de amistad a este usuario debido a un bloqueo mutuo'});
+        }
+
+
         // Validar que no exista una solicitud de amistad pendiente o aceptada entre los dos usuarios
         const solicitudExistente = await SolicitudAmistadModel.getSolicitudAmistad(idEmisor, idReceptor);
         if (solicitudExistente && solicitudExistente.estado!== 'rechazada') {

@@ -1,0 +1,36 @@
+import { Resend } from 'resend';
+import dotenv from 'dotenv';
+
+dotenv.config({ path: '../ini.env' });
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+export const enviarCodigoVerificacion = async (emailDestino: string, codigo: string) => {
+    try {
+        const { data, error } = await resend.emails.send({
+            from: 'onboarding@resend.dev', // Dominio de prueba gratuito
+            to: emailDestino,             // Recuerda: en modo prueba, solo funciona con TU email
+            subject: 'Tu código de verificación - TFG',
+            html: `
+        <div style="font-family: sans-serif; text-align: center;">
+          <h1>¡Bienvenido a la plataforma!</h1>
+          <p>Usa el siguiente código para verificar tu cuenta:</p>
+          <h2 style="background: #f4f4f4; padding: 10px; display: inline-block; letter-spacing: 5px;">
+            ${codigo}
+          </h2>
+          <p>Este código caducará en 10 minutos.</p>
+        </div>
+      `,
+        });
+
+        if (error) {
+            console.error("Error de Resend:", error);
+            return { success: false, error };
+        }
+
+        return { success: true, data };
+    } catch (err) {
+        console.error("Fallo inesperado al enviar email:", err);
+        return { success: false, error: err };
+    }
+};

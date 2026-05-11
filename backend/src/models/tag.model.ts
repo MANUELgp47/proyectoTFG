@@ -32,21 +32,19 @@ export const getTagPorNombre = async (nombre: string): Promise<Tag | null> => {
     return mapearTag(result.rows[0]);
 };
 
+//crea un nuevo tag
 export const crearTag = async (tag: CrearTag): Promise<Tag> => {
-    const {
-        nombre,
-    } = tag;
+    const {nombre, imagen} = tag;
 
     const result = await pool.query(
-        `INSERT INTO tag
-             (nombre)
-         VALUES ($1) RETURNING *`,
-        [nombre]
+        `INSERT INTO tag (nombre, imagen) VALUES ($1, $2) RETURNING *`,
+        [nombre, imagen]
     );
 
     return mapearTag(result.rows[0]);
 };
 
+//elimina
 export const eliminarTag = async (idTag: number): Promise<boolean> => {
     const result = await pool.query("DELETE FROM tag WHERE id_tag = $1", [idTag]);
 

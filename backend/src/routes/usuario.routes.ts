@@ -5,6 +5,10 @@ import {upload} from "../cloudinaryConfig.js";
 
 const router = Router();
 
+
+//busqueda por nombre
+router.get('/buscar', authMiddleware, UsuarioController.buscarUsuariosNombre);
+
 //Obtener un usuario por id
 router.get('/:idUsuario', authMiddleware, UsuarioController.getUsuarioID);
 
@@ -20,6 +24,9 @@ router.get('/:idUsuario/datosMinimos', authMiddleware, UsuarioController.getDato
 //Obtener el perfil de un usuario por id
 router.get('/perfil/:idUsuario', authMiddleware, UsuarioController.getPerfilUsuarioID);
 
+//Actualizar ultima conexion del usuario
+router.put('/ultimaConexion', authMiddleware, UsuarioController.actualizarUltimaConexion);
+
 //Actualizar un usuario existente
 //router.put('/:id', UsuarioController.updateUsuario);
 router.put('/', authMiddleware, upload.array('imagen'),UsuarioController.updateUsuario);
@@ -27,5 +34,14 @@ router.put('/', authMiddleware, upload.array('imagen'),UsuarioController.updateU
 //eliminar un usuario
 router.delete('/', authMiddleware, UsuarioController.deleteUsuario);
 
+/*
+export const buscarUsuarios = async (nombre: string): Promise<any> => {
+    const response = await api.get(`/usuario?nombre=${encodeURIComponent(nombre)}`);
+    return response.data;
+};
+* */
+
+//Buscar usuarios por nombre
+//router.get('/', authMiddleware, UsuarioController.buscarUsuariosPorNombre);
 
 export default router;

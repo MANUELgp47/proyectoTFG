@@ -1,6 +1,8 @@
 //Muestra los participantes de un evento, con su nombre, enlace a su perfil, Y en caso de ser Actividad.admins, un botón para expulsar al participante de la actividad y otro de convertir en admin al participante
 //Si el usuario es admin, también mostrar un botón para quitar a un admin de la actividad
 //tambien se mostrará al final una lista de expulsados solo visible para admins
+//si la actividad es pública, no mostrar participantes con privacidad actividadPublica=false, pero mostrar una sección aparte de participantes privados solo a admins/creador
+//si la actividad no es pública, mostrar a todos los participantes sin filtrar por privacidad
 import {useEffect, useState} from 'react';
 import {useParams} from 'react-router-dom';
 import {getActividadPorId, addAdmin, removeAdmin, addExpulsado, removeExpulsado} from '../services/actividadService';
@@ -11,7 +13,21 @@ import {
 } from "../services/participacionService";
 import {useAuth} from '../context/AuthContext';
 import {getPrivacidad} from "@/services/settingsService.ts";
-import {getDatosMinimosUsuario} from "@/services/usuarioService.ts";
+import {getDatosMinimosUsuario} from "../services/usuarioService.ts";
+import type {UsuarioMinimo} from "../types.ts";
+import {Link, useNavigate} from "react-router-dom";
+import {
+    ArrowLeft,
+    Users,
+    Lock,
+    UserX,
+    Shield,
+    ShieldOff,
+    RotateCcw,
+    Ban,
+    Crown,
+} from "lucide-react";
+import TopBar from "../components/ui/TopBar.tsx";
 
 
 /*
@@ -22,10 +38,10 @@ import {getDatosMinimosUsuario} from "@/services/usuarioService.ts";
 * */
 
 
-
 export function VistaParticipantes() {
- //   const {idActividad} = useParams<{ idActividad: string }>();
+    //   const {idActividad} = useParams<{ idActividad: string }>();
     const {idActividad} = useParams();
+    const navigate = useNavigate();
 //    const idActividad = id;
     const [participantes, setParticipantes] = useState<Usuario[]>([]);
     const [actividad, setActividad] = useState<Actividad | null>(null);
@@ -40,8 +56,7 @@ export function VistaParticipantes() {
     const [participantesPrivados, setParticipantesPrivados] = useState<Usuario[]>([]); // lista de participantes privados (si la actividad es pública)
     //const [datosMinimosUsuarios, setDatosMinimosUsuarios] = useState<{[id: number]: {nombre: string}}>({}); // idUsuario -> datos mínimos (nombre)
 
-
-
+    const [mapUsuarioDatosMinimos, setMapUsuarioDatosMinimos] = useState<{ [id: number]: UsuarioMinimo }>({}); // idUsuario -> datos mínimos (nombre)
 
 
     //primero carga la actividad
@@ -57,14 +72,12 @@ export function VistaParticipantes() {
             }
         };
         cargarActividad();
-    }, [ idActividad]);
+    }, [idActividad]);
 
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-
-
 
                 console.log('Cargando participantes para actividad id:', idActividad);
 
@@ -74,28 +87,28 @@ export function VistaParticipantes() {
                     const participantesData = await getParticipacionesAceptadasPorActividad(Number(idActividad));
 
                     //crea un mapa de los usuarios participantes con su idUsuario como clave y el objeto Usuario como valor| no constante para poder modificarlo luego
-               //     const usuarios: Usuario[] = participantesData.map((p: any) => p.usuario ? p.usuario : p);
+                    //     const usuarios: Usuario[] = participantesData.map((p: any) => p.usuario ? p.usuario : p);
 
 
                     //recorre el array y obtiene los participantes privados privacidad.actividadPublica
-                  /*  if (actividad?.publica===false){
-                        const privados: Usuario[] = [];
-                        for (const p of usuarios) {
-                            const privacidad = await getPrivacidad(p.idUsuario);
-                            if (!privacidad.actividadPublica) {
-                                privados.push(p);
-                                //saca al usuario del array usuarios
-                                setParticipantes(prev => prev.filter(u => u.idUsuario !== p.idUsuario));// lo saca de la lista de participantes públicos y lo mete en la lista de participantes privados
+                    /*  if (actividad?.publica===false){
+                          const privados: Usuario[] = [];
+                          for (const p of usuarios) {
+                              const privacidad = await getPrivacidad(p.idUsuario);
+                              if (!privacidad.actividadPublica) {
+                                  privados.push(p);
+                                  //saca al usuario del array usuarios
+                                  setParticipantes(prev => prev.filter(u => u.idUsuario !== p.idUsuario));// lo saca de la lista de participantes públicos y lo mete en la lista de participantes privados
 
-                            }
-                        }
-                        setParticipantesPrivados(privados);
-                    }
-                    setParticipantes(usuarios);
+                              }
+                          }
+                          setParticipantesPrivados(privados);
+                      }
+                      setParticipantes(usuarios);
 
-*/
+  */
                     //recorre participantesData y si su privacidad es actividadPublica false, lo mete en participantesPrivados, si no en participantes
-                    if (actividad && actividad.publica===true){
+                    if (actividad && actividad.publica === true) {
                         console.log("Actividad es pública, filtrando participantes según su privacidad");
                         const privados: Usuario[] = [];
                         const publicos: Usuario[] = [];
@@ -112,12 +125,11 @@ export function VistaParticipantes() {
                         setParticipantes(publicos);
                         setParticipantesPrivados(privados);
 
-                    }else if (actividad) {
+                    } else if (actividad) {
                         console.log("Actividad no es pública, mostrando todos los participantes sin filtrar por privacidad");
                         const usuarios: Usuario[] = participantesData.map((p: any) => p.usuario ? p.usuario : p);
                         setParticipantes(usuarios);
                     }
-
 
 
                     // extraer expulsados si existen en la actividad
@@ -126,7 +138,7 @@ export function VistaParticipantes() {
                     } else {
                         setExpulsados([]);
                     }
-                //    console.log('Participantes cargados:', usuarios);
+                    //    console.log('Participantes cargados:', usuarios);
                 }
             } catch (error) {
                 console.error(error);
@@ -138,6 +150,44 @@ export function VistaParticipantes() {
         fetchData();
     }, [idActividad, actividad]);
 
+
+    //crea el mapa de los participantes con su idUsuario como clave y valor usuarioMinimo
+    useEffect(() => {
+        const cargarDatosMinimos = async () => {
+            if (participantes.length === 0) return;
+            const map: { [id: number]: UsuarioMinimo } = {};
+            for (const p of participantes) {
+                try {
+                    const datosMinimos = await getDatosMinimosUsuario(p.idUsuario);
+                    map[p.idUsuario] = datosMinimos;
+                } catch (error) {
+                    console.error('Error cargando datos mínimos para usuario id:', p.idUsuario, error);
+                }
+            }
+            //hace lo mismo para los participantes privados si existen
+            for (const p of participantesPrivados) {
+                try {
+                    const datosMinimos = await getDatosMinimosUsuario(p.idUsuario);
+                    map[p.idUsuario] = datosMinimos;
+                } catch (error) {
+                    console.error('Error cargando datos mínimos para usuario privado id:', p.idUsuario, error);
+                }
+            }
+            //tambien lo mismo para los expulsados
+            for (const id of expulsados) {
+                try {
+                    const datosMinimos = await getDatosMinimosUsuario(id);
+                    map[id] = datosMinimos;
+                } catch (error) {
+                    console.error('Error cargando datos mínimos para usuario expulsado id:', id, error);
+                }
+            }
+
+            setMapUsuarioDatosMinimos(map);
+        };
+        cargarDatosMinimos();
+    }, [participantes, participantesPrivados, expulsados]);
+
     if (loading) {
         return <div>Cargando participantes...</div>;
     }
@@ -146,7 +196,8 @@ export function VistaParticipantes() {
     const esCreadorActividad = actividad && idSesion === actividad.idCreador;
     const esAdminActividad = actividad && actividad.admins ? actividad.admins.includes(idSesion as number) : false;
 
-    const puedeGestionar = Boolean(esCreadorActividad || esAdminActividad || rolSesion === 'admin' || rolSesion === 'mod');
+    const puedeGestionar = Boolean(esCreadorActividad || esAdminActividad  );
+    const puedeVerPrivados = Boolean(esCreadorActividad || esAdminActividad || rolSesion === 'admin' || rolSesion === 'mod');
 
     const handleExpulsar = async (idUsuarioExpulsar: number) => {
         if (!idActividad) return;
@@ -154,7 +205,7 @@ export function VistaParticipantes() {
         if (!window.confirm('¿Estás seguro de expulsar a este usuario de la actividad?')) return;
 
         try {
-            const resp= addExpulsado(Number(idActividad), idUsuarioExpulsar);
+            const resp = addExpulsado(Number(idActividad), idUsuarioExpulsar);
 
 
             if (!resp) {
@@ -183,7 +234,7 @@ export function VistaParticipantes() {
                 throw new Error('Error al reincorporar al usuario');
             }
 
-          //refrescamos toda la lista de participantes y expulsados desde el backend para evitar inconsistencias
+            //refrescamos toda la lista de participantes y expulsados desde el backend para evitar inconsistencias
             const participantesData = await getParticipacionesPorActividad(Number(idActividad));
             const usuarios: Usuario[] = participantesData.map((p: any) => p.usuario ? p.usuario : p);
             setParticipantes(usuarios);
@@ -191,8 +242,8 @@ export function VistaParticipantes() {
             const actividadData = await getActividadPorId(Number(idActividad));
             setActividad(actividadData);
 
-             // extraer expulsados si existen en la actividad
-             if (actividadData && actividadData.expulsados) {
+            // extraer expulsados si existen en la actividad
+            if (actividadData && actividadData.expulsados) {
                 setExpulsados(actividadData.expulsados);
             } else {
                 setExpulsados([]);
@@ -212,7 +263,7 @@ export function VistaParticipantes() {
         try {
             //makeAdmin es true si queremos hacer admin, false si queremos quitar admin. Llamamos a la función correspondiente del servicio según el caso
 
-           if (makeAdmin)
+            if (makeAdmin)
                 await addAdmin(Number(idActividad), idUsuarioTarget);
             else
                 await removeAdmin(Number(idActividad), idUsuarioTarget);
@@ -235,98 +286,309 @@ export function VistaParticipantes() {
         }
     };
 
+    function SectionCard({
+                             icon,
+                             title,
+                             subtitle,
+                             count,
+                             empty,
+                             children,
+                         }: {
+        icon: React.ReactNode;
+        title: string;
+        subtitle?: string;
+        count: number;
+        empty: string;
+        children: React.ReactNode;
+    }) {
+
+
+
+        return (
+            <section className="bg-white rounded-3xl p-6 shadow-sm">
+                <header className="flex items-start justify-between gap-4 mb-4">
+                    <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-xl bg-primary-50 flex items-center justify-center">
+                            {icon}
+                        </div>
+                        <div>
+                            <h2
+                                className="text-lg font-extrabold text-secondary leading-tight"
+                                style={{fontFamily: "'Manrope', sans-serif"}}
+                            >
+                                {title}
+                            </h2>
+                            {subtitle && (
+                                <p className="text-[11px] text-neutral mt-0.5">{subtitle}</p>
+                            )}
+                        </div>
+                    </div>
+                    <span className="text-xs font-bold text-neutral bg-neutral-light px-3 py-1 rounded-full shrink-0">
+          {count}
+        </span>
+                </header>
+
+                {count === 0 ? (
+                    <div className="py-6 text-center text-sm text-neutral">{empty}</div>
+                ) : (
+                    <div>{children}</div>
+                )}
+            </section>
+        );
+    }
+
+    /* ---------- Fila de participante ---------- */
+    interface ParticipantRowProps {
+        idUsuario: number;
+        datos?: { idUsuario: number; nombreUsuario: string; imagen?: string | null };
+        esAdmin: boolean;
+        gestionable: boolean;
+        onExpulsar: () => void;
+        onToggleAdmin: (makeAdmin: boolean) => void;
+    }
+
+    function ParticipantRow({
+                                idUsuario,
+                                datos,
+                                esAdmin,
+                                gestionable,
+                                onExpulsar,
+                                onToggleAdmin,
+                            }: ParticipantRowProps) {
+        return (
+            <div className="flex items-center gap-3 py-3 first:pt-0 border-t border-slate-100 first:border-t-0">
+                {/* Usuario */}
+                <Link
+                    to={`/usuario/${idUsuario}`}
+                    className="flex items-center gap-3 flex-1 min-w-0 hover:opacity-80 transition"
+                >
+                    <div className="relative shrink-0">
+                        <div
+                            className="w-10 h-10 rounded-full bg-secondary overflow-hidden flex items-center justify-center text-white text-sm font-bold">
+                            {datos?.imagen ? (
+                                <img
+                                    src={datos.imagen}
+                                    alt={datos.nombreUsuario}
+                                    className="w-full h-full object-cover"
+                                    onError={(e) =>
+                                        ((e.currentTarget as HTMLImageElement).style.display = "none")
+                                    }
+                                />
+                            ) : (
+                                (datos?.nombreUsuario || "?").charAt(0).toUpperCase()
+                            )}
+                        </div>
+                        {esAdmin && (
+                            <div
+                                className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-tertiary flex items-center justify-center ring-2 ring-white"
+                                title="Administrador"
+                            >
+                                <Crown className="w-3 h-3 text-secondary"/>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="min-w-0">
+                        <div className="text-sm font-bold text-secondary truncate">
+                            {datos?.nombreUsuario ?? `Usuario #${idUsuario}`}
+                        </div>
+                        {esAdmin && (
+                            <div className="text-[10px] font-bold tracking-wider text-primary uppercase">
+                                Administrador
+                            </div>
+                        )}
+                    </div>
+                </Link>
+
+                {/* Acciones (solo si puede gestionar) */}
+                {gestionable && (
+                    <div className="flex items-center gap-2 shrink-0">
+                        <button
+                            type="button"
+                            onClick={() => onToggleAdmin(!esAdmin)}
+                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition ${
+                                esAdmin
+                                    ? "bg-neutral-light text-secondary hover:bg-slate-200"
+                                    : "bg-primary-50 text-primary hover:bg-primary-100"
+                            }`}
+                            title={esAdmin ? "Quitar admin" : "Hacer admin"}
+                        >
+                            {esAdmin ? (
+                                <>
+                                    <ShieldOff className="w-3.5 h-3.5"/>
+                                    <span className="hidden sm:inline">Quitar admin</span>
+                                </>
+                            ) : (
+                                <>
+                                    <Shield className="w-3.5 h-3.5"/>
+                                    <span className="hidden sm:inline">Hacer admin</span>
+                                </>
+                            )}
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={onExpulsar}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-red-50 text-red-600 text-xs font-bold hover:bg-red-100 transition"
+                            title="Expulsar"
+                        >
+                            <UserX className="w-3.5 h-3.5"/>
+                            <span className="hidden sm:inline">Expulsar</span>
+                        </button>
+                    </div>
+                )}
+            </div>
+        );
+    }
+
     return (
-        <div>
-            <h2>Participantes de {actividad?.titulo}</h2>
-            <ul style={{ listStyle: 'none', padding: 0 }}>
-                {participantes.map((participante) => (
-                    <li key={participante.idUsuario} style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        padding: '10px 0',          // Espacio arriba y abajo de la línea
-                        borderBottom: '1px solid #ccc' // La línea divisoria
-                    }}>
-                        <a href={`/usuario/${participante.idUsuario}`}>{participante.idUsuario}</a>
+        <div className="min-h-screen bg-[#F8F9FB]">
+            <div className="max-w-[900px] mx-auto px-6 py-6">
+                <TopBar/>
 
-                        {/* Botones de gestión (solo si la sesión puede gestionar) */}
-                        {puedeGestionar && pesertaEsGestionable(participante.idUsuario, idSesion as number, actividad) && (
-                            <>
-                                {/* Expulsar */}
-                                <button onClick={() => handleExpulsar(participante.idUsuario)}
-                                        style={{backgroundColor: 'red', color: 'white'}}>Expulsar
-                                </button>
-
-                                {/* Promover a admin / quitar admin (si la actividad tiene admins) */}
-                                {actividad && actividad.admins && actividad.admins.includes(participante.idUsuario) ? (
-                                    <button onClick={() => handleAddAdmin(participante.idUsuario, false)}>Quitar
-                                        admin</button>
-                                ) : (
-                                    <button onClick={() => handleAddAdmin(participante.idUsuario, true)}>Hacer
-                                        admin</button>
-                                )}
-                            </>
+                {/* Volver + Cabecera */}
+                <div className="mt-4 flex items-center gap-4 mb-8">
+                    <button
+                        type="button"
+                        onClick={() => navigate(-1)}
+                        className="w-10 h-10 rounded-full bg-white text-secondary flex items-center justify-center hover:bg-neutral-light transition shadow-sm shrink-0"
+                        aria-label="Volver"
+                    >
+                        <ArrowLeft className="w-5 h-5"/>
+                    </button>
+                    <div>
+                        <h1
+                            className="text-3xl sm:text-4xl font-extrabold text-secondary tracking-tight leading-tight"
+                            style={{fontFamily: "'Manrope', sans-serif"}}
+                        >
+                            Participantes
+                        </h1>
+                        {actividad?.titulo && (
+                            <Link
+                                to={`/actividad/${actividad.idActividad}`}
+                                className="text-sm text-primary font-semibold hover:underline"
+                            >
+                                {actividad.titulo}
+                            </Link>
                         )}
-                    </li>
-                ))}
-            </ul>
-            {/*TODO : Poner que esto solo aparezca si actividad.publica===true y ademas soy admin o creador*/}
-            {puedeGestionar && actividad?.publica===true && (
-                <div>
-            <h2>Participantes privados</h2>
-            <ul style={{ listStyle: 'none', padding: 0 }}>
-                {participantesPrivados.map((participante) => (
-                    <li key={participante.idUsuario} style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        padding: '10px 0',          // Espacio arriba y abajo de la línea
-                        borderBottom: '1px solid #ccc' // La línea divisoria
-                    }}>
-                        <a href={`/usuario/${participante.idUsuario}`}>{participante.idUsuario}</a>
-
-                        {/* Botones de gestión (solo si la sesión puede gestionar) */}
-                        {puedeGestionar && pesertaEsGestionable(participante.idUsuario, idSesion as number, actividad) && (
-                            <>
-                                {/* Expulsar */}
-                                <button onClick={() => handleExpulsar(participante.idUsuario)}
-                                        style={{backgroundColor: 'red', color: 'white'}}>Expulsar
-                                </button>
-
-                                {/* Promover a admin / quitar admin (si la actividad tiene admins) */}
-                                {actividad && actividad.admins && actividad.admins.includes(participante.idUsuario) ? (
-                                    <button onClick={() => handleAddAdmin(participante.idUsuario, false)}>Quitar
-                                        admin</button>
-                                ) : (
-                                    <button onClick={() => handleAddAdmin(participante.idUsuario, true)}>Hacer
-                                        admin</button>
-                                )}
-                            </>
-                        )}
-                    </li>
-                ))}
-            </ul>
+                    </div>
                 </div>
-    )}
 
-            {/* Sección expulsados, solo visible para quien pueda gestionar */}
-            {puedeGestionar && (
-                <div style={{marginTop: '20px'}}>
-                    <h3>Expulsados</h3>
-                    {expulsados.length === 0 ? (
-                        <p>No hay expulsados.</p>
-                    ) : (
-                        <ul>
-                            {expulsados.map(id => (
-                                <li key={id} style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
-                                    <a href={`/perfil/${id}`}>Usuario {id}</a>
-                                    <button onClick={() => handleReadmitir(id)}>Reincorporar</button>
-                                </li>
+                <div className="space-y-6">
+                    {/* ============ PARTICIPANTES (público) ============ */}
+                    <SectionCard
+                        icon={<Users className="w-5 h-5 text-primary"/>}
+                        title="Participantes"
+                        count={participantes.length}
+                        empty="Aún no hay participantes."
+                    >
+                        {participantes.map((p) => (
+                            <ParticipantRow
+                                key={p.idUsuario}
+                                idUsuario={p.idUsuario}
+                                datos={mapUsuarioDatosMinimos[p.idUsuario]}
+                                esAdmin={!!actividad?.admins?.includes(p.idUsuario)}
+                                gestionable={
+                                    puedeGestionar &&
+                                    pesertaEsGestionable(p.idUsuario, idSesion as number, actividad)
+                                }
+                                onExpulsar={() => handleExpulsar(p.idUsuario)}
+                                onToggleAdmin={(makeAdmin) =>
+                                    handleAddAdmin(p.idUsuario, makeAdmin)
+                                }
+                            />
+                        ))}
+                    </SectionCard>
+
+                    {/* ============ PARTICIPANTES PRIVADOS (solo admin) ============ */}
+                    {puedeVerPrivados && actividad?.publica === true && (
+                        <SectionCard
+                            icon={<Lock className="w-5 h-5 text-primary"/>}
+                            title="Participantes privados"
+                            subtitle="Solo visible para administradores y creador"
+                            count={participantesPrivados.length}
+                            empty="No hay participantes privados."
+                        >
+                            {participantesPrivados.map((p) => (
+                                <ParticipantRow
+                                    key={p.idUsuario}
+                                    idUsuario={p.idUsuario}
+                                    datos={mapUsuarioDatosMinimos[p.idUsuario]}
+                                    esAdmin={!!actividad?.admins?.includes(p.idUsuario)}
+                                    gestionable={
+                                        puedeGestionar &&
+                                        pesertaEsGestionable(
+                                            p.idUsuario,
+                                            idSesion as number,
+                                            actividad,
+                                        )
+                                    }
+                                    onExpulsar={() => handleExpulsar(p.idUsuario)}
+                                    onToggleAdmin={(makeAdmin) =>
+                                        handleAddAdmin(p.idUsuario, makeAdmin)
+                                    }
+                                />
                             ))}
-                        </ul>
+                        </SectionCard>
+                    )}
+
+                    {/* ============ EXPULSADOS (solo admin) ============ */}
+                    {puedeVerPrivados && (
+                        <SectionCard
+                            icon={<Ban className="w-5 h-5 text-red-500"/>}
+                            title="Expulsados"
+                            subtitle="Solo visible para administradores y creador"
+                            count={expulsados.length}
+                            empty="No hay usuarios expulsados."
+                        >
+                            {expulsados.map((id) => {
+                                const datos = mapUsuarioDatosMinimos[id];
+                                const gestionable = puedeGestionar && pesertaEsGestionable(id, idSesion as number, actividad);
+
+                                return (
+                                    <div
+                                        key={id}
+                                        className="flex items-center gap-3 py-3 first:pt-0 border-t border-slate-100 first:border-t-0"
+                                    >
+                                        <Link
+                                            to={`/usuario/${id}`}
+                                            className="flex items-center gap-3 flex-1 min-w-0 hover:opacity-80 transition"
+                                        >
+                                            <div className="w-10 h-10 rounded-full bg-neutral overflow-hidden flex items-center justify-center text-white font-bold shrink-0">
+                                                {datos?.imagen ? (
+                                                    <img
+                                                        src={datos.imagen}
+                                                        alt={datos.nombreUsuario}
+                                                        className="w-full h-full object-cover"
+                                                        onError={(e) => ((e.currentTarget as HTMLImageElement).style.display = "none")}
+                                                    />
+                                                ) : (
+                                                    (datos?.nombreUsuario ?? `Usuario #${id}`).charAt(0).toUpperCase()
+                                                )}
+                                            </div>
+                                            <span className="text-sm font-semibold text-secondary truncate">
+          {datos?.nombreUsuario ?? `Usuario #${id}`}
+        </span>
+                                        </Link>
+
+                                        {gestionable && (
+                                            <button
+                                                type="button"
+                                                onClick={() => handleReadmitir(id)}
+                                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-tertiary/15 text-secondary text-xs font-bold hover:bg-tertiary/30 transition"
+                                            >
+                                                <RotateCcw className="w-3.5 h-3.5" />
+                                                Reincorporar
+                                            </button>
+                                        )}
+                                    </div>
+                                );
+                            })}
+
+                        </SectionCard>
                     )}
                 </div>
-            )}
+            </div>
         </div>
     );
 }

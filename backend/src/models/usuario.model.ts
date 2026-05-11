@@ -101,6 +101,18 @@ export const actualizarUsuario = async (idUsuario: number, usuario: Partial<Crea
     return mapearUsuario(result.rows[0]);
 };
 
+//actualizar verificado
+export const actualizarVerificado = async (idUsuario: number, verificado: boolean): Promise<Usuario | null> => {
+    const result = await pool.query("UPDATE usuario SET verificado = $1 WHERE id_usuario = $2 RETURNING *", [verificado, idUsuario]);
+    if (result.rows.length === 0) return null;
+    return mapearUsuario(result.rows[0]);
+};
+//actualizar ultima conexion
+export const actualizarUltimaConexion = async (idUsuario: number): Promise<Usuario | null> => {
+    const result = await pool.query("UPDATE usuario SET ultima_conexion = NOW() WHERE id_usuario = $1 RETURNING *", [idUsuario]);
+    if (result.rows.length === 0) return null;
+    return mapearUsuario(result.rows[0]);
+};
 
 /**
  * Elimina un usuario
@@ -117,3 +129,9 @@ export const eliminarUsuario = async (idUsuario: number): Promise<boolean> => {
 
     //  return result.rowCount > 0;
 };
+
+// busqueda de usuarios por nombreUsuario que contenga la cadena enviada, devuelve un array de idUsuario.
+export const buscarUsuariosPorNombre = async (nombre: string): Promise<{ idUsuario: number| undefined }[]> => {
+    const result = await pool.query("SELECT id_usuario FROM usuario WHERE nombre_usuario ILIKE $1", [`%${nombre}%`]);
+    return result.rows.map(row => ({ idUsuario: row.id_usuario }));
+}

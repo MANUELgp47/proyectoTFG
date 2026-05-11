@@ -1,5 +1,6 @@
 import type {Request, Response} from 'express';
 import * as TagModel from '../models/tag.model.js';
+import {UsuarioService} from "../services/usuario.service.js";
 
 export const getTags = async (req: Request, res: Response) => {
     try {
@@ -56,11 +57,30 @@ export const getTagsByActividad = async (req: Request, res: Response) => {
 };
 
 export const createTag = async (req: Request, res: Response) => {
+
+    //soy admin
+    const idUsuario = req.userId;
+    const rol = await UsuarioService.getRolPorIdUsuario(Number(idUsuario));
+    if (rol !== 'admin') {
+        return res.status(403).json({message: 'No tienes permisos para crear un tag'});
+    }
+
     //No existe un tag igual
     const existeTag = await TagModel.getTagPorNombre(req.body.nombre);
     if (existeTag) {
         return res.status(400).json({message: 'Ya existe un tag con ese nombre'});
     }
+
+    //imagen
+    const nuevoArchivo = (req.file as any) ?? ((req.files as any[])?.[0]) ?? null;
+    const rutaImg = nuevoArchivo?.path ?? "";
+    // console.log("Ruta imagen ", rutaImg);
+    if (rutaImg) {
+        req.body.imagen = rutaImg;
+    } else {
+        req.body.imagen = null;
+    }
+
 
     try {
         const tag = await TagModel.crearTag(req.body);

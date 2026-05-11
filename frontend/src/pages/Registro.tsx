@@ -2,7 +2,7 @@
 // Archivo: `frontend/src/pages/Registro.tsx`
 import { useState, useEffect } from 'react';
 import { register } from '../api/auth.api';
-import {Navigate} from "react-router-dom";
+import { useNavigate} from "react-router-dom";
 import { Link } from "react-router-dom";
 import { Camera, Pencil, ArrowRight, CheckCircle2 } from "lucide-react";
 
@@ -27,12 +27,11 @@ const Register = () => {
     const [form, setForm] = useState({
         nombreUsuario: '',
         nombre: '',
-        apellido: '',
+        apellidos: '',
         email: '',
         contrasena: '',
         fechaNac: '',
         sexo: false,
-        fotoPerfil: '',
         biografia: '',
         ubicacion: '',
         imagen: '',
@@ -41,7 +40,7 @@ const Register = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
-
+    const navigate = useNavigate();
     const [fotoFile, setFotoFile] = useState<File | null>(null);
     const [preview, setPreview] = useState<string | null>(null);
 
@@ -65,12 +64,68 @@ const Register = () => {
         };
     }, [preview]);
 
+    const validateForm = (form: {
+        fechaNac: string;
+    }): string | null => {
+        const { fechaNac } = form;
+        if (!fechaNac) return null;
+        const dob = new Date(fechaNac);
+        const now = new Date();
+        if (dob > now) return 'La fecha de nacimiento no puede ser futura.';
+        let age = now.getFullYear() - dob.getFullYear();
+        const m = now.getMonth() - dob.getMonth();
+        if (m < 0 || (m === 0 && now.getDate() < dob.getDate())) age--;
+        if (age < 18) return 'Debes ser mayor de 18 años.';
+        return null;
+    };
+
+    /*
+    const checkUsernameExists = async (nombreUsuario: string): Promise<boolean> => {
+        if (!nombreUsuario?.trim()) return false;
+        try {
+            const usuarios = await buscarUsuariosNombre(nombreUsuario);
+
+            //si la lista tiene algun resultado
+            if (usuarios.length > 0) {
+                //recorre la lista comparando el usuarios.nombreUsuario con el nombreUsuario del form
+                for (const usuario of usuarios) {
+                    if (usuario.nombreUsuario === nombreUsuario) {
+                        return true; // Si encuentra un match exacto, devuelve true
+                    }
+                }
+            }
+                return false; // Si no hay resultados, el nombre de usuario no existe
+
+
+
+        } catch (err) {
+            console.error('Error comprobando usuario:', err);
+            return false;
+        }
+    };*/
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
         setSuccess('');
         setLoading(true);
+
+        //comprobar que la fecha de nacimiento no es futura y que el usuario es mayor de 18 años
+        const validationError = validateForm(form);
+        if (validationError) {
+            setError(validationError);
+            setLoading(false);
+            return;
+        }
+
+        //Comprobar si existe un usario con el mismo nombre de usuario
+      /*  const usernameExists = await checkUsernameExists(form.nombreUsuario);
+        if (usernameExists) {
+            setError('El nombre de usuario ya está en uso. Por favor elige otro.');
+            setLoading(false);
+            return;
+        }*/
+
 
         try {
             if (fotoFile) {
@@ -86,10 +141,16 @@ const Register = () => {
             }
 
             setSuccess('Usuario creado correctamente');
-            <Navigate to="/" />
-        } catch (err) {
+            navigate("/login");
+
+        } catch (err:any) {
             console.error(err);
-            setError('Error al crear usuario');
+
+            const mensajeError = err.response?.data?.message || "Error al registrar";
+
+            console.log("MENSAJE DEL BACK:", mensajeError);
+            alert(mensajeError);
+
         } finally {
             setLoading(false);
         }
@@ -267,12 +328,12 @@ const Register = () => {
                                     className="form-underline-input"
                                 />
                             </Field>
-                            <Field label="Apellido">
+                            <Field label="Apellidos">
                                 <input
                                     type="text"
-                                    name="apellido"
-                                    placeholder="Apellido"
-                                    value={form.apellido}
+                                    name="apellidos"
+                                    placeholder="Apellidos"
+                                    value={form.apellidos}
                                     onChange={handleChange}
                                     required
                                     className="form-underline-input"

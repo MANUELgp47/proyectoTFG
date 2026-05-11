@@ -34,10 +34,12 @@ export const eliminarTagActividad = async (idActividad: number, idTag: number): 
 
 //ADMINISTRADOR
 //crea un nuevo tag
-export const crearTag = async (tag: { nombre: string }): Promise<Tag> => {
-    const response = await api.post("/tag/", tag);
+export const crearTag = async (data: FormData) => {
+    const response = await api.post("/tag/", data);
     return response.data;
 };
+
+
 
 /*
 *

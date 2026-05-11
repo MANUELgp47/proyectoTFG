@@ -20,4 +20,10 @@ router.get('/loHeBloqueado/:idUsuario', authMiddleware, SettingsController.getlo
 //me ha bloqueado?
 router.get('/meHaBloqueado/:idUsuario', authMiddleware, SettingsController.getmeHaBloqueado);
 
+//verificar correo solicitud (Este es el que envia el correo con el codigo de verificacion)
+router.post('/verificarCorreo', authMiddleware, SettingsController.verificarCorreo);
+
+//recibe codigo de verificacion y lo verifica
+router.post('/verificarCorreoCodigo/:codigo', authMiddleware, SettingsController.verificarCorreoCodig);
+
 export default router;

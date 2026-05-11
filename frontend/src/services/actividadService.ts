@@ -20,6 +20,7 @@ export const getActividadPorId = async (id: number) => {
     return response.data;
 };
 
+//obtener las actividades creadas por un usuario
 export const getActividadesPorUsuario = async (id: number) => {
     const response = await api.get(`/actividad/usuario/${id}`);
     return response.data;

@@ -6,14 +6,14 @@ const Register = () => {
     const [form, setForm] = useState({
         nombreUsuario: '',
         nombre: '',
-        apellido: '',
+        apellidos: '',
         email: '',
         contrasena: '',
         fechaNac: '',
         sexo: false,
-        fotoPerfil: '',
         biografia: '',
         ubicacion: '',
+        imagen: '',
     });
 
     const [loading, setLoading] = useState(false);

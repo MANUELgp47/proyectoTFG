@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getMySettings, updateSettings } from "../services/settingsService";
+import { getMySettings, updateSettings, solicitarCodigoVerificacion } from "../services/settingsService";
 import { getUsuario } from "../services/usuarioService";
 import { getTags } from "../services/tagService";
 import type { Usuario, Settings, Tag} from "../types.ts";
@@ -112,6 +112,23 @@ export default function VistaSettings() {
         }
     };
 
+    const handleSolicitarCodigoVerificacion = async () => {
+        try {
+            // Aquí llamarías a la función que solicita el código de verificación
+            const response = await solicitarCodigoVerificacion();
+            if (response.success) {
+
+                window.location.href = "settings/VerificaCodigo";
+
+            } else {
+                alert("Error al solicitar el código de verificación.");
+            }
+        } catch (err) {
+            console.error("Error solicitando código de verificación:", err);
+            alert("Error al solicitar el código de verificación.");
+        }
+    };
+
     if (loading) return <div>Cargando...</div>;
     if (error) return <div>{error}</div>;
 
@@ -211,15 +228,28 @@ export default function VistaSettings() {
                                 Estado
                             </div>
                             <div className="mt-1 flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                                <span className={`w-2 h-2 rounded-full ${usuario?.verificado ? "bg-emerald-500" : "bg-red-500"}`} />
                                 <span className="text-base font-bold text-secondary">
-                Verificado
-              </span>
+    {usuario?.verificado ? "Verificado" : "No verificado"}
+  </span>
                             </div>
                         </div>
 
-                        <div className="ml-auto w-12 h-12 rounded-full bg-primary-50 flex items-center justify-center">
-                            <Fingerprint className="w-6 h-6 text-primary" />
+                        <div className="ml-auto flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-full bg-primary-50 flex items-center justify-center">
+                                <Fingerprint className="w-6 h-6 text-primary" />
+                            </div>
+
+                            {!usuario?.verificado && (
+                                <button
+                                    type="button"
+                                    onClick={handleSolicitarCodigoVerificacion}
+                                    className="px-3 py-2 rounded-full bg-primary text-white text-sm font-semibold hover:bg-primary-600 transition"
+                                >
+                                    Solicitar código
+                                </button>
+                            )}
+
                         </div>
                     </div>
                 </section>

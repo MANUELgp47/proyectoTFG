@@ -7,6 +7,8 @@ export interface Usuario {
     ubicacion?: string;
     biografia?: string;
     fechaRegistro: string;
+    verificado: boolean;
+    ultimaConexion?: string;
     imagen?: string;
 }
 
@@ -33,6 +35,18 @@ export interface Mensaje {
     leido: boolean;
 }
 
+export interface UsuarioMinimo {
+    idUsuario: number;
+    nombreUsuario: string;
+    imagen?: string[] | string;
+}
+
+export interface ActividadMinima {
+    idActividad: number;
+    titulo: string;
+    imagen?: string;
+}
+
 export interface ChatIndividual {
 
     idChatIndividual: number;
@@ -46,6 +60,7 @@ export interface ChatIndividual {
 export interface Tag {
     idTag: number;
     nombre: string;
+    imagen?: string;
 }
 
 export interface ChatActividad {

@@ -18,12 +18,12 @@ export const login = async (token: LoginRequest): Promise<LoginResponse> => {
 interface RegisterRequest {
     nombreUsuario: string;
     nombre: string;
-    apellido: string;
+    apellidos: string;
     email: string;
     contrasena: string;
     fechaNac: string;
     sexo: boolean;//opcional
-    fotoPerfil: string; //opcional
+
     biografia: string;//opcional
     ubicacion: string;//opcional
     imagen: string;

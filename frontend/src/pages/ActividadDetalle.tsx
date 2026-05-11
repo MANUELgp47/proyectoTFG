@@ -55,6 +55,7 @@ export function ActividadDetalle() {
     const [isAdminActividad, setIsAdminActividad] = useState(false);
     const [usuarioMinimo, setUsuarioMinimo] = useState<any>(null);
     const [tags, setTags] = useState<string[]>([]);
+    const [imagenTag, setImagenTag] = useState<string>("");
 
 
     useEffect(() => {
@@ -120,6 +121,7 @@ export function ActividadDetalle() {
             if (actividad) {
                 try {
                     const tags = await getTagsActividad(actividad.idActividad);
+                    setImagenTag(tags[0]?.imagen ?? ""); // Si el primer tag tiene imagen, la usamos; si no, dejamos vacío
                     setTags(tags.map((tag: Tag) => tag.nombre));
                 } catch (error) {
                     console.error("Error al cargar tags de la actividad:", error);
@@ -217,7 +219,7 @@ export function ActividadDetalle() {
 
                 {/* ============ HERO ============ */}
                 <div className="relative w-full aspect-[16/7] rounded-3xl overflow-hidden bg-black shadow-lg">
-                    {heroImg && (
+                    {heroImg ? (
                         <img
                             src={heroImg[0]}
                             alt={actividad.titulo}
@@ -226,7 +228,16 @@ export function ActividadDetalle() {
                                 ((e.currentTarget as HTMLImageElement).style.display = "none")
                             }
                         />
-                    )}
+                    ):(
+                        <img
+                            src={imagenTag}
+                            alt={actividad.titulo}
+                            className="absolute inset-0 w-full h-full object-cover"
+                            onError={(e) =>
+                                ((e.currentTarget as HTMLImageElement).style.display = "none")
+                            }
+                        />
+                        )}
                     {/* Gradiente para legibilidad del título */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent"/>
 

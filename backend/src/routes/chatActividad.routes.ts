@@ -12,6 +12,9 @@ router.get('/', ChatActividadController.getChatsActividad);
 //Obtiene el chat de actividad por id de actividad
 router.get('/actividad/:idActividad', authMiddleware, ChatActividadController.getChatPorActividad);
 
+//obtener el chatActividad por su id de chatActividad
+router.get('/id/:idChatActividad', authMiddleware, ChatActividadController.getChatActividadPorId);
+
 //obtener todos mis chats de actividad
 router.get('/chats/mios', authMiddleware, ChatActividadController.getMisChatsActividad);
 

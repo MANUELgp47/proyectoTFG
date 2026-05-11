@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { login as loginApi } from '../api/auth.api';
 import { useAuth } from "../context/AuthContext";
-import {Link, Navigate} from 'react-router-dom';
+import {Link,  useNavigate} from 'react-router-dom';
 import { ArrowRight, CheckCircle2, Mail, Lock } from "lucide-react";
 
 const Login = () => {
@@ -9,7 +9,7 @@ const Login = () => {
     const [contrasena, setContrasena] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-
+    const navigate = useNavigate();
     const { login } = useAuth();
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -43,7 +43,7 @@ const Login = () => {
             setError('Credenciales incorrectas');
         } finally {
             setLoading(false);
-            <Navigate to="/"/>
+            navigate("/");
         }
     };
 

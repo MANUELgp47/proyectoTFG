@@ -21,6 +21,7 @@ export const mapearUsuario = (row: any): Usuario => {
         ultimaConexion: row.ultima_conexion,
         imagen: row.imagen,
         rol: row.rol,
+        verificado: row.verificado,
         ubicacion: row.ubicacion,
     };
 };
@@ -167,5 +168,14 @@ export const mapearTag = (row: any) => {
     return {
         idTag: row.id_tag,
         nombre: row.nombre,
+        imagen: row.imagen,
     };
 };
+//codigo_verificacion
+export const mapearCodigoVerificacion = (row: any) => {
+    return {
+        idUsuario: row.id_usuario,
+        codigo: row.codigo,
+        fechaCodigo: row.fecha_codigo,
+    };
+}

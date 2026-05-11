@@ -1,7 +1,7 @@
 
 import api from "../api/axios";
 
-
+//devuelve las amistades de un usuario
 export const getAmistades = async (idUsuario: number): Promise<any> => {
     const response = await api.get(`amistad/usuario/${idUsuario}`);
     return response.data;

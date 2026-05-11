@@ -1,3 +1,4 @@
+// TypeScript
 import {useEffect, useState} from "react";
 import {getActividadesFiltro} from "../services/actividadService";
 import {useAuth} from "../context/AuthContext";
@@ -37,7 +38,7 @@ import {
     DropdownMenuTrigger
 } from "../components/ui/dropdown-menu";
 import {Checkbox} from "../components/ui/checkbox";
-import {getMisChatsActividad, getMisChatsIndividual, } from "../services/chatService.ts";
+import {getMisChatsActividad, getMisChatsIndividual,} from "../services/chatService.ts";
 
 
 export default function Home() {
@@ -58,6 +59,13 @@ export default function Home() {
 
     }>>({});
 
+    const [misdatosMinimos, setMisDatosMinimos] = useState<{
+        idUsuario: number;
+        nombreUsuario: string;
+        imagen: string | undefined;
+
+    } | null>(null);
+
     const [usuariosMinimosActividad, setUsuariosMinimosActividad] = useState<Record<number, {
         idUsuario: number;
         nombreUsuario: string;
@@ -66,7 +74,7 @@ export default function Home() {
     }>>({});
 
     //vuelvo a obtener las actividades por ser mas sencillo
-    const [actividadesMinimas, setActividadesMinimas] =  useState<Record<number, {
+    const [actividadesMinimas, setActividadesMinimas] = useState<Record<number, {
         idActividad: number;
         titulo: string
     }>>({});
@@ -78,7 +86,8 @@ export default function Home() {
         participantesmax: "",
         publica: false,
         fecha: "",
-        tags: [] as string[]
+        tags: [] as string[],
+        soloActivas: true
     });
 
 
@@ -91,6 +100,14 @@ export default function Home() {
                 setActividades(data);
                 const tags = await getTags();
                 setTagsDisponibles(tags.map((t: any) => t.nombre));
+
+                //carga al usuario minimo
+                if (isAuthenticated && idUsuario != null) {
+                    const datosMinimos = await getDatosMinimosUsuario(Number(idUsuario));
+                    setMisDatosMinimos(datosMinimos);
+                }
+
+
             } catch (error) {
                 console.error(error);
             }
@@ -112,7 +129,7 @@ export default function Home() {
             if (filtros.tags.length > 0) {
                 params.append("tags", filtros.tags.join(","));
             }
-
+            if (filtros.soloActivas) params.append("estado", "activa");
 
             const response = await getActividadesFiltro(params.toString())
 
@@ -191,7 +208,7 @@ export default function Home() {
                     Array.from(ids).map(async (id) => {
                         try {
                             const mensaje = await getMensajePorId(id);
-                            return mensaje && mensaje.contenido ? { id, contenido: mensaje.contenido } : null;
+                            return mensaje && mensaje.contenido ? {id, contenido: mensaje.contenido} : null;
                         } catch (e) {
                             console.error('Error al obtener mensaje', id, e);
                             return null;
@@ -223,7 +240,11 @@ export default function Home() {
         let cancelled = false;
 
         const fetchUsuariosMinimos = async () => {
-            const usuariosMap: Record<number, { idUsuario: number; nombreUsuario: string ; imagen: string| undefined  }> = {};
+            const usuariosMap: Record<number, {
+                idUsuario: number;
+                nombreUsuario: string;
+                imagen: string | undefined
+            }> = {};
             const cachePorUsuario: Record<number, { idUsuario: number; nombreUsuario: string } | null> = {};
 
             try {
@@ -245,7 +266,11 @@ export default function Home() {
 
                         // guardar por idChatIndividual para usar en la UI
                         if (cachePorUsuario[idOtroUsuario]) {
-                            usuariosMap[chat.idChatIndividual] = cachePorUsuario[idOtroUsuario] as { idUsuario: number; nombreUsuario: string ; imagen : string| undefined};
+                            usuariosMap[chat.idChatIndividual] = cachePorUsuario[idOtroUsuario] as {
+                                idUsuario: number;
+                                nombreUsuario: string;
+                                imagen: string | undefined
+                            };
                         }
                     })
                 );
@@ -274,7 +299,10 @@ export default function Home() {
                 if (!actividadesMap[chat.idActividad]) {
                     const datosBasicos = await getDatosMinimosActividadPorId(chat.idActividad);
                     if (datosBasicos) {
-                        actividadesMap[chat.idChatActividad] = { idActividad: chat.idActividad, titulo: datosBasicos.titulo };
+                        actividadesMap[chat.idChatActividad] = {
+                            idActividad: chat.idActividad,
+                            titulo: datosBasicos.titulo
+                        };
                     }
                 }
             }
@@ -290,7 +318,11 @@ export default function Home() {
     //hace un map ordenado por id de los usuario(datos minimos)
     useEffect(() => {
         const fetchUsuariosMinimosActividades = async () => {
-            const usuariosMap: Record<number, { idUsuario: number; nombreUsuario: string; imagen : string| undefined }> = {};
+            const usuariosMap: Record<number, {
+                idUsuario: number;
+                nombreUsuario: string;
+                imagen: string | undefined
+            }> = {};
 
             for (const actividad of actividades) {
                 if (actividad.idCreador) {
@@ -425,6 +457,16 @@ export default function Home() {
                                     Solo públicas
                                 </label>
 
+                                <label className="flex items-center gap-2 text-sm text-secondary cursor-pointer">
+                                    <Checkbox
+                                        checked={filtros.soloActivas}
+                                        onCheckedChange={(v) =>
+                                            setFiltros({...filtros, soloActivas: v === true})
+                                        }
+                                    />
+                                    Mostrar solo activas
+                                </label>
+
                                 {tagsDisponibles.length > 0 && (
                                     <div>
                                         <div
@@ -493,10 +535,19 @@ export default function Home() {
                             <DropdownMenuTrigger asChild>
                                 <button
                                     type="button"
-                                    className="w-11 h-11 rounded-full bg-primary flex items-center justify-center text-white hover:bg-primary-600 transition"
+                                    className="w-11 h-11 rounded-full bg-primary flex items-center justify-center text-white hover:bg-primary-600 transition overflow-hidden"
                                     aria-label="Usuario"
+                                    style={
+                                        misdatosMinimos?.imagen
+                                            ? {
+                                                backgroundImage: `url(${misdatosMinimos.imagen})`,
+                                                backgroundSize: "cover",
+                                                backgroundPosition: "center",
+                                            }
+                                            : undefined
+                                    }
                                 >
-                                    <User className="w-5 h-5"/>
+                                    {!misdatosMinimos?.imagen && <User className="w-5 h-5" />}
                                 </button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent
@@ -553,7 +604,7 @@ export default function Home() {
                             const creadorNombre: string =
                                 usuariosMinimosActividad[act.idCreador]?.nombreUsuario ?? "Nombre creador";
                             const creadorFoto: string | null = usuariosMinimosActividad[act.idCreador]?.imagen ?? null;
-                            const fecha: string = act.fechaInicio ?? "12 Jun • 19:00";
+                            const fecha = new Date(act.fechaInicio).toLocaleDateString() ?? "No determinada";
                             const ubicacion: string = act.ubicacion ?? "Ubicación de ejemplo";
                             const participantes: number = participaciones[act?.idActividad] ?? 3;
                             const participantesMax: number = act.participantesmax ?? 10;
@@ -565,7 +616,7 @@ export default function Home() {
                                     className="group rounded-3xl bg-white shadow-[0_2px_20px_rgba(15,23,42,0.06)] p-4 flex flex-col transition hover:shadow-[0_12px_30px_rgba(15,23,42,0.10)] hover:-translate-y-0.5 no-underline"
                                 >
                                     {/* Imagen con fallback negro */}
-                                    <div className="relative w-full aspect-[4/3] rounded-2xl bg-black overflow-hidden">
+                                    <div className="relative w-full aspect-[5/3] rounded-2xl bg-black overflow-hidden">
                                         {imagenUrl && (
                                             <img
                                                 src={imagenUrl}
@@ -660,7 +711,7 @@ export default function Home() {
                                         Chat Individual ID: {chat.idChatIndividual}
                                     </h3>
                                     <h2>
-                                        Usuario: {usuariosMinimos[chat.idChatIndividual]?.nombreUsuario }
+                                        Usuario: {usuariosMinimos[chat.idChatIndividual]?.nombreUsuario}
                                     </h2>
                                     <p className="text-sm text-neutral">
                                         Último mensaje: {ultimosMensajes[Number(chat.ultimoMensaje)] ?? 'Sin mensajes'}
@@ -672,13 +723,12 @@ export default function Home() {
                             <p className="text-sm text-neutral">No tienes chats individuales.</p>
                         )}
                     </div>
-                   
 
 
-                        <h2 className="text-2xl font-bold text-secondary mt-16 mb-6">Mis Chats de Actividad </h2>
-                        <div className="space-y-4">
-                            {chatsActividad.map((chat) => (
-                                <Link to={`/ChatActividad/${chat.idChatActividad}`}>
+                    <h2 className="text-2xl font-bold text-secondary mt-16 mb-6">Mis Chats de Actividad </h2>
+                    <div className="space-y-4">
+                        {chatsActividad.map((chat) => (
+                            <Link to={`/ChatActividad/${chat.idChatActividad}`}>
                                 <div key={chat.idChatActividad} className="p-4 bg-white rounded-lg shadow">
                                     <h3 className="text-lg font-semibold text-secondary">Chat Actividad
                                         ID: {chat.idChatActividad}</h3>
@@ -686,12 +736,13 @@ export default function Home() {
                                     <h2>Actividad {actividadesMinimas[chat.idChatActividad]?.titulo}</h2>
                                     <p className="text-sm text-neutral">Último mensaje
                                         : {ultimosMensajes[chat.ultimoMensaje] ?? 'Sin mensajes'}</p>
-                                </div> </Link>
-                            ))}
-                            {chatsActividad.length === 0 && (
-                                <p className="text-sm text-neutral">No tienes chats de actividad.</p>
-                            )}
-                        </div>
+                                </div>
+                            </Link>
+                        ))}
+                        {chatsActividad.length === 0 && (
+                            <p className="text-sm text-neutral">No tienes chats de actividad.</p>
+                        )}
+                    </div>
 
 
                 </section>

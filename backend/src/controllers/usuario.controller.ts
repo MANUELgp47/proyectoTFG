@@ -4,6 +4,13 @@ import * as UsuarioService from '../services/usuario.service.js';
 import * as SettingsModel from '../models/settings.model.js';
 import {getSettings} from "../models/settings.model.js";
 
+const extractErrorMessage = (err: unknown): string => {
+    if (err instanceof Error) return err.message;
+    if (err && typeof err === 'object' && 'message' in err && typeof (err as any).message === 'string') {
+        return (err as any).message;
+    }
+    return 'Error del servidor';
+};
 
 export const getUsuarios = async (req: Request, res: Response) => {//async para manejar operaciones asincrónicas y await para esperar la respuesta de la base de datos
     try {
@@ -97,9 +104,6 @@ export const getUsuarioID = async (req: Request, res: Response) => {
 
 export const createUsuario = async (req: Request, res: Response) => {
     try {
-
-
-
         //imagen sola
         const nuevoArchivo = (req.file as any) ?? ((req.files as any[])?.[0]) ?? null;
         const rutaImg = nuevoArchivo?.path ?? "";
@@ -117,9 +121,34 @@ export const createUsuario = async (req: Request, res: Response) => {
         console.error('Error al crear usuario:', error);
         //muestra el body del error en la consola del servidor
         console.log(req.body)
+        const msg = extractErrorMessage(error);
+        res.status(400).json({ message: msg });
+    }
+};
+
+//actualizar ultima conexion del usuario
+export const actualizarUltimaConexion = async (req: Request, res: Response) => {
+    try {
+        const idUsuario = req.userId;
+        if (!idUsuario) {
+            return res.status(400).json({message: 'ID requerido'});
+        }
+
+        const usuarioActualizado = await UsuarioModel.actualizarUltimaConexion(idUsuario);
+        if (usuarioActualizado) {
+            res.json({message: 'Última conexión actualizada'});
+        } else {
+            res.status(404).json({message: 'Usuario no encontrado'});
+        }
+    }
+    catch (error) {
+        console.error('Error al actualizar última conexión:', error);
         res.status(500).json({message: 'Error del servidor'});
     }
 };
+
+
+
 
 
 //actualizar usuario
@@ -191,3 +220,30 @@ export const deleteUsuario = async (req: Request, res: Response) => {
         res.status(500).json({message: 'Error del servidor'});
     }
 };
+
+//busca todos los usuarios con la cadena de caracteres que se le pasó
+export const buscarUsuariosNombre = async (req: Request, res: Response) => {
+    try {
+
+        //soy un usuario existente
+        const idUsuario = req.userId;
+        const usuarioExistente = await UsuarioService.UsuarioService.obtenerUsuarioPorId(Number(idUsuario));
+        if (!usuarioExistente)
+        {
+            return res.status(404).json({message: 'Usuario no encontrado'});
+        }
+
+        const nombre = req.query.nombre as string;
+        if (!nombre) {
+            return res.status(400).json({message: 'Nombre requerido'});
+        }
+
+        const usuarios = await UsuarioService.UsuarioService.buscarUsuariosPorNombre(nombre);
+        res.json(usuarios);
+
+    }
+    catch (error) {
+        console.error('Error al buscar usuarios por nombre:', error);
+        res.status(500).json({message: 'Error del servidor'});
+    }
+}

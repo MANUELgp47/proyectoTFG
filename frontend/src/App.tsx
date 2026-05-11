@@ -22,6 +22,8 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import VistaRecuerdo from "./pages/VistaRecuerdo.tsx";
 import {VistaParticipantes} from "./pages/VistaParticipantes.tsx";
+import VistaVerificaCodigo from "./pages/VistaVerificaCodigo.tsx";
+import BuscarUsuario from "./pages/BuscarUsuario.tsx";
 
 //import Registro from "./pages/Registro";
 
@@ -106,6 +108,14 @@ export default function App() {
                 <Route
                     path="/participantes/:idActividad/"
                     element={<VistaParticipantes/>}
+                />
+                <Route
+                    path="/settings/VerificaCodigo/"
+                    element={<VistaVerificaCodigo/>}
+                />
+                <Route
+                    path="/usuario/buscar/"
+                    element={<BuscarUsuario/>}
                 />
 
                 {/*Admin*/}

@@ -38,7 +38,16 @@ export const existeChatEntreUsuarios = async (req: Request, res: Response) => {
 
 
 export const getChatIndividualPorId = async (req: Request, res: Response) => {
-    const idChatIndividual = Number(req.params.id);
+    const idChatIndividual = Number(req.params.idChatIndividual);
+    //comprueba que soy uno de los dos usuarios del chat individual
+    const chatIndividual = await ChatIndividualModel.getChatIndividualPorId(idChatIndividual);
+    if (!chatIndividual) {
+        return res.status(404).json({ message: 'Chat individual no encontrado' });
+    }
+    const idUsuario = req.userId;
+    if (chatIndividual.idUsuario1 !== idUsuario && chatIndividual.idUsuario2 !== idUsuario) {
+        return res.status(403).json({ message: 'No tienes permiso para ver este chat individual' });
+    }
 
     try {
         const chatIndividual = await ChatIndividualModel.getChatIndividualPorId(idChatIndividual);

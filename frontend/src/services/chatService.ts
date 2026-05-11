@@ -44,7 +44,19 @@ export const getMisChatsIndividual = async (): Promise<ChatIndividual[]> => {
     return response.data;
 }
 
+//obtener chat individual por id de chat individual
+export const getChatIndividualPorId = async (idChatIndividual: number): Promise<ChatIndividual | false> => {
+    try {
+        const response = await api.get(`chatIndividual/id/${idChatIndividual}`);
+        return response.data;
+    } catch (error: any) {
 
+        if (error.response && error.response.status === 404) {
+            return false; // No se encontró el chat individual
+        }
+        throw error; // Relanzar otros errores
+    }
+}
 
 
 ////ACTIVIDAD
@@ -64,6 +76,13 @@ export const getChatActividad = async (idActividad: number): Promise<ChatActivid
     }
 }
 
+//obtener el chatActividad por su id de chatActividad
+export const getChatActividadPorIdChat = async (idChatActividad: number): Promise<ChatActividad | boolean> => {
+
+    const response = await api.get(`chatActividad/id/${idChatActividad}`);
+    return response.data;
+
+}
 //obtener todos mis chats de actividad
 export const getMisChatsActividad = async (): Promise<ChatActividad[]> => {
     const response = await api.get(`chatActividad/chats/mios`);

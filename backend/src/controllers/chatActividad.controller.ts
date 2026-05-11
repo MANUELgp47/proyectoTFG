@@ -30,6 +30,34 @@ export const getChatPorActividad = async (req: Request, res: Response) => {
     }
 };
 
+//obtener chatActividad por su id de chatActividad
+export const getChatActividadPorId = async (req: Request, res: Response) => {
+    const idChatActividad = Number(req.params.idChatActividad);
+    const idUsuario = Number(req.userId);
+
+    // Validar que idChatActividad y idUsuario es un número válido
+    if (isNaN(idChatActividad) || isNaN(idUsuario)) {
+        return res.status(400).json({message: 'ID de chat de actividad o usuario inválido'});
+    }
+
+    try {
+        //pertenezco a la actividad de ese chat
+        const idActividad = await getIdActividadPorIdChatActividad(idChatActividad);
+        const estaEnActividad = await ActividadService.ActividadService.esUsuarioParticipante(idActividad!, idUsuario);
+        if (!estaEnActividad) {
+            return res.status(403).json({message: 'No tienes permiso para acceder al chat de esta actividad'});
+        }
+
+        const chat = await ChatActividadModel.getChatActividadPorId(idChatActividad);
+        res.json(chat);
+
+    } catch (error) {
+        console.error('Error al obtener chat de actividad por id:', error);
+        res.status(500).json({message: 'Error del servidor'});
+    }
+}
+
+
 //obtiene todos los chats de actividad
 export const getChatsActividad = async (req: Request, res: Response) => {
     try {

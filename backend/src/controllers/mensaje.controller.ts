@@ -28,7 +28,6 @@ export const getMensajePorId = async (req: Request, res: Response) => {
     //
 
 
-
     try {
         const mensaje = await MensajedModel.getMensajePorId(idMensaje);
         if (!mensaje) {
@@ -176,16 +175,22 @@ export const createMensaje = async (req: Request, res: Response) => {
         }
 
 
-        //
-        const usuariosChat =  await ServicioChatIndividual.ChatIndividualService.getUsuariosPorIdChatIndividual(req.body.idChatIndividual);
+        //es chat individual? Compruebo que no hay bloqueo entre los usuarios
+        if (req.body.idChatIndividual) {
+            const usuariosChat = await ServicioChatIndividual.ChatIndividualService.getUsuariosPorIdChatIndividual(req.body.idChatIndividual);
 
-
-        //permiso? Compruebo (en caso de ser chat individual) que no hay bloqueo por ninguno de los usuarios
-        const bloqueo = await SettingsService.SettingsService.hayBloqueoEntreUsuarios( usuariosChat!.idUsuario1, usuariosChat!.idUsuario2);
-        if (bloqueo) {
-            return res.status(403).json({message: 'No puedes enviar mensajes en este chat porque hay un bloqueo entre los usuarios'});
+            //permiso? Compruebo (en caso de ser chat individual) que no hay bloqueo por ninguno de los usuarios
+            const bloqueo = await SettingsService.SettingsService.hayBloqueoEntreUsuarios(usuariosChat!.idUsuario1, usuariosChat!.idUsuario2);
+            if (bloqueo) {
+                return res.status(403).json({message: 'No puedes enviar mensajes en este chat porque hay un bloqueo entre los usuarios'});
+            }
+        }else{
+            //existe el chat de actividad?
+            const chatActividad = await chatActividadMoodell.getChatActividadPorId(req.body.idChatActividad);
+            if (!chatActividad) {
+                return res.status(404).json({message: 'Chat de actividad no encontrado'});
+            }
         }
-
 
         req.body.idEmisor = idEmisor;
         const mensaje = await MensajedModel.crearMensaje(req.body);

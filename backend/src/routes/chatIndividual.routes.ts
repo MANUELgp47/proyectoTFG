@@ -17,6 +17,8 @@ router.get('/chats/mios', authMiddleware, ChatIndividualController.getMisChatsIn
 //existe chat entre dos usuarios
 router.get('/existe/:idUsuario1', authMiddleware, ChatIndividualController.existeChatEntreUsuarios);
 
+// Obtener un chat individual por id de chat individual
+router.get('/id/:idChatIndividual', authMiddleware, ChatIndividualController.getChatIndividualPorId);
 
 //crear un chat individual ht
 router.post('/:idReceptor',authMiddleware, ChatIndividualController.createChatIndividual);

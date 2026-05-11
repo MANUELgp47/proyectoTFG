@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { crearTag, getTags, eliminarTag } from '../../services/tagService';
-import { useAuth } from '../../context/AuthContext';
-import type { Tag } from '../../types';
+import React, {useState, useEffect, useRef} from 'react';
+import {crearTag, getTags, eliminarTag} from '../../services/tagService';
+import {useAuth} from '../../context/AuthContext';
+import type {Tag} from '../../types';
 
 export default function CrearTag() {
     const [nombre, setNombre] = useState("");
@@ -73,14 +73,15 @@ export default function CrearTag() {
 
         try {
             // Si hay imagen usamos FormData para enviar multipart
+            const fd = new FormData();
+            fd.append('nombre', nombre);
+
             if (imagenFile) {
-                const fd = new FormData();
-                fd.append('nombre', nombre);
+
                 fd.append('imagen', imagenFile); // nombre campo: 'imagen' (ajustar backend si hace falta)
-                await crearTag(fd);
-            } else {
-                await crearTag({ nombre });
+
             }
+            await crearTag(fd);
 
             setSuccess("Tag creado exitosamente");
             setNombre("");
@@ -134,7 +135,7 @@ export default function CrearTag() {
                             ref={fileInputRef}
                             type="file"
                             accept="image/*"
-                            style={{ display: 'none' }}
+                            style={{display: 'none'}}
                             onChange={handleFileChange}
                         />
                         <button type="button" className="btn btn-secondary me-2" onClick={handleAddImageClick}>
@@ -149,7 +150,7 @@ export default function CrearTag() {
 
                     {previewUrl && (
                         <div className="mb-3">
-                            <img src={previewUrl} alt="preview" style={{ maxWidth: 200, maxHeight: 200 }} />
+                            <img src={previewUrl} alt="preview" style={{maxWidth: 200, maxHeight: 200}}/>
                         </div>
                     )}
 
@@ -157,7 +158,7 @@ export default function CrearTag() {
                 </form>
             )}
 
-            <hr />
+            <hr/>
 
             <h3>Tags existentes</h3>
             {tags.length === 0 && !loading && <p>No hay tags.</p>}
@@ -165,7 +166,8 @@ export default function CrearTag() {
                 {tags.map(tag => (
                     <li key={tag.idTag} style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
                         <span>{tag.nombre}</span>
-                        <button className="btn btn-sm btn-danger" onClick={() => handleEliminar(tag.idTag)}>Eliminar</button>
+                        <button className="btn btn-sm btn-danger" onClick={() => handleEliminar(tag.idTag)}>Eliminar
+                        </button>
                     </li>
                 ))}
             </ul>

@@ -2,7 +2,9 @@ import type {Settings, CreaSettings} from "../types/settings.js";
 import type {Request, Response} from 'express';
 import * as SettingsModel from "../models/settings.model.js";
 import {UsuarioService} from "../services/usuario.service.js";
-
+import * as EmailService from "../services/emailService.js";
+import type {Usuario} from "../types/usuario.js";
+import * as CodigoVerificacionModel from "../models/codigoVerificacion.model.js";
 
 
 export const getMySettings = async (req: Request, res: Response) => {
@@ -125,7 +127,7 @@ export const getloHeBloqueado = async (req: Request, res: Response) => {
         }
         const loHeBloqueado = settings.usuariosBloqueados?.includes(idUsuario) || false;
         res.json(loHeBloqueado);
-    }catch (error) {
+    } catch (error) {
         console.error("Error fetching settings:", error);
     }
 }
@@ -152,7 +154,78 @@ export const getmeHaBloqueado = async (req: Request, res: Response) => {
         }
         const meHaBloqueado = settings.usuariosBloqueados?.includes(Number(req.userId)) || false;
         res.json(meHaBloqueado);
-    }catch (error) {
+    } catch (error) {
         console.error("Error fetching settings:", error);
+    }
+}
+
+//verificar correo solicitud (Este es el que envia el correo con el codigo de verificacion)
+export const verificarCorreo = async (req: Request, res: Response) => {
+    //este endpoint se encarga de enviar el correo con el codigo de verificacion
+    //recibe el email por body
+
+    //get user
+    const user = await UsuarioService.obtenerUsuarioPorId(Number(req.userId));
+
+    if (!user?.email) {
+        return res.status(404).json({message: "User not found"});
+    }
+
+
+    const email = user.email;
+
+
+    try {
+        //generar codigo de verificacion
+        const codigo = Math.floor(100000 + Math.random() * 900000).toString(); //codigo de 6 digitos
+
+        //enviar correo con el codigo de verificacion
+        const resultado = await EmailService.enviarCodigoVerificacion(email, codigo);
+        if (!resultado.success) {
+            return res.status(500).json({message: "Error sending verification email", error: resultado.error});
+        }
+
+        //guardar el codigo de verificacion en la base de datos con una expiracion de 10 minutos
+        await CodigoVerificacionModel.setCodigo(Number(req.userId), codigo);
+
+
+        res.json({success:true,message: "Verification email sent successfully"});
+    } catch (error) {
+        console.error("Error sending verification email:", error);
+        res.status(500).json({message: "Error sending verification email", error});
+    }
+}
+
+//recibe codigo de verificacion y lo verifica
+export const verificarCorreoCodig = async (req: Request, res: Response) => {
+    try {
+        //console.log("Verificando correo");
+        const codigo = req.params.codigo;
+        //obtiene el codigo de verificacion de la base de datos y lo compara
+        const codigoVerificacion = await CodigoVerificacionModel.getCodigoVerificacion(Number(req.userId));
+        if (!codigoVerificacion) {
+            return res.status(404).json({message: "Verification code not found"});
+        }
+        if (codigoVerificacion.codigo !== codigo) {
+            return res.status(400).json({message: "Invalid verification code"});
+        }
+
+        //obtener la fecha actual y la del codigo de verificacion, si han pasado mas de 10 minutos, el codigo es invalido
+        const fechaActual = new Date();
+        const fechaCodigo = new Date(codigoVerificacion.fecha_codigo);
+        const diferenciaMinutos = (fechaActual.getTime() - fechaCodigo.getTime()) / 1000 / 60;
+        if (diferenciaMinutos > 10) {
+            return res.status(400).json({message: "Verification code expired"});
+        }
+
+        //si tod0 lo demás está correcto se verifica
+        await UsuarioService.verificarUsuario(Number(req.userId));
+
+        res.json({success:true, message: "Email verified successfully"});
+
+
+    } catch (error) {
+        console.error("Error verifying code:", error);
+        res.status(500).json({message: "Error verifying code", error});
     }
 }

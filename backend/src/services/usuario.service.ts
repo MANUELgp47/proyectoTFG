@@ -2,6 +2,7 @@ import type {CrearUsuario} from '../types/usuario.js';
 import * as UsuarioModel from '../models/usuario.model.js';
 import bcrypt from 'bcrypt';
 import * as SettingsModel from '../models/settings.model.js';
+import {actualizarVerificado} from "../models/usuario.model.js";
 
 export class UsuarioService {
 
@@ -38,7 +39,7 @@ export class UsuarioService {
             return nuevoUsuario;
 
         } catch (error) {
-            throw new Error('Error al crear el usuario');
+            throw error;
         }
 
 
@@ -66,6 +67,17 @@ export class UsuarioService {
         };
     }
 
+
+    //verifica al usuario
+    static async verificarUsuario(idUsuario: number): Promise<CrearUsuario | null> {
+        const usuario = await UsuarioModel.getUsuarioPorId(idUsuario);
+        if (!usuario) {
+            return null;
+        }
+        usuario.verificado = true;
+        await UsuarioModel.actualizarVerificado(usuario.idUsuario, true);
+        return usuario;
+    }
 
 
     //obtiene usuario por email
@@ -117,5 +129,11 @@ export class UsuarioService {
             return { idUsuario: usuario.idUsuario, nombreUsuario: usuario.nombreUsuario, imagen: usuario.imagen };
         }
         return null;
+    }
+
+    //busqueda de usuarios por nombreUsuario que contenga la cadena enviada, devuelve un array de idUsuario
+    static async buscarUsuariosPorNombre(nombre: string): Promise<{ idUsuario: number | undefined }[]> {
+        const usuarios = await UsuarioModel.buscarUsuariosPorNombre(nombre);
+        return usuarios.map((usuario) => ({ idUsuario: usuario.idUsuario }));
     }
 }

@@ -54,3 +54,15 @@ export const getmeHaBloqueado = async (idUsuario: number) => {
     const response = await api.get(`/settings/meHaBloqueado/${idUsuario}`);
     return response.data;
 }
+
+//solicita codigo de verificacion al backend, el backend se encarga de enviarlo al correo del usuario
+export const solicitarCodigoVerificacion = async () => {
+    const response = await api.post("/settings/verificarCorreo");
+    return response.data;
+}
+
+//enviar codigo de verificacion al backend
+export const enviarCodigoVerificacion = async (codigo: string) => {
+    const response = await api.post(`/settings/verificarCorreoCodigo/${codigo}`);
+    return response.data;
+}

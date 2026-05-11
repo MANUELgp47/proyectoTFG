@@ -27,4 +27,16 @@ export const getDatosMinimosUsuario = async (idUsuario: number): Promise<any> =>
     return response.data;
 };
 
+//obtiene la lista de usuariosMinimos con el nombreUsuario igual que la cadena enviada.
+export const buscarUsuariosNombre = async (nombre: string): Promise<any> => {
+    const response = await api.get(`/usuario/buscar?nombre=${encodeURIComponent(nombre)}`);
+    return response.data;
+};
+
+//actualiza ultima conexion del usuario
+export const actualizarUltimaConexion = async (): Promise<any> => {
+    const response = await api.put(`/usuario/ultimaConexion`);
+    return response.data;
+};
+
 

@@ -137,7 +137,7 @@ export default function VistaRecuerdo() {
                 const mapa: Record<number, {
                     idUsuario: number;
                     nombreUsuario: string;
-                    imagenPerfil?: string | null;
+                    imagen?: string | null;
                 }> = {};
                 await Promise.all(comentarios.map(async (comentario) => {
                     if (!mapa[comentario.idUsuario]) {
@@ -145,7 +145,7 @@ export default function VistaRecuerdo() {
                         mapa[comentario.idUsuario] = {
                             idUsuario: comentario.idUsuario,
                             nombreUsuario: usuarioData.nombreUsuario,
-                            imagenPerfil: usuarioData.imagen
+                            imagen: usuarioData.imagen
                         };
                     }
                 }));
@@ -520,9 +520,9 @@ export default function VistaRecuerdo() {
                                     className="flex items-start gap-3"
                                 >
                                     <div className="w-9 h-9 rounded-full bg-secondary overflow-hidden flex items-center justify-center text-white text-xs font-bold shrink-0">
-                                        {mapaUsuarioMinimo[c.idUsuario]?.imagenPerfil ? (
+                                        {mapaUsuarioMinimo[c.idUsuario]?.imagen ? (
                                             <img
-                                                src={mapaUsuarioMinimo[c.idUsuario]!.imagenPerfil!}
+                                                src={mapaUsuarioMinimo[c.idUsuario]!.imagen!}
                                                 alt={mapaUsuarioMinimo[c.idUsuario]?.nombreUsuario ?? `Usuario ${c.idUsuario}`}
                                                 className="w-full h-full object-cover"
                                                 onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}

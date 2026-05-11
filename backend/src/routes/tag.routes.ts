@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import * as TagController from '../controllers/tag.controller.js';
 import {getTagsByActividad} from "../controllers/tag.controller.js";
+import {upload} from "../cloudinaryConfig.js";
+import {authMiddleware} from "../middleware/auth.middleware.js";
 
 const router = Router();
 
@@ -11,7 +13,7 @@ router.get('/',TagController.getTags);
 router.get('/actividad/:idActividad',TagController.getTagsByActividad);
 
 //Crear un nuevo tag
-router.post('/',TagController.createTag);
+router.post('/',authMiddleware , upload.array('imagen'), TagController.createTag);
 
 //Eliminar un tag por id
 router.delete('/:idTag',TagController.deleteTag);

@@ -1,18 +1,23 @@
 //muestra los mensajes entre dos usuarios, con un input para enviar nuevos mensajes
-import {useCallback, useEffect,  useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {getMensajesIndividual, crearMensajeChat, marcarMensajeComoLeidoIndividual} from "../services/mensajeService";
+import {getUsuario, actualizarUltimaConexion} from "../services/usuarioService";
 import {useParams, Navigate, Link} from "react-router-dom";
 import type {Mensaje} from '../types';
-import { useAuth } from "../context/AuthContext";
-import { Send, ArrowLeft, Check, CheckCheck } from "lucide-react";
+import {useAuth} from "../context/AuthContext";
+import {Send, ArrowLeft, Check, CheckCheck} from "lucide-react";
 import TopBar from "../components/ui/TopBar.tsx";
+import type {Usuario} from "../types";
+import {getChatIndividualPorId} from "@/services/chatService.ts";
 
 export default function VistaChatIndividual() {
     const {idChatIndividual} = useParams<{ idChatIndividual: string }>();
     const [mensajes, setMensajes] = useState<Mensaje[] | null>(null);
     const [contenidoNuevoMensaje, setContenidoNuevoMensaje] = useState("");
+    const [usuariReceptor, setUsuarioReceptor] = useState<Usuario | null>(null);
+    const [ultimaConexionActualizada, setUltimaConexionActualizada] = useState(false);
 
-    const { loading, idUsuario, isAuthenticated } = useAuth();
+    const {loading, idUsuario, isAuthenticated} = useAuth();
     const idSesion = idUsuario;
 
     // Si estamos inicializando el provider esperar
@@ -22,7 +27,7 @@ export default function VistaChatIndividual() {
 
     // Si no esta autenticado, redirigir a login (o mostrar mensaje de no autorizado)
     if (!isAuthenticated) {
-        return <Navigate to="/login" replace />;
+        return <Navigate to="/login" replace/>;
     }
 
     // Si esta autenticado pero ayn no podemos obtener idUsuario, esperar (posible token inválido)
@@ -30,7 +35,7 @@ export default function VistaChatIndividual() {
         return <div>Cargando sesión...</div>;
     }
 
-    const marcarLeidos = useCallback(async (data: Mensaje[]| null) => {
+    const marcarLeidos = useCallback(async (data: Mensaje[] | null) => {
         if (!data) return;
         for (const mensaje of data) {
             // validar que idMensaje y idEmisor sean números válidos
@@ -43,6 +48,8 @@ export default function VistaChatIndividual() {
     }, [idSesion]);
 
     useEffect(() => {
+        //TODO Actualizar ultima conexión
+        const fetchData = async () => {
         let mounted = true;
         let isFetching = false;
         const cargarMensajes = async () => {
@@ -59,6 +66,20 @@ export default function VistaChatIndividual() {
                 isFetching = false;
             }
         };
+        //todo marcar ultima conexión
+            if (!ultimaConexionActualizada) {
+                await actualizarUltimaConexion();
+                setUltimaConexionActualizada(true);
+            }
+
+
+        //cargar usuario receptor (para mostrar su nombre, foto en la cabecera y ultima conexión)
+        const chatData = await getChatIndividualPorId(Number(idChatIndividual));
+        if (chatData) {
+            const idUsuarioReceptor = chatData.idUsuario1 === idSesion ? chatData.idUsuario2 : chatData.idUsuario1;
+            const usuarioReceptorData = await getUsuario(idUsuarioReceptor);
+            setUsuarioReceptor(usuarioReceptorData);
+        }
 
         // carga inicial
         void cargarMensajes();
@@ -71,7 +92,8 @@ export default function VistaChatIndividual() {
         return () => {
             mounted = false;
             clearInterval(interval);
-        };
+        };};
+        fetchData();
     }, [idChatIndividual, isAuthenticated, idSesion]);
 
     // Efecto que marca como leídos una vez que tenemos mensajes y el id de sesión
@@ -86,8 +108,6 @@ export default function VistaChatIndividual() {
     }
 
 
-
-    //TODO ver por que no actualiza la lista de mensajes después de enviar uno nuevo, aunque si se guarda en la base de datos
     const handleEnviarMensaje = async (contenido: string) => {
         await crearMensajeChat({
             idChatIndividual: Number(idChatIndividual),
@@ -101,29 +121,37 @@ export default function VistaChatIndividual() {
     };
 
 
-/*
-*
-*     const mensajesEndRef = useRef<HTMLDivElement>(null);
-    useEffect(() => {
-        mensajesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [mensajes]);
+    /*
+    *
+    *     const mensajesEndRef = useRef<HTMLDivElement>(null);
+        useEffect(() => {
+            mensajesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        }, [mensajes]);
 
-// Placeholder del usuario con el que hablas
+    // Placeholder del usuario con el que hablas
 
-    };
-* */
+        };
+    * */
 
 
     const otroUsuario = {
-        idUsuario:  0,
-        nombreUsuario:  "Usuario",
-        foto:  null,
-        online:  false,};
+        idUsuario: usuariReceptor?.idUsuario,
+        nombreUsuario: usuariReceptor?.nombreUsuario,
+        foto: usuariReceptor?.imagen,
+        //Si la ultima conexión es menor a 5 minutos, guardamos en linea, sino guardamos la fecha de la ultima conexión
+        online: (() => {
+            const ultima = usuariReceptor?.ultimaConexion;
+            if (!ultima) return false;
+            const ts = Date.parse(ultima);
+            if (Number.isNaN(ts)) return false;
+            return Date.now() - ts < 5 * 60 * 1000 ? true : new Date(ts).toLocaleDateString();
+        })(),
+    };
 
     return (
         <div className="min-h-screen bg-[#F8F9FB]">
             <div className="max-w-[900px] mx-auto px-4 sm:px-6 py-6 flex flex-col h-screen">
-                <TopBar />
+                <TopBar/>
 
                 {/* ============ CONTENEDOR DEL CHAT ============ */}
                 <div className="flex-1 min-h-0 bg-white rounded-3xl shadow-sm flex flex-col overflow-hidden">
@@ -135,7 +163,7 @@ export default function VistaChatIndividual() {
                             className="sm:hidden w-9 h-9 rounded-full flex items-center justify-center text-neutral hover:bg-neutral-light transition"
                             aria-label="Volver"
                         >
-                            <ArrowLeft className="w-5 h-5" />
+                            <ArrowLeft className="w-5 h-5"/>
                         </Link>
 
                         {/* Avatar + nombre → perfil */}
@@ -143,32 +171,34 @@ export default function VistaChatIndividual() {
                             to={`/usuario/${otroUsuario.idUsuario}`}
                             className="flex items-center gap-3 flex-1 min-w-0 hover:opacity-80 transition"
                         >
-                            <div className="relative w-11 h-11 rounded-full bg-secondary overflow-hidden flex items-center justify-center text-white font-semibold shrink-0">
+                            <div
+                                className="relative w-11 h-11 rounded-full bg-secondary overflow-hidden flex items-center justify-center text-white font-semibold shrink-0">
                                 {otroUsuario.foto ? (
                                     <img
                                         src={otroUsuario.foto}
-                                        alt={otroUsuario.nombreUsuario}
+                                        alt={otroUsuario.nombreUsuario ?? ''}
                                         className="w-full h-full object-cover"
                                         onError={(e) =>
                                             ((e.currentTarget as HTMLImageElement).style.display = "none")
                                         }
                                     />
                                 ) : (
-                                    otroUsuario.nombreUsuario.charAt(0).toUpperCase()
+                                    (otroUsuario.nombreUsuario ?? '?').charAt(0).toUpperCase()
                                 )}
                                 {otroUsuario.online && (
-                                    <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-tertiary ring-2 ring-white" />
+                                    <span
+                                        className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-tertiary ring-2 ring-white"/>
                                 )}
                             </div>
                             <div className="min-w-0">
                                 <div
                                     className="font-extrabold text-secondary truncate"
-                                    style={{ fontFamily: "'Manrope', sans-serif" }}
+                                    style={{fontFamily: "'Manrope', sans-serif"}}
                                 >
                                     {otroUsuario.nombreUsuario}
                                 </div>
                                 <div className="text-xs text-neutral">
-                                    {otroUsuario.online ? "En línea" : "Desconectado"}
+                                    {otroUsuario.online }
                                 </div>
                             </div>
                         </Link>
@@ -227,9 +257,9 @@ export default function VistaChatIndividual() {
                                                 {/* Indicador de leído (sólo en mis mensajes) */}
                                                 {esMio &&
                                                     (mensaje.leido ? (
-                                                        <CheckCheck className="w-3.5 h-3.5 text-tertiary" />
+                                                        <CheckCheck className="w-3.5 h-3.5 text-tertiary"/>
                                                     ) : (
-                                                        <Check className="w-3.5 h-3.5" />
+                                                        <Check className="w-3.5 h-3.5"/>
                                                     ))}
                                             </div>
                                         </div>
@@ -263,7 +293,7 @@ export default function VistaChatIndividual() {
                             className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary-600 transition disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 shrink-0"
                             aria-label="Enviar"
                         >
-                            <Send className="w-5 h-5" />
+                            <Send className="w-5 h-5"/>
                         </button>
                     </form>
                 </div>

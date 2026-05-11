@@ -166,12 +166,16 @@ export default function PerfilUsuario() {
         if (!amistad) return;
         eliminarAmistad(usuario.idUsuario);
         alert("Amistad eliminada");
+        //refrescar la página para actualizar el estado de amistad
+            window.location.reload();
         return;
     }
     const handleEnviarSolicitudAmistad = () => {
         console.log("solicitud" + solicitud)
         CrearSolicitud(usuario.idUsuario);
         alert("Solicitud de amistad enviada");
+        //refrescar la página para actualizar el estado de solicitud
+        window.location.reload();
         return;
     }
     const handleChatear = async () => {

@@ -7,7 +7,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
+    connectionString:"postgresql://postgres.trwpfsgjpujzceznbnyl:MiPassDB_tfg@aws-0-eu-west-1.pooler.supabase.com:6543/postgres?pgbouncer=true",
     ssl: {
         rejectUnauthorized: false,
     },

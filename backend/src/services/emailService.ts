@@ -7,7 +7,8 @@ if (process.env.NODE_ENV !== 'production') {
     dotenv.config({ path: '../ini.env' });
 }
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+//const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend("re_65kgNMB9_NgkpeaoLLP6AFEJkWcf4m9bW");
 
 export const enviarCodigoVerificacion = async (emailDestino: string, codigo: string) => {
     try {

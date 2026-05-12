@@ -9,8 +9,8 @@
 import axios from 'axios';
 
 const api = axios.create({
-    //baseURL: 'https://proyectotfg-production-22de.up.railway.app/api',
-    baseURL: 'http://localhost:3000/api',
+    baseURL: 'https://proyectotfg-production-22de.up.railway.app/api',
+   // baseURL: 'http://localhost:3000/api',
 });
 
 // Interceptor: añade el token a cada request

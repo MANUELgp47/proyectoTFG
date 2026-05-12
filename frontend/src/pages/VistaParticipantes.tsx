@@ -340,7 +340,7 @@ export function VistaParticipantes() {
     /* ---------- Fila de participante ---------- */
     interface ParticipantRowProps {
         idUsuario: number;
-        datos?: { idUsuario: number; nombreUsuario: string; imagen?: string | null };
+        datos?: UsuarioMinimo;
         esAdmin: boolean;
         gestionable: boolean;
         onExpulsar: () => void;
@@ -367,7 +367,13 @@ export function VistaParticipantes() {
                             className="w-10 h-10 rounded-full bg-secondary overflow-hidden flex items-center justify-center text-white text-sm font-bold">
                             {datos?.imagen ? (
                                 <img
-                                    src={datos.imagen}
+                                    src={
+                                        typeof datos?.imagen === "string"
+                                            ? datos.imagen
+                                            : Array.isArray(datos?.imagen)
+                                                ? datos.imagen[0]
+                                                : undefined
+                                    }
                                     alt={datos.nombreUsuario}
                                     className="w-full h-full object-cover"
                                     onError={(e) =>
@@ -557,7 +563,13 @@ export function VistaParticipantes() {
                                             <div className="w-10 h-10 rounded-full bg-neutral overflow-hidden flex items-center justify-center text-white font-bold shrink-0">
                                                 {datos?.imagen ? (
                                                     <img
-                                                        src={datos.imagen}
+                                                        src={
+                                                            typeof datos?.imagen === "string"
+                                                                ? datos.imagen
+                                                                : Array.isArray(datos?.imagen)
+                                                                    ? datos.imagen[0]
+                                                                    : undefined
+                                                        }
                                                         alt={datos.nombreUsuario}
                                                         className="w-full h-full object-cover"
                                                         onError={(e) => ((e.currentTarget as HTMLImageElement).style.display = "none")}

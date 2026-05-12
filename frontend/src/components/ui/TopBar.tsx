@@ -110,7 +110,7 @@ export default function TopBar({ children }: TopBarProps) {
                             </DropdownMenuItem>
                         )}
                         <DropdownMenuItem asChild>
-                            <Link to="/misActividades">Mis actividades</Link>
+                            <Link to={`/usuario/${idUsuario}/actividadesCreadas`}>Mis actividades</Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
                             <Link to="/actividad/crear">Crear actividad</Link>

@@ -9,6 +9,7 @@ import * as ChatActividadModel from '../models/chatActividad.model.js';
 import * as ActividadService from '../services/actividad.service.js';
 import {UsuarioService} from "../services/usuario.service.js";
 import {AmistadService} from "../services/amistad.service.js";
+import {cancelarActividad} from "../models/actividad.model.js";
 
 
 /*
@@ -108,7 +109,7 @@ export const getActividadPorId = async (req: Request, res: Response) => {
 
 
 //get actividades por id de usuario (las actividades que ha creado un usuario)
-export const getActividadesPorUsuario = async (req: Request, res: Response) => {
+export const getActividadesCreadasPorUsuario = async (req: Request, res: Response) => {
     try {
 
         //tengo permiso
@@ -146,10 +147,7 @@ export const getActividadesPorUsuario = async (req: Request, res: Response) => {
         }
 
 
-
-
-
-        const actividades = await ActividadService.ActividadService.getActividadesDeUsuario(Number(idUsuario));
+        const actividades = await ActividadService.ActividadService.getActividadesCreadasPorUsuario(Number(idUsuario));
         res.json(actividades);
     } catch (error) {
         console.error('Error al obtener actividades por usuario:', error);
@@ -237,6 +235,24 @@ export const createActividad = async (req: Request, res: Response) => {
 
 };
 
+const CancelarActividad = async (idActividad: number) => {
+    try {
+        const estadoActividad = await ActividadService.ActividadService.getEstadoActividad(idActividad);
+        if (estadoActividad !== 'activa') {
+            return {success: false, message: 'No se puede cancelar una actividad que no está activa'};
+        }
+
+        const cancelada = await ActividadModel.cancelarActividad(idActividad);
+        if (cancelada) {
+            return {success: true, message: 'Actividad cancelada correctamente'};
+        } else {
+            return {success: false, message: 'Actividad no encontrada o no cancelada'};
+        }
+    } catch (error) {
+        console.error('Error al cancelar Actividad:', error);
+    }
+}
+
 //actualizar actividad
 //establecer campos no actualizables
 export const updateActividad = async (req: Request, res: Response) => {
@@ -272,6 +288,24 @@ export const updateActividad = async (req: Request, res: Response) => {
             return res.status(400).json({message: 'No se puede actualizar una actividad finalizada'});
         }
 
+        //si el req.body.estado= cancelada, solo el creador o un admin pueden cancelar la actividad. y si es de estado activa
+        if (req.body.estado === 'cancelada') {
+            if (!esCreador && !esAdminActividad) {
+                return res.status(400).json({message: 'No eres el creador de la actividad'});
+            }
+            if (estadoActividad !== 'activa') {
+                return res.status(400).json({message: 'No se puede cancelar una actividad que no está activa'});
+            }
+
+            const resultadoCancelacion = await CancelarActividad(idActividad);
+
+            res.json(resultadoCancelacion);
+
+            //termina la ejecución de la función para que no intente actualizar la actividad después de cancelarla
+            return;
+        }
+
+
         //Cloudinary
         // 1. Casteamos a 'any' o al tipo específico de Cloudinary para evitar errores de TS
         const nuevosArchivos = (req.files as any[]) || [];
@@ -281,16 +315,22 @@ export const updateActividad = async (req: Request, res: Response) => {
 
         //const todasLasImagenes = [...rutaImg];
 
-       //todasLasImagenes;
+        //todasLasImagenes;
 
         const actividadVieja = await ActividadService.ActividadService.getActividadPorId(idActividad);
         //let imagenesViejas ;
-       //si la actividad vieja tiene imagenes las añadimos a todasLasImagenes
+        //si la actividad vieja tiene imagenes las añadimos a todasLasImagenes
 
         //si rutaImg tiene una imagen, entonces la actualizamos, si no mantenemos la que ya estaba en la actividad vieja
         let nuevasRutas: string[] = [];
         console.log("rutaImg:", rutaImg, "actividadVieja.imagenes:", actividadVieja?.imagenes);
-        if (rutaImg.length > 0) {
+        console.log("imagen body ", req.body)
+        console.log("estado body ", req.body.estado)
+
+        //si body.imagenes "eliminar" lo que hay que hacer es eliminar la ruta de la imagen que ya existia
+        if (req.body.imagenes === "eliminar") {
+            nuevasRutas = [];
+        } else if (rutaImg.length > 0) {
             nuevasRutas = rutaImg;
         } else if (actividadVieja && actividadVieja.imagenes) {
             nuevasRutas = actividadVieja.imagenes;
@@ -340,6 +380,26 @@ export const updateActividad = async (req: Request, res: Response) => {
 
 };
 
+//numero de actividades creadas por un usuario
+export const getNumeroActividadesCreadas = async (req: Request, res: Response) => {
+    try {
+        const idParam = req.params.id;
+        if (!idParam) {
+            return res.status(400).json({message: 'ID de usuario requerido'});
+        }
+        const idUsuario = Number.parseInt(idParam, 10);
+        if (Number.isNaN(idUsuario)) {
+            return res.status(400).json({message: 'ID de usuario inválido'});
+        }
+
+        const numero = await ActividadService.ActividadService.getNumeroActividadesCreadas(idUsuario);
+        res.json({numero});
+    } catch (error) {
+        console.error('Error al obtener número de actividades creadas por usuario:', error);
+        res.status(500).json({message: 'Error del servidor'});
+    }
+}
+
 
 //finalizar actividad cons actividad.job.ts
 export const finalizarActividad = async (req: Request, res: Response) => {
@@ -374,8 +434,6 @@ export const finalizarActividad = async (req: Request, res: Response) => {
             return res.status(400).json({menssage: 'No eres el creador de la actividad'});
         }
 
-
-        //todo: Se puede seguir usando el chat?
         const finalizada = await ActividadJob.finalizarActividadesCaducadas([idActividad]);
         if (finalizada) {
             res.json({message: 'Actividad finalizada correctamente'});
@@ -396,7 +454,7 @@ export const deleteActividad = async (req: Request, res: Response) => {
     let actividad_eliminar;
     let eliminado;
 
-    console.log("Valor de req.userId en deleteActividad:", req.userId);
+    console.log("Valor de req.userId en deleteActividad:", req.userId, "y req.params.id:", req.params.id);
 
     try {
         if (req.params.id !== undefined) {//parte para notificación
@@ -413,16 +471,18 @@ export const deleteActividad = async (req: Request, res: Response) => {
         if (!idParam) {// si no hay id en los parametros
             return res.status(400).json({message: 'ID requerido'});
         }
-        const idActividad = Number.parseInt(idParam, 10);//10 para indicar que es base decimal
+        //comprueba que existe la actividad
+        const idActividad = Number(idParam);
         if (Number.isNaN(idActividad)) {
             return res.status(400).json({message: 'ID inválido'});
         }
 
+
         //si la actividad está finalizada no se puede eliminar TODO ver si es necesario
-        const estadoActividad = await ActividadService.ActividadService.getEstadoActividad(idActividad);
+        /*const estadoActividad = await ActividadService.ActividadService.getEstadoActividad(idActividad);
         if (estadoActividad === 'finalizada') {
             return res.status(400).json({message: 'No se puede eliminar una actividad finalizada'});
-        }
+        }*/
 
         //si no es la sesión del creador no puede eliminar la actividad
         const esCreador: boolean = await ActividadService.ActividadService.esCreadorActividad(idActividad, req.userId!);

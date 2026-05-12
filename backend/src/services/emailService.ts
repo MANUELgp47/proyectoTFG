@@ -1,7 +1,11 @@
 import { Resend } from 'resend';
 import dotenv from 'dotenv';
 
-dotenv.config({ path: '../ini.env' });
+
+// Solo busca el archivo si NO estás en Railway (entorno local)
+if (process.env.NODE_ENV !== 'production') {
+    dotenv.config({ path: '../ini.env' });
+}
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -9,8 +13,8 @@ export const enviarCodigoVerificacion = async (emailDestino: string, codigo: str
     try {
         const { data, error } = await resend.emails.send({
             from: 'onboarding@resend.dev', // Dominio de prueba gratuito
-            to: emailDestino,             // Recuerda: en modo prueba, solo funciona con TU email
-            subject: 'Tu código de verificación - TFG',
+            to: emailDestino,
+            subject: 'Tu código de verificación ',
             html: `
         <div style="font-family: sans-serif; text-align: center;">
           <h1>¡Bienvenido a la plataforma!</h1>

@@ -9,7 +9,7 @@ import {enviarCodigoVerificacion} from "../services/settingsService.ts"
 
 export default function VistaVerificaCodigo() {
 
-    const [error, setError] = useState<string | null>(null);
+
     const navigate = useNavigate();
     const {idUsuario: idUsuarioSesion} = useAuth();
     const [codigo, setCodigo] = useState<string>("");
@@ -19,9 +19,6 @@ export default function VistaVerificaCodigo() {
 
     }, [idUsuarioSesion]);
 
-    if (error) {
-        return <div>{error}</div>;
-    }
 
     const handleEnviarCodigo = async (codigo: string) => {
         try {

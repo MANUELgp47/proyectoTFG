@@ -24,7 +24,6 @@ export default function VistaChatActividad() {
     const {idChatActividad} = useParams<{ idChatActividad: string }>();
     const [contenidoNuevoMensaje, setContenidoNuevoMensaje] = useState("");
     const [mapUsuariosMinimos, setMapUsuariosMinimos] = useState<{ [idUsuario: number]: UsuarioMinimo }>({});
-    const [ultimoEscritor, setUltimoEscritor] = useState<number | null>(null);//para saber quien escribio el ultimo mensaje
     const [actividad, setActividad] = useState<ActividadMinima | null>(null);
 
 
@@ -144,11 +143,6 @@ export default function VistaChatActividad() {
         cargarActividad();
     }, [idChatActividad]);
 
-    const actualizaUltimioEscritor = (id: number | null) => {
-        setUltimoEscritor(id);
-    };
-
-
     const handleEnviarMensaje = async (contenido: string) => {
         await crearMensajeChat({
             idChatActividad: Number(idChatActividad),
@@ -258,7 +252,13 @@ export default function VistaChatActividad() {
                                                     >
                                                         {usuario?.imagen ? (
                                                             <img
-                                                                src={usuario.imagen}
+                                                                src={
+                                                                    typeof usuario?.imagen === "string"
+                                                                        ? usuario.imagen
+                                                                        : Array.isArray(usuario?.imagen)
+                                                                            ? usuario.imagen[0]
+                                                                            : undefined
+                                                                }
                                                                 alt={usuario.nombreUsuario || "Usuario"}
                                                                 className="w-full h-full object-cover"
                                                                 onError={(e) =>

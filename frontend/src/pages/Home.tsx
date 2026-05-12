@@ -6,7 +6,8 @@ import {Link} from "react-router-dom";
 import {getActividades, getDatosMinimosActividadPorId} from "../services/actividadService.ts";
 import {getDatosMinimosUsuario} from "../services/usuarioService.ts";
 import {getTags} from "../services/tagService.ts";
-//import type {Actividad} from "../types.ts";
+/*import {getMySettings} from "../services/settingsService.ts";
+import type {Settings} from "../types.ts";*/
 import '../index.css';
 
 import {getNumeroParticipantes} from "../services/participacionService.ts";
@@ -16,6 +17,14 @@ import {getMensajePorId} from "../services/mensajeService.ts";
 //import { Popover, PopoverContent, PopoverTrigger } from "../components/ui/popover";
 //importar index.css para estilos globales
 
+import {MessageCircle} from "lucide-react"; // añádelo a tu línea de lucide-react
+import {
+    Sheet,
+    SheetContent,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
+} from "../components/ui/sheet"
 
 import {
     Search,
@@ -49,6 +58,8 @@ export default function Home() {
     const [chatsIndividuales, setChatsIndividuales] = useState<any[]>([]);
     const [ultimosMensajes, setUltimosMensajes] = useState<{ [key: number]: string }>({});
     const [participaciones, setParticipaciones] = useState<Record<number, number>>({}); // Mapa de idActividad a número de participantes
+    //const [misIdTags, setMisIdTags] = useState<number[]>([]); // IDs de los tags que tengo en settigs
+
     //datos minimos de actividad para mostrar en la home: id y nombre
     // const [actividadesMinimas, setActividadesMinimas] = useState<{ id: number; titulo: string }[]>([]);
     //datos minimos de usuario: id, nombre
@@ -170,17 +181,34 @@ export default function Home() {
                     console.error("Error al cargar los chats:", error);
                 }
             }
-            console.log("chats actividad", chatsActividad);
-            console.log("chats individuales", chatsIndividuales);
+
 
 
         }
         fetchChats()
     }, []);
 
+
+    //obtener los tags(preferencias) del usuario para mostrarlos en el filtro de tags
+   /* useEffect(() => {
+        const fetchSettings = async () => {
+            if (isAuthenticated) {
+                try {
+                    const settings: Settings = await getMySettings();
+                    const idTags = settings.preferencias || [];
+                    setMisIdTags(idTags);
+                    // Si quieres mostrar los nombres de los tags en lugar de los IDs, puedes hacer una llamada adicional para obtener los nombres de los tags aquí.
+                } catch (error) {
+                    console.error("Error al cargar la configuración del usuario:", error);
+                }
+            }
+        };
+
+        fetchSettings();
+    }, [isAuthenticated]);
+*/
+
     //obtiene los messajes de un chat individual o de un chat de actividad y los mapea por su id para tenerlos todos en un mismo vector y usarlos así: ultimosMensajes[chatsIndividuales.ultimoMensaje] o ultimosMensajes[chatsActividad.ultimoMensaje]
-
-
     useEffect(() => {
         let cancelled = false;
 
@@ -505,6 +533,141 @@ export default function Home() {
                         </PopoverContent>
                     </Popover>
 
+                    {/* Chats (drawer) */}
+                    {isAuthenticated && (
+                        <Sheet>
+                            <SheetTrigger asChild>
+                                <button
+                                    type="button"
+                                    className="relative w-11 h-11 rounded-full bg-white flex items-center justify-center text-neutral hover:text-secondary transition shadow-[0_1px_2px_rgba(15,23,42,0.04)]"
+                                    aria-label="Mis chats"
+                                >
+                                    <MessageCircle className="w-5 h-5"/>
+                                    {(chatsIndividuales.length > 0 || chatsActividad.length > 0) && (
+                                        <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-primary"/>
+                                    )}
+                                </button>
+                            </SheetTrigger>
+
+                            <SheetContent
+                                side="right"
+                                className="w-[90vw] sm:w-[420px] bg-[#F8F9FB] border-l border-slate-200 overflow-y-auto p-6"
+                            >
+                                <SheetHeader className="mb-4">
+                                    <SheetTitle
+                                        className="text-2xl font-extrabold text-secondary"
+                                        style={{fontFamily: "'Manrope', sans-serif"}}
+                                    >
+                                        Mis chats
+                                    </SheetTitle>
+                                </SheetHeader>
+
+                                {/* Chats individuales */}
+                                {chatsIndividuales.length > 0 && (
+                                    <div className="mb-6">
+                                        <h3 className="text-xs font-bold tracking-[0.18em] text-neutral uppercase mb-3">
+                                            Individuales
+                                        </h3>
+                                        <div className="space-y-2">
+                                            {chatsIndividuales.map((chat) => {
+                                                const usuario = usuariosMinimos[chat?.idChatIndividual];
+                                                const imagen = usuario?.imagen ?? null;
+                                                return (
+                                                    <Link
+                                                        key={chat.idChatIndividual}
+                                                        to={`/ChatIndividual/${chat.idChatIndividual}`}
+                                                        className="flex gap-3 items-center p-3 bg-white rounded-2xl hover:bg-neutral-light transition"
+                                                    >
+                                                        <div
+                                                            className="w-11 h-11 rounded-full bg-secondary overflow-hidden flex items-center justify-center text-white text-sm font-bold shrink-0">
+                                                            {imagen ? (
+                                                                <img
+                                                                    src={imagen}
+                                                                    alt={usuario?.nombreUsuario ?? "Usuario"}
+                                                                    className="w-full h-full object-cover"
+                                                                    onError={(e) =>
+                                                                        ((e.currentTarget as HTMLImageElement).style.display = "none")
+                                                                    }
+                                                                />
+                                                            ) : (
+                                                                (usuario?.nombreUsuario ?? "?").charAt(0).toUpperCase()
+                                                            )}
+                                                        </div>
+                                                        <div className="flex-1 min-w-0">
+                                                            <div className="text-sm font-bold text-secondary truncate">
+                                                                {usuario?.nombreUsuario ?? "Usuario"}
+                                                            </div>
+                                                            <p className="text-xs text-neutral truncate">
+                                                                {ultimosMensajes[Number(chat.ultimoMensaje)] ?? "Sin mensajes"}
+                                                            </p>
+                                                        </div>
+                                                    </Link>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Chats de actividad */}
+                                {chatsActividad.length > 0 && (
+                                    <div>
+                                        <h3 className="text-xs font-bold tracking-[0.18em] text-neutral uppercase mb-3">
+                                            Actividades
+                                        </h3>
+                                        <div className="space-y-2">
+                                            {chatsActividad.map((chat) => {
+                                                const actividad = actividades.find(
+                                                    (a: any) => a.idActividad === chat?.idActividad,
+                                                );
+                                                const imagen = actividad?.imagenes
+                                                    ? Array.isArray(actividad.imagenes)
+                                                        ? actividad.imagenes[0]
+                                                        : actividad.imagenes
+                                                    : null;
+                                                return (
+                                                    <Link
+                                                        key={chat?.idChatActividad}
+                                                        to={`/ChatActividad/${chat?.idChatActividad}`}
+                                                        className="flex gap-3 items-center p-3 bg-white rounded-2xl hover:bg-neutral-light transition"
+                                                    >
+                                                        <div
+                                                            className="w-16 h-11 rounded-lg bg-black overflow-hidden shrink-0">
+                                                            {imagen && (
+                                                                <img
+                                                                    src={imagen}
+                                                                    alt={actividadesMinimas[chat?.idChatActividad]?.titulo ?? "Actividad"}
+                                                                    className="w-full h-full object-cover"
+                                                                    onError={(e) =>
+                                                                        ((e.currentTarget as HTMLImageElement).style.display = "none")
+                                                                    }
+                                                                />
+                                                            )}
+                                                        </div>
+                                                        <div className="flex-1 min-w-0">
+                                                            <div className="text-sm font-bold text-secondary truncate">
+                                                                {actividadesMinimas[chat?.idChatActividad]?.titulo ?? "Actividad"}
+                                                            </div>
+                                                            <p className="text-xs text-neutral truncate">
+                                                                {ultimosMensajes[chat?.ultimoMensaje] ?? "Sin mensajes"}
+                                                            </p>
+                                                        </div>
+                                                    </Link>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Empty state */}
+                                {chatsIndividuales.length === 0 && chatsActividad.length === 0 && (
+                                    <div className="text-center text-sm text-neutral py-10">
+                                        Aún no tienes chats.
+                                    </div>
+                                )}
+                            </SheetContent>
+                        </Sheet>
+                    )}
+
                     {/* Campanita */}
                     {isAuthenticated && (
                         <Link to="/notificaciones">
@@ -547,7 +710,7 @@ export default function Home() {
                                             : undefined
                                     }
                                 >
-                                    {!misdatosMinimos?.imagen && <User className="w-5 h-5" />}
+                                    {!misdatosMinimos?.imagen && <User className="w-5 h-5"/>}
                                 </button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent
@@ -560,7 +723,7 @@ export default function Home() {
                                     </DropdownMenuItem>
                                 )}
                                 <DropdownMenuItem asChild>
-                                    <Link to="/misActividades">Mis actividades</Link>
+                                    <Link to={`/usuario/${idUsuario}/actividadesCreadas`}>Mis actividades</Link>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem asChild>
                                     <Link to="/actividad/crear">Crear actividad</Link>
@@ -695,57 +858,7 @@ export default function Home() {
                     </div>
                 </section>
 
-                {/*Muestra los chats*/}
-                <section>
 
-
-                    <h2 className="text-2xl font-bold text-secondary mt-16 mb-6">Mis Chats Individuales</h2>
-                    <div className="space-y-4">
-                        {chatsIndividuales.map((chat) => (
-                            <Link
-                                key={chat.idChatIndividual}
-                                to={`/ChatIndividual/${chat.idChatIndividual}`}
-                            >
-                                <div className="p-4 bg-white rounded-lg shadow">
-                                    <h3 className="text-lg font-semibold text-secondary">
-                                        Chat Individual ID: {chat.idChatIndividual}
-                                    </h3>
-                                    <h2>
-                                        Usuario: {usuariosMinimos[chat.idChatIndividual]?.nombreUsuario}
-                                    </h2>
-                                    <p className="text-sm text-neutral">
-                                        Último mensaje: {ultimosMensajes[Number(chat.ultimoMensaje)] ?? 'Sin mensajes'}
-                                    </p>
-                                </div>
-                            </Link>
-                        ))}
-                        {chatsIndividuales.length === 0 && (
-                            <p className="text-sm text-neutral">No tienes chats individuales.</p>
-                        )}
-                    </div>
-
-
-                    <h2 className="text-2xl font-bold text-secondary mt-16 mb-6">Mis Chats de Actividad </h2>
-                    <div className="space-y-4">
-                        {chatsActividad.map((chat) => (
-                            <Link to={`/ChatActividad/${chat.idChatActividad}`}>
-                                <div key={chat.idChatActividad} className="p-4 bg-white rounded-lg shadow">
-                                    <h3 className="text-lg font-semibold text-secondary">Chat Actividad
-                                        ID: {chat.idChatActividad}</h3>
-
-                                    <h2>Actividad {actividadesMinimas[chat.idChatActividad]?.titulo}</h2>
-                                    <p className="text-sm text-neutral">Último mensaje
-                                        : {ultimosMensajes[chat.ultimoMensaje] ?? 'Sin mensajes'}</p>
-                                </div>
-                            </Link>
-                        ))}
-                        {chatsActividad.length === 0 && (
-                            <p className="text-sm text-neutral">No tienes chats de actividad.</p>
-                        )}
-                    </div>
-
-
-                </section>
             </div>
         </div>
     );

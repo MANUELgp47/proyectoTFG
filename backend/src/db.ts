@@ -1,20 +1,23 @@
 import { Pool } from 'pg';
 import dotenv from 'dotenv';
 
-dotenv.config({ path: '../ini.env' });
+// Solo busca el archivo si NO estás en Railway (entorno local)
+if (process.env.NODE_ENV !== 'production') {
+    dotenv.config({ path: '../ini.env' });
+}
 
 const pool = new Pool({
-  /*  connectionString: "postgresql://postgres.trwpfsgjpujzceznbnyl:MiPassDB_tfg@aws-0-eu-west-1.pooler.supabase.com:6543/postgres?pgbouncer=true",
+    connectionString: process.env.DATABASE_URL,
     ssl: {
         rejectUnauthorized: false,
-    },*/
-   /* max: 10,
-    idleTimeoutMillis: 30000,*/
-   host: process.env.DB_HOST,
+    },
+    max: 10,
+    idleTimeoutMillis: 30000,
+  /* host: process.env.DB_HOST,
     port: Number(process.env.DB_PORT),
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
+    database: process.env.DB_NAME,*/
 });
 
 pool.connect((err, client, release) => {

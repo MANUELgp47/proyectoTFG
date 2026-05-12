@@ -47,6 +47,12 @@ export const getActividadesQueParticipo = async () => {
     return response.data;
 };
 
+//obtener numero de actividades creadas por un usuario
+export const getNumeroActividadesCreadas = async (id: number) => {
+    const response = await api.get(`/actividad/numero/${id}/creadas`);
+    return response.data;
+};
+
 //edita admin
 export const addAdmin = async (idActividad: number, idAdmin: number) => {
     const action = "add";
@@ -82,7 +88,7 @@ export const getDatosMinimosActividadPorId = async (id: number) => {
 
 //ADMINISTRACIÓN
 //Elimina una actividad por id (sólo admin y moderador)
-export const eliminarActividad = async (id: number) => {
-    const response = await api.delete(`/actividad/${id}`);
+export const eliminarActividad = async (idActividad: number) => {
+    const response = await api.delete(`/actividad/${idActividad}`);
     return response.data;
 };

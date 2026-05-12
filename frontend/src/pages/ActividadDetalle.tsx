@@ -123,6 +123,7 @@ export function ActividadDetalle() {
                     const tags = await getTagsActividad(actividad.idActividad);
                     setImagenTag(tags[0]?.imagen ?? ""); // Si el primer tag tiene imagen, la usamos; si no, dejamos vacío
                     setTags(tags.map((tag: Tag) => tag.nombre));
+                    console.log("Tags de la actividad:", tags);
                 } catch (error) {
                     console.error("Error al cargar tags de la actividad:", error);
                 }
@@ -471,7 +472,7 @@ export function ActividadDetalle() {
                                     )}
 
                                     {/* Dejar de participar */}
-                                    {miParticipacion.aceptada && actividad.estado === "activa" && (
+                                    {miParticipacion.aceptada && actividad.estado === "activa" && actividad.idCreador !==idSesion &&(
                                         <button
                                             onClick={handleDejarParticipar}
                                             className="w-full py-3.5 rounded-full bg-white text-red-600 border border-red-200 font-bold text-sm hover:bg-red-50 transition flex items-center justify-center gap-2"

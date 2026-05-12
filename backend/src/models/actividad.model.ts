@@ -14,12 +14,26 @@ export const getActividadPorId = async (idActividad: number): Promise<Actividad 
 };
 
 // Obtener actividades creadas por un usuario
-export const getActividadesDeUsuario = async (idUsuario: number): Promise<Actividad[]> => {
+export const getActividadesCreadasPorUsuario = async (idUsuario: number): Promise<Actividad[]> => {
     const result = await pool.query("SELECT * FROM actividad WHERE id_creador = $1", [idUsuario]);
     return result.rows.map(mapearActividad);
 
     //se puede actualizar todos los campos
 };
+
+
+//cancelar actividad
+export const cancelarActividad = async (idActividad: number): Promise<Actividad | null> => {
+    const result = await pool.query(
+        `UPDATE actividad SET estado = 'cancelada' WHERE id_actividad = $1 RETURNING *`,
+        [idActividad]
+    );
+    if (result.rows.length === 0) return null;
+    return mapearActividad(result.rows[0]);
+};
+
+
+// Crear una nueva actividad
 
 export const crearActividad = async (actividad: CreaActividad): Promise<Actividad> => {
     const {

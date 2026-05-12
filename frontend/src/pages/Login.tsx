@@ -26,24 +26,17 @@ const Login = () => {
                 contrasena,
             });
 
-          //  console.log("Token guardado en localStorage:", response.token); // Verificar que el token se recibe correctamente
-          //  console.log("Token guardado en localStorage:", response);
-
-
             // Guardar token en contexto global
             login(response);
 
             console.log('Login correcto');
-           //TODO redireccionar a home después de login exitoso,
-
-
-
+            navigate('/');
         } catch (err: any) {
             console.error(err);
             setError('Credenciales incorrectas');
         } finally {
             setLoading(false);
-            navigate("/");
+
         }
     };
 

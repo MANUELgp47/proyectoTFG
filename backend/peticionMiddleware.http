@@ -366,3 +366,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjMsI
 GET http://localhost:3000/api/settings/privacidad/15
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsImlhdCI6MTc3Nzk5NTk1NCwiZXhwIjoxNzc4ODU5OTU0fQ.N_y8yzC2Enj6uMy_PPoAG6KHK9zaNDGpFW_nft7WFks
 
+
+####get numero actividades creadas
+GET http://localhost:3000/api/actividad/numero/3/creadas
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsImlhdCI6MTc3ODU5NzQ5MSwiZXhwIjoxNzc5NDYxNDkxfQ.dvt364UKQacUeHrWrLrP6jTtQXxGZoiPatkKP8E2kZQ

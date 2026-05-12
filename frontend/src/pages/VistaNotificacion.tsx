@@ -5,7 +5,7 @@ import {useParams} from 'react-router-dom';
 import {aceptarParticipacion, rechazarParticipacion, eliminarParticipacion} from "../services/participacionService";
 import {useAuth} from "../context/AuthContext";
 import {aceptarSolicitudAmistad, rechazarSolicitudAmistad} from '../services/solicitudAmistadService';
-import { Bell, Calendar, User, Check, X, Camera, ArrowLeft } from 'lucide-react';
+import { Bell, Calendar, Check, X, Camera, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { Notificacion } from '../types';
 import TopBar from "../components/ui/TopBar.tsx";
@@ -57,6 +57,8 @@ export default function VistaNotificacion() {
             console.warn('No hay idNotificacion para eliminar');
         }
         alert('Solicitud aceptada');
+        //vuelve a la pantalla de notificaciones para que el usuario vea el cambio
+        navigate('/notificaciones');
     }
 
     const handleRechazarSolicitudParticipacion = async () => {
@@ -70,6 +72,8 @@ export default function VistaNotificacion() {
             console.warn('No hay idNotificacion para eliminar');
         }
         alert('Solicitud rechazada');
+        //vuelve a la pantalla de notificaciones para que el usuario vea el cambio
+        navigate('/notificaciones');
 
 
     }
@@ -84,6 +88,8 @@ export default function VistaNotificacion() {
             console.warn('No hay idNotificacion para eliminar');
         }
         alert('Solicitud de amistad aceptada');
+        //vuelve a la pantalla de notificaciones para que el usuario vea el cambio
+        navigate('/notificaciones');
     }
     const handlerechazarSolicitudAmistad = async () => {
         const idReferencia = Number(notificacion.idReferencia);
@@ -95,6 +101,8 @@ export default function VistaNotificacion() {
             console.warn('No hay idNotificacion para eliminar');
         }
         alert('Solicitud de amistad rechazada');
+        //vuelve a la pantalla de notificaciones para que el usuario vea el cambio
+        navigate('/notificaciones');
     }
     const handleCrearRecuerdo = () => {
         // Redirige a la página de creación de recuerdo, pasando el idReferencia (idActividad) como parámetro
@@ -109,11 +117,12 @@ export default function VistaNotificacion() {
 
 
     return (
-        <div className="min-h-screen bg-slate-50 p-4 md:p-8 flex justify-center items-start">
-            <TopBar/>
-            <div className="w-full max-w-lg bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/60 overflow-hidden border border-slate-100">
+        <div className="min-h-screen bg-slate-50 p-4 md:p-8 flex flex-col items-center">
+            <div className="w-full mb-6 max-w-2xl">
+                <TopBar/>
+            </div>
 
-                {/* Header con botón Volver */}
+            <div className="w-full max-w-lg bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/60 overflow-hidden border border-slate-100">
                 <div className="p-6 border-b border-slate-50 flex items-center gap-4">
                     <button
                         onClick={() => navigate(-1)}
@@ -127,14 +136,12 @@ export default function VistaNotificacion() {
                 </div>
 
                 <div className="p-8">
-                    {/* Icono dinámico según importancia */}
                     <div className={`w-16 h-16 rounded-3xl flex items-center justify-center mb-6 ${
                         notificacion.leida ? 'bg-slate-100 text-slate-400' : 'bg-blue-500 text-white shadow-lg shadow-blue-200'
                     }`}>
                         <Bell size={32} />
                     </div>
 
-                    {/* Contenido Principal */}
                     <div className="space-y-6">
                         <div>
                         <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest block mb-2">
@@ -150,17 +157,11 @@ export default function VistaNotificacion() {
                                 <Calendar size={16} />
                                 <span className="text-xs font-bold">{fechaTexto}</span>
                             </div>
-                            <div className="flex items-center gap-2 text-slate-400">
-                                <User size={16} />
-                                <span className="text-xs font-bold uppercase tracking-tight">ID Sesión: {idUsuarioSesion}</span>
-                            </div>
+
                         </div>
                     </div>
 
-                    {/* SECCIÓN DE ACCIONES */}
                     <div className="mt-10 pt-6 border-t-2 border-dashed border-slate-100">
-
-                        {/* Caso: Solicitud de Actividad o Amistad (Doble Botón) */}
                         {((notificacion.tipo === 'solicitud_union_actividad' || notificacion.tipo === 'solicitud_amistad')) &&
                             Number(notificacion.idUsuarioEmisor) !== idUsuarioSesion && (
                                 <div className="grid grid-cols-2 gap-4">
@@ -181,7 +182,6 @@ export default function VistaNotificacion() {
                                 </div>
                             )}
 
-                        {/* Caso: Crear Recuerdo (Botón Único) */}
                         {notificacion.tipo === 'posibilidad_recuerdo' &&
                             Number(notificacion.idUsuarioEmisor) !== idUsuarioSesion && (
                                 <button

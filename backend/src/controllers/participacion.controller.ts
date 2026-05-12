@@ -153,7 +153,7 @@ export const createParticipacion = async (req: Request, res: Response) => {
                 const notificacionCreador: CrearNotificacion = {
                     idUsuarioReceptor: actividad.idCreador,
                     tipo: 'solicitud_union_actividad',
-                    mensaje: `El usuario con ID: ${nombreUsuario} ha solicitado unirse a la actividad ${actividad.titulo}`,
+                    mensaje: `El usuario: ${nombreUsuario} ha solicitado unirse a la actividad ${actividad.titulo}`,
                     idUsuarioEmisor: participacion.idUsuario,
                     idReferencia: participacion.idActividad,
                 };

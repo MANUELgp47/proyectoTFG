@@ -80,7 +80,8 @@ export const getMisChatsActividad = async (req: Request, res: Response) => {
     }
 
     try {
-        const idActividades = await ActividadService.ActividadService.getIdActividadesPorUsuario(idUsuario);
+        const idActividades = await ActividadService.ActividadService.getIdActividadesQueParticipo(idUsuario);//obtiene las id de las actividades en las que el usuario participa
+        console.log("Todos los id de actividades en las que participo (",idUsuario,"):", idActividades);
         const chatsActividad = await Promise.all(idActividades.map(idActividad => ChatActividadModel.getIdChatActividadPorIdActividad(idActividad)));//obtiene los id de los chats
         //crea el array con los objetos de chat actividad a partir de los id de los chats
         const chatsActividadObjetos = await Promise.all(chatsActividad.map(idChat => ChatActividadModel.getChatActividadPorId(idChat!)));

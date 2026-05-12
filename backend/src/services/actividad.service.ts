@@ -4,6 +4,7 @@ import db from '../db.js';
 import * as ParticipacionModel from "../models/participacion.model.js";
 import {mapearActividad} from "../utils/mappers.js";
 
+
 interface FilterParams {
     titulo?: string;
     ubicacion?: string;
@@ -21,8 +22,8 @@ export class ActividadService {
     }
 
     //obtiene todos los id de actividades en las que participa un usuario
-    static async getIdActividadesPorUsuario(idUsuario: number): Promise<number[]> {
-        const actividades = await ActividadModel.getActividadesDeUsuario(idUsuario);
+    static async getIdActividadesCreadasPorUsuario(idUsuario: number): Promise<number[]> {
+        const actividades = await ActividadModel.getActividadesCreadasPorUsuario(idUsuario);
         return actividades.map(actividad => actividad.idActividad);
     }
 
@@ -55,6 +56,11 @@ export class ActividadService {
         };
     }
 
+    //numero de actividades creadas por un usuariogetNumeroActividadesCreadas
+    static async getNumeroActividadesCreadas(idUsuario: number): Promise<number> {
+        const actividades = await ActividadModel.getActividadesCreadasPorUsuario(idUsuario);
+        return actividades.length;
+    }
 
     //existe actividad
     static async existeActividad(idActividad: number): Promise<boolean> {
@@ -95,8 +101,8 @@ export class ActividadService {
 
 
     //get actividades de un usuario
-    static async getActividadesDeUsuario(idUsuario: number): Promise<CreaActividad[]> {
-        const actividades = await ActividadModel.getActividadesDeUsuario(idUsuario);
+    static async getActividadesCreadasPorUsuario(idUsuario: number): Promise<CreaActividad[]> {
+        const actividades = await ActividadModel.getActividadesCreadasPorUsuario(idUsuario);
         return actividades;
     }
 
@@ -112,6 +118,12 @@ export class ActividadService {
             }
         }
         return actividadesParticipadasDetalles;
+    }
+    //id actividades en las que participa un usuario
+    static async getIdActividadesQueParticipo(idUsuario: number): Promise<number[]> {
+        const actividades = await ParticipacionModel.getParticipacionesPorUsuario(idUsuario);
+        const actividadesParticipadas = actividades.map(participacion => participacion.idActividad);
+        return actividadesParticipadas;
     }
 
 

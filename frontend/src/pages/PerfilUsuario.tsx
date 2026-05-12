@@ -1,14 +1,15 @@
 //Este es le perfil de usuario, donde se muestra su informacion personal, un boton para editar su perfil(aun no funcional) y un boton para ver las actividades creadas por el usuario
 import {useEffect, useState} from "react";
-import {getPerfilUsuario, getUsuario} from "../services/usuarioService";
+import {getPerfilUsuario} from "../services/usuarioService";
 import {Link, useParams} from "react-router-dom";
 import {useAuth} from "../context/AuthContext";
 import {getAmistadEntreUsuarios, eliminarAmistad, getNumeroAmistades} from '../services/amistadService';
-import type {Usuario, Amistad, SolicitudAmistad, ChatIndividual} from '../types.ts';
+import type {Usuario, Amistad, SolicitudAmistad} from '../types.ts';
 import {CrearSolicitud, getSolicitudAmistad} from "../services/solicitudAmistadService";
 import {getChatIndividualPorUsuario, crearChatIndividual, existeChatConmigo} from "../services/chatService";
 import {getRecuerdosPorUsuario} from "../services/recuerdoService.ts";
 import {getloHeBloqueado, getmeHaBloqueado, bloquear, desbloquear} from "../services/settingsService.ts";
+import {getNumeroActividadesCreadas} from "../services/actividadService.ts";
 //css
 import {Calendar, MapPin, MessageSquare, Pencil, UserMinus, UserPlus} from "lucide-react";
 import {Users} from "lucide-react"; // añádelo a tu línea de lucide-react
@@ -22,19 +23,13 @@ import {
 import TopBar from "../components/ui/TopBar.tsx";
 import type {Recuerdo} from "../types.ts";
 
-//interfaz tipo usuario solo id y nombreUsuario para mostrar en el perfil si el usuario es privado
-
-interface usuarioPerfil {
-    idUsuario: number;
-    nombreUsuario: string;
-}
 
 export default function PerfilUsuario() {
     //idUsuario por parametero
     const {idUsuarios} = useParams<{ idUsuarios: string }>();
     const [usuario, setUsuario] = useState<Usuario | any>(null);
-
-    const [perfil, setPerfil] = useState<usuarioPerfil>(null);
+    const [numeroActividadesCreadas, setNumeroActividadesCreadas] = useState<number>(0);
+   // const [perfil, setPerfil] = useState<usuarioPerfil>(null);
     const [amistad, setAmistad] = useState<Amistad | null>(null);
     const [solicitud, setSolicitud] = useState<SolicitudAmistad | null>(null);
     const {idUsuario} = useAuth();
@@ -58,40 +53,42 @@ export default function PerfilUsuario() {
         const fetchUsuario = async () => {
 
             try {
-                  if (idSesion !== null) {
+                if (idSesion !== null) {
 
-                      //si somos amigos
-                      /*       const amistadData = await getAmistadEntreUsuarios(idSesion, Number(idUsuarios));
-                             setAmistad(amistadData);
-                             if (amistadData || idSesion === Number(idUsuarios)) {
-                                 setSomosAmigos(true);
-                             } else {
-                                 setSomosAmigos(false);
-                             }*/
+                    //si somos amigos
+                    /*       const amistadData = await getAmistadEntreUsuarios(idSesion, Number(idUsuarios));
+                           setAmistad(amistadData);
+                           if (amistadData || idSesion === Number(idUsuarios)) {
+                               setSomosAmigos(true);
+                           } else {
+                               setSomosAmigos(false);
+                           }*/
 
-                      console.log("Fetch Usuario");
-                      const data = await getPerfilUsuario(Number(idUsuarios));
-
-
-                      setUsuario(data);
+                    console.log("Fetch Usuario");
+                    const data = await getPerfilUsuario(Number(idUsuarios));
+                    setUsuario(data);
 
 
-                      //publico o privado
-                      if (data.idUsuario && !data.nombre) {
-                          setPerfilPublico(false);
-                      } else if (data.nombre) {
-                          setPerfilPublico(true);
-                      }
 
-                      /*  const perfilData = await getPerfilUsuario(Number(idUsuarios));
-                        setPerfil(perfilData);
-                        console.log("perfil", perfilData);*/
-                      //      }
 
-                      //numero de amistades
-                      const numeroAmistadesData = await getNumeroAmistades(Number(idUsuarios));
-                      setNumeroAmistades(numeroAmistadesData);
-                  }
+                    //publico o privado
+                    if (data.idUsuario && !data.nombre) {
+                        setPerfilPublico(false);
+                    } else if (data.nombre) {
+                        setPerfilPublico(true);
+                    }
+
+                    /*  const perfilData = await getPerfilUsuario(Number(idUsuarios));
+                      setPerfil(perfilData);
+                      console.log("perfil", perfilData);*/
+                    //      }
+
+                    //numero de amistades
+                    const numeroAmistadesData = await getNumeroAmistades(Number(idUsuarios));
+                    setNumeroAmistades(numeroAmistadesData);
+                    //numero de actividades creadas
+
+                }
             } catch (error) {
 
                 console.error("Error al cargar usuario:", error);
@@ -101,6 +98,25 @@ export default function PerfilUsuario() {
 
         fetchUsuario();
     }, [idUsuarios, idSesion]); //TODO si falla algo quitar idSesion
+
+
+
+
+    //carga numero de actividades creadas
+    useEffect(() => {
+        const fetchNumeroActividadesCreadas = async () => {
+            try {
+                const numero = await getNumeroActividadesCreadas(Number(idUsuarios));
+                setNumeroActividadesCreadas(numero.numero);
+            } catch (error) {
+                console.error("Error al cargar número de actividades creadas:", error);
+            }
+        };
+
+        fetchNumeroActividadesCreadas();
+    }, [idUsuarios]);
+
+
 
     useEffect(() => {
         const fetchAmistad = async () => {
@@ -136,6 +152,8 @@ export default function PerfilUsuario() {
             setExisteChat(existe);
 
 
+
+
         };
         fetchAmistad();
     }, [idSesion, idUsuarios]);
@@ -143,7 +161,7 @@ export default function PerfilUsuario() {
     useEffect(() => {
         const fetchRecuerdos = async () => {
             try {
-                if (meHanBloqueado){
+                if (meHanBloqueado) {
                     setRecuerdos([]);
                     return;
                 }
@@ -167,7 +185,7 @@ export default function PerfilUsuario() {
         eliminarAmistad(usuario.idUsuario);
         alert("Amistad eliminada");
         //refrescar la página para actualizar el estado de amistad
-            window.location.reload();
+        window.location.reload();
         return;
     }
     const handleEnviarSolicitudAmistad = () => {
@@ -182,27 +200,27 @@ export default function PerfilUsuario() {
         // Redirige al chat individual con este usuario. Si no existe, pregunta y lo crea.
         try {
 
-          /*  console.log("Chatear el usuario", usuario.idUsuario ,"con el usuario", idSesion);
+            /*  console.log("Chatear el usuario", usuario.idUsuario ,"con el usuario", idSesion);
 
-            const chatExistente = await getChatIndividualPorUsuario(Number(idUsuarios));
-            console.log("char", chatExistente);
-
-
-            if (!chatExistente) {
-                const confirmar = window.confirm("¿Quieres iniciar un chat con este usuario?");
-                if (confirmar) {
-
-                    const nuevoChat = await crearChatIndividual(usuario.idUsuario);
+              const chatExistente = await getChatIndividualPorUsuario(Number(idUsuarios));
+              console.log("char", chatExistente);
 
 
-                    alert("Chat creado");
-                    // redirigir al chat creado
-                    window.location.href = `/chatIndividual/${nuevoChat.idChatIndividual}`;
-                }
-            } else {
-                // redirigir al chat existente
-                window.location.href = `/chatIndividual/${chatExistente.idChatIndividual}`;
-            }*/
+              if (!chatExistente) {
+                  const confirmar = window.confirm("¿Quieres iniciar un chat con este usuario?");
+                  if (confirmar) {
+
+                      const nuevoChat = await crearChatIndividual(usuario.idUsuario);
+
+
+                      alert("Chat creado");
+                      // redirigir al chat creado
+                      window.location.href = `/chatIndividual/${nuevoChat.idChatIndividual}`;
+                  }
+              } else {
+                  // redirigir al chat existente
+                  window.location.href = `/chatIndividual/${chatExistente.idChatIndividual}`;
+              }*/
 
             if (existeChat) {
                 const chatExistente = await getChatIndividualPorUsuario(Number(idUsuarios));
@@ -219,7 +237,6 @@ export default function PerfilUsuario() {
                     window.location.href = `/chatIndividual/${nuevoChat.idChatIndividual}`;
                 }
             }
-
 
 
         } catch (error) {
@@ -239,7 +256,7 @@ export default function PerfilUsuario() {
             alert("Usuario bloqueado");
         }
         //actualizar la página para que no se vea el perfil ni los recuerdos
-         window.location.reload();
+        window.location.reload();
 
     }
     const handleDesbloquear = async () => {
@@ -254,6 +271,13 @@ export default function PerfilUsuario() {
 
     }
 
+    const formatFecha = (fechaStr?: string | null): string => {
+        if (!fechaStr) return 'fecha no disponible';
+        const d = new Date(fechaStr);
+        if (isNaN(d.getTime())) return 'fecha no disponible';
+        return d.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+    };
+
     const sidebarContent = (
         <div className="space-y-6">
             <TopBar/>
@@ -264,37 +288,18 @@ export default function PerfilUsuario() {
                         className="text-lg font-extrabold text-secondary"
                         style={{fontFamily: "'Manrope', sans-serif"}}
                     >
-                        Amigos
+                        Amigos ({numeroAmistades})
                     </h3>
                 </div>
 
-                <div className="space-y-3">
-                    {[
-                        {nombre: "Ejemplo 1", rol: "Amigo"},
-                        {nombre: "Ejemplo 2", rol: "Amigo"},
-                        {nombre: "Ejemplo 3", rol: "Amigo"},
-                    ].map((amigo, i) => (
-                        <div key={i} className="flex items-center gap-3">
-                            <div
-                                className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-white font-semibold text-sm">
-                                {amigo.nombre.charAt(0)}
-                            </div>
-                            <div className="min-w-0">
-                                <div className="text-sm font-semibold text-secondary truncate">
-                                    {amigo.nombre}
-                                </div>
-                                <div className="text-xs text-neutral truncate">{amigo.rol}</div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
 
-                <Link
+                {perfilPublico && (<Link
                     to={`/amistad/${idUsuarios}`}
                     className="mt-5 block text-center py-2.5 rounded-xl bg-neutral-light text-primary text-sm font-semibold hover:bg-slate-200 transition"
                 >
                     Ver todas las amistades
-                </Link>
+                </Link>)}
+
             </div>
 
             {/* --- Estadísticas --- */}
@@ -303,19 +308,26 @@ export default function PerfilUsuario() {
                     className="text-lg font-extrabold text-secondary mb-4"
                     style={{fontFamily: "'Manrope', sans-serif"}}
                 >
-                    Estadísticas
+                    Actividades creadas
                 </h3>
 
                 <Link
                     to={`/usuario/${idUsuarios}/actividadesCreadas`}
-                    className="flex items-center gap-3 p-4 rounded-2xl bg-neutral-light hover:bg-slate-200 transition"
+                    onClick={(e) => {
+                        if (!perfilPublico) {
+                            e.preventDefault();
+                            alert('Este perfil es privado');
+                        }
+                    }}
+                    aria-disabled={!perfilPublico}
+                    className={`flex items-center gap-3 p-4 rounded-2xl bg-neutral-light hover:bg-slate-200 transition ${!perfilPublico ? 'opacity-60 cursor-not-allowed' : ''}`}
                 >
                     <div className="w-11 h-11 rounded-xl bg-white flex items-center justify-center">
-                        <Calendar className="w-5 h-5 text-primary"/>
+                        <Calendar className="w-5 h-5 text-primary" />
                     </div>
                     <div>
                         <div className="text-2xl font-extrabold text-primary leading-none">
-                            {recuerdos.length}
+                            {numeroActividadesCreadas}
                         </div>
                         <div className="text-[11px] font-bold tracking-wider text-neutral uppercase mt-1">
                             Actividades creadas
@@ -325,6 +337,9 @@ export default function PerfilUsuario() {
             </div>
         </div>
     );
+
+    const fechaRegistroObj = usuario?.fechaRegistro ? new Date(usuario.fechaRegistro) : null;
+    const fechaValida = fechaRegistroObj instanceof Date && !isNaN(fechaRegistroObj.getTime());
 
     return (
         <div className="min-h-screen bg-[#F8F9FB]">
@@ -382,8 +397,8 @@ export default function PerfilUsuario() {
                   </span>
                                     )}
                                     <span className="flex items-center gap-1.5">
-                  <Calendar className="w-4 h-4 text-primary"/>
-                  Desde {new Date(usuario.fechaRegistro).toLocaleDateString()}
+                 <Calendar className="w-4 h-4 text-primary" />
+                                        {fechaValida ? `Desde ${fechaRegistroObj!.toLocaleDateString()}` : 'Perfil privado'}
                 </span>
                                 </div>
 
@@ -429,7 +444,7 @@ export default function PerfilUsuario() {
                                                 Bloquear usuario
                                             </button>
                                         </>
-                                    ): Number(idSesion) !== Number(idUsuarios) && (
+                                    ) : Number(idSesion) !== Number(idUsuarios) && (
                                         <>
                                             <button
                                                 onClick={handleDesbloquear}
@@ -439,7 +454,7 @@ export default function PerfilUsuario() {
                                                 Desbloquear usuario
                                             </button>
                                         </>
-                                        )}
+                                    )}
 
                                     {/* No amigo + no solicitud + no soy yo → Enviar solicitud */}
                                     {!amistad && !loHeBloqueado && !meHanBloqueado &&
@@ -471,7 +486,7 @@ export default function PerfilUsuario() {
                                 className="text-2xl font-extrabold text-secondary mb-5"
                                 style={{fontFamily: "'Manrope', sans-serif"}}
                             >
-                                Recuerdos
+                                Recuerdos {recuerdos.length > 0 && `(${recuerdos.length})`}
                             </h2>
 
 
@@ -484,8 +499,7 @@ export default function PerfilUsuario() {
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                                     {recuerdos.map((recuerdo) => {
                                         // Placeholders para los datos que aún no tienes
-                                        const fecha =
-                                            recuerdo.fechaCreacion ?? "12 Jun 2024";
+                                        const fecha = formatFecha(recuerdo.fechaCreacion) ?? "fecha no disponible";
                                         const descripcion =
                                             recuerdo.descripcion ??
                                             "Descripción de ejemplo del recuerdo. Cuando tengas el campo en el backend, se mostrará aquí y se truncará si es muy largo.";

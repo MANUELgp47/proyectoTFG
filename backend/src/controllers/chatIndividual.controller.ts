@@ -120,7 +120,17 @@ export const getMisChatsIndividual = async (req: Request, res: Response) => {
 
     try {
         const chatsIndividuales = await ChatIndividualModel.getMisChatsIndividual(Number(idUsuario));
-        res.json(chatsIndividuales);
+        //comprueba que los usuarios siguen siendo amigos antes de devolver los chats individuales
+        const chatsIndividualesFiltrados = [];
+        for (const chat of chatsIndividuales) {
+            const idOtroUsuario = chat.idUsuario1 === idUsuario ? chat.idUsuario2 : chat.idUsuario1;
+            const sonAmigos = await AmistadService.existeAmistad(idUsuario, idOtroUsuario);
+            if (sonAmigos) {
+                chatsIndividualesFiltrados.push(chat);
+            }
+        }
+
+        res.json(chatsIndividualesFiltrados);
     } catch (error) {
         console.error('Error al obtener mis chats individuales:', error);
         res.status(500).json({ message: 'Error del servidor' });

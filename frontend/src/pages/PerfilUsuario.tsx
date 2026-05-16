@@ -1,6 +1,6 @@
 //Este es le perfil de usuario, donde se muestra su informacion personal, un boton para editar su perfil(aun no funcional) y un boton para ver las actividades creadas por el usuario
 import {useEffect, useState} from "react";
-import {getPerfilUsuario} from "../services/usuarioService";
+import {getPerfilUsuario, banearUsuario, desbanearUsuario} from "../services/usuarioService";
 import {Link, useParams} from "react-router-dom";
 import {useAuth} from "../context/AuthContext";
 import {getAmistadEntreUsuarios, eliminarAmistad, getNumeroAmistades} from '../services/amistadService';
@@ -11,7 +11,7 @@ import {getRecuerdosPorUsuario} from "../services/recuerdoService.ts";
 import {getloHeBloqueado, getmeHaBloqueado, bloquear, desbloquear} from "../services/settingsService.ts";
 import {getNumeroActividadesCreadas} from "../services/actividadService.ts";
 //css
-import {Calendar, MapPin, MessageSquare, Pencil, UserMinus, UserPlus} from "lucide-react";
+import {Calendar, MapPin, MessageSquare, Pencil, ShieldBan, UserMinus, UserPlus} from "lucide-react";
 import {Users} from "lucide-react"; // añádelo a tu línea de lucide-react
 import {
     Sheet,
@@ -22,6 +22,7 @@ import {
 } from "../components/ui/sheet";
 import TopBar from "../components/ui/TopBar.tsx";
 import type {Recuerdo} from "../types.ts";
+import {crearDenuncia} from "@/services/notificacionService.ts";
 
 
 export default function PerfilUsuario() {
@@ -32,7 +33,8 @@ export default function PerfilUsuario() {
    // const [perfil, setPerfil] = useState<usuarioPerfil>(null);
     const [amistad, setAmistad] = useState<Amistad | null>(null);
     const [solicitud, setSolicitud] = useState<SolicitudAmistad | null>(null);
-    const {idUsuario} = useAuth();
+    const {idUsuario, rol} = useAuth();
+   // const [rolUsuarioPerfil, setRolUsuarioPerfil] = useState<string | null>(null);
     const idSesion = idUsuario;
     const [recuerdos, setRecuerdos] = useState<Recuerdo[]>([]);
     const [perfilPublico, setPerfilPublico] = useState<boolean>(true);
@@ -278,6 +280,57 @@ export default function PerfilUsuario() {
         return d.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
     };
 
+    //baneo
+    const isAdmin = rol === 'admin';
+
+    const handleBanearUsuario = async () => {
+        if (!usuario) return;
+        const confirmar = window.confirm(`¿Estás seguro de banear a ${usuario.nombreUsuario}?`);
+        if (!confirmar) return;
+        try {
+
+     await banearUsuario(Number(idUsuarios));
+
+
+
+            setUsuario(prev => prev ? { ...prev, rol: 'baneado' } : prev);
+            alert('Usuario baneado');
+            //refrescar
+           // window.location.reload();
+        } catch (error) {
+            console.error(error);
+            alert('No se pudo banear al usuario');
+        }
+    };
+
+    const handleDesbanearUsuario = async () => {
+        if (!usuario) return;
+        const confirmar = window.confirm(`¿Desbanear a ${usuario.nombreUsuario}?`);
+        if (!confirmar) return;
+        try {
+
+             await desbanearUsuario(Number(idUsuarios));
+
+
+            setUsuario(prev => prev ? { ...prev, rol: 'user' } : prev);
+            alert('Usuario desbaneado');
+            //refrescar
+           // window.location.reload();
+
+        } catch (error) {
+            console.error(error);
+            alert('No se pudo desbanear al usuario');
+        }
+    };
+    //denuncias
+    const handleDenunciaPerfil = async () => {
+        const mensaje = prompt("Por favor, proporciona una razón para denunciar este a este usuario:");
+        if (mensaje) {
+            await crearDenuncia(idUsuario!, "denuncia_usuario", Number(idUsuarios), mensaje);
+            alert("Gracias por tu denuncia. Nuestro equipo revisará el perfil de usuario.");
+        }
+    }
+
     const sidebarContent = (
         <div className="space-y-6">
             <TopBar/>
@@ -404,38 +457,87 @@ export default function PerfilUsuario() {
 
                                 {/* Botones de acción */}
                                 <div className="mt-6 flex flex-wrap gap-3">
-                                    {/* Yo mismo → Editar perfil */}
-                                    {idSesion !== null && idSesion === Number(idUsuarios) && (
-                                        <Link to={`/usuario/${idUsuarios}/editar`}>
-                                            <button
-                                                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-white font-semibold text-sm hover:bg-primary-600 transition">
-                                                <Pencil className="w-4 h-4"/>
-                                                Editar perfil
-                                            </button>
-                                        </Link>
-                                    )}
-
-                                    {/* Ya somos amigos → Eliminar + Chatear */}
-                                    {amistad && (
+                                    {usuario.rol === 'baneado' ? (
                                         <>
-                                            <button
-                                                onClick={handleChatear}
-                                                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-white font-semibold text-sm hover:bg-primary-600 transition"
-                                            >
-                                                <MessageSquare className="w-4 h-4"/>
-                                                Enviar mensaje
-                                            </button>
-                                            <button
-                                                onClick={handleEliminarAmistad}
-                                                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-neutral-light text-secondary font-semibold text-sm hover:bg-slate-200 transition"
-                                            >
-                                                <UserMinus className="w-4 h-4"/>
-                                                Eliminar amistad
-                                            </button>
+                                            <span className="text-red-600 font-bold">Usuario baneado</span>
+                                            {isAdmin && (
+                                                <button
+                                                    onClick={handleDesbanearUsuario}
+                                                    className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-green-700 text-white font-semibold text-sm hover:bg-green-600 transition"
+                                                >
+                                                    Desbanear usuario
+                                                </button>
+                                            )}
+                                        </>
+                                    ) : (
+                                        <>
+                                            {/* Yo mismo → Editar perfil */}
+                                            {idSesion !== null && idSesion === Number(idUsuarios) && (
+                                                <Link to={`/usuario/${idUsuarios}/editar`}>
+                                                    <button
+                                                        className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-white font-semibold text-sm hover:bg-primary-600 transition">
+                                                        <Pencil className="w-4 h-4"/>
+                                                        Editar perfil
+                                                    </button>
+                                                </Link>
+                                            )}
+
+                                            {/* Ya somos amigos → Eliminar + Chatear */}
+                                            {amistad && (
+                                                <>
+                                                    <button
+                                                        onClick={handleChatear}
+                                                        className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-white font-semibold text-sm hover:bg-primary-600 transition"
+                                                    >
+                                                        <MessageSquare className="w-4 h-4"/>
+                                                        Enviar mensaje
+                                                    </button>
+                                                    <button
+                                                        onClick={handleEliminarAmistad}
+                                                        className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-neutral-light text-secondary font-semibold text-sm hover:bg-slate-200 transition"
+                                                    >
+                                                        <UserMinus className="w-4 h-4"/>
+                                                        Eliminar amistad
+                                                    </button>
+                                                </>
+                                            )}
+
+                                            {/* Botón de banear visible solo para admin */}
+                                            {isAdmin && Number(idSesion) !== Number(idUsuarios) && (
+                                                <button
+                                                    onClick={handleBanearUsuario}
+                                                    className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-red-600 text-white font-semibold text-sm hover:bg-red-700 transition"
+                                                >
+                                                    Banear usuario
+                                                </button>
+                                            )}
+
+                                            {/* No amigo + no solicitud + no soy yo -> Enviar solicitud */}
+                                            {!amistad && !loHeBloqueado && !meHanBloqueado &&
+                                                solicitud?.estado !== "pendiente" &&
+                                                Number(idSesion) !== Number(idUsuarios) && (
+                                                    <button
+                                                        onClick={handleEnviarSolicitudAmistad}
+                                                        className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-white font-semibold text-sm hover:bg-primary-600 transition"
+                                                    >
+                                                        <UserPlus className="w-4 h-4"/>
+                                                        Añadir amigo
+                                                    </button>
+                                                )}
+
+                                            {/* Solicitud pendiente */}
+                                            {!amistad && solicitud?.estado === "pendiente" && (
+                                                <span
+                                                    className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-neutral-light text-neutral font-semibold text-sm">
+                    Solicitud pendiente
+                </span>
+                                            )}
                                         </>
                                     )}
-                                    {!loHeBloqueado && Number(idSesion) !== Number(idUsuarios) ? (
-                                        <>
+
+                                    {/* Bloquear / Desbloquear — se mantiene siempre disponible (si no es mi propio perfil) */}
+                                    {Number(idSesion) !== Number(idUsuarios) && (
+                                        !loHeBloqueado ? (
                                             <button
                                                 onClick={handlebloquear}
                                                 className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-amber-700 text-white font-semibold text-sm hover:bg-primary-600 transition"
@@ -443,9 +545,7 @@ export default function PerfilUsuario() {
                                                 <MessageSquare className="w-4 h-4"/>
                                                 Bloquear usuario
                                             </button>
-                                        </>
-                                    ) : Number(idSesion) !== Number(idUsuarios) && (
-                                        <>
+                                        ) : (
                                             <button
                                                 onClick={handleDesbloquear}
                                                 className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-white font-semibold text-sm hover:bg-primary-600 transition"
@@ -453,29 +553,18 @@ export default function PerfilUsuario() {
                                                 <MessageSquare className="w-4 h-4"/>
                                                 Desbloquear usuario
                                             </button>
-                                        </>
+                                        )
                                     )}
-
-                                    {/* No amigo + no solicitud + no soy yo → Enviar solicitud */}
-                                    {!amistad && !loHeBloqueado && !meHanBloqueado &&
-                                        solicitud?.estado !== "pendiente" &&
-                                        Number(idSesion) !== Number(idUsuarios) && (
+                                    {/*No soy yo y no soy admin ni mod*/}
+                                        {Number(idSesion) !== Number(idUsuarios) && !isAdmin && usuario.rol !== 'moderador' && (
                                             <button
-                                                onClick={handleEnviarSolicitudAmistad}
-                                                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-white font-semibold text-sm hover:bg-primary-600 transition"
+                                                onClick={() => handleDenunciaPerfil()}
+                                                className="ml-auto inline-flex items-center gap-2 px-3 py-2 rounded-lg text-red-600 text-xs font-semibold hover:bg-red-50 transition"
                                             >
-                                                <UserPlus className="w-4 h-4"/>
-                                                Añadir amigo
+                                                <ShieldBan  className="w-3.5 h-3.5"/>
+                                                Denunciar
                                             </button>
-                                        )}
-
-                                    {/* Solicitud pendiente */}
-                                    {!amistad && solicitud?.estado === "pendiente" && (
-                                        <span
-                                            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-neutral-light text-neutral font-semibold text-sm">
-                    Solicitud pendiente
-                  </span>
-                                    )}
+                                            )}
                                 </div>
                             </div>
                         </section>

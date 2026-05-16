@@ -3,6 +3,7 @@ import * as UsuarioModel from '../models/usuario.model.js';
 import * as UsuarioService from '../services/usuario.service.js';
 import * as SettingsModel from '../models/settings.model.js';
 import {getSettings} from "../models/settings.model.js";
+import {NotificacionService} from "../services/notificacion.service.js";
 
 const extractErrorMessage = (err: unknown): string => {
     if (err instanceof Error) return err.message;
@@ -246,4 +247,69 @@ export const buscarUsuariosNombre = async (req: Request, res: Response) => {
         console.error('Error al buscar usuarios por nombre:', error);
         res.status(500).json({message: 'Error del servidor'});
     }
+}
+
+//banea o desbanea un usuario cambiando su rol a baneado o usuario
+export const banearUsuario = async (req: Request, res: Response) => {
+    try {
+        const idParam = Number(req.params.idUsuario);
+        const idAdmin = Number(req.userId);
+
+        console.log("idParam", idParam, "idAdmin", idAdmin);
+        console.log("body ", req.body);
+
+        //verifica que idUsuario e idAdmin son distintos
+        if (idParam === idAdmin) {
+            return res.status(400).json({message: 'No puedes banearte a ti mismo'});
+        }
+
+        //verifica que el idAdmin es un administrador
+        const esAdmin = await UsuarioService.UsuarioService.getRolPorIdUsuario(Number(idAdmin));
+        if (esAdmin !== 'admin') {
+            return res.status(403).json({message: 'No tienes permiso para banear usuarios'});
+        }
+
+//verifica que el usuario existente
+
+        if (Number.isNaN(idParam)) {
+            return res.status(400).json({message: 'ID inválido'});
+        }
+        const usuarioExistente = await UsuarioService.UsuarioService.obtenerUsuarioPorId(idParam);
+        if (!usuarioExistente) {
+            return res.status(404).json({message: 'Usuario no encontrado'});
+        }
+
+
+//Comprueba si quiere banear(req.body.action= add) o desbanear(*=remove) al usuario.
+
+            const action = req.body.action;
+
+        //realiza la acción de banear o desbanear al usuario si el usuario no tiene ya el rol de baneado o user respectivamente
+        const rolUser = await UsuarioService.UsuarioService.getRolPorIdUsuario(idParam);
+        let exito = false;
+        if (action === 'add' && rolUser !== 'baneado') {
+           const  respuesta = await UsuarioModel.cambiarRolUsuario(idParam, 'baneado');
+           if (respuesta) {
+               exito = true;
+           }
+            res.json({message: 'Usuario baneado correctamente'});
+
+        } else if (action === 'remove' && rolUser === 'baneado') {
+            const  respuesta= await UsuarioModel.cambiarRolUsuario(idParam, 'user');
+            if (respuesta) {
+                exito = true;
+            }
+            res.json({message: 'Usuario desbaneado correctamente'});
+        } else {
+            res.status(400).json({message: 'Acción inválida o usuario ya tiene el rol correspondiente'});
+        }
+
+        // si se hace el cambio de rol, notifica al usuario que ha sido baneado o desbaneado
+        if (exito) {
+            //TODO añadir nuvo tipo de notificación. Uso solicitud_amistad por el momento
+           await NotificacionService.creaNotificacionPorParametros(idParam, 'otro', action === 'add' ? 'Has sido baneado por un administrador' : 'Has sido desbaneado por un administrador', 0);
+        }
+
+    }catch (error) {
+    console.error('Error al banear/desbanear usuario:', error);}
 }

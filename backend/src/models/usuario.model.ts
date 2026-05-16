@@ -135,3 +135,17 @@ export const buscarUsuariosPorNombre = async (nombre: string): Promise<{ idUsuar
     const result = await pool.query("SELECT id_usuario FROM usuario WHERE nombre_usuario ILIKE $1", [`%${nombre}%`]);
     return result.rows.map(row => ({ idUsuario: row.id_usuario }));
 }
+
+//sistema de cambio de rol
+export const cambiarRolUsuario = async (idUsuario: number, nuevoRol: string): Promise<Usuario | null> => {
+    const result = await pool.query("UPDATE usuario SET rol = $1 WHERE id_usuario = $2 RETURNING *", [nuevoRol, idUsuario]);
+    if (result.rows.length === 0) return null;
+    return mapearUsuario(result.rows[0]);
+}
+
+//obtener una lista de id de los usuarios por rol
+export const obtenerIdUsuariosPorRol = async (roles: string[]): Promise<{ idUsuario: number }[]> => {
+    const placeholders = roles.map((_, index) => `$${index + 1}`).join(', ');
+    const result = await pool.query(`SELECT id_usuario FROM usuario WHERE rol IN (${placeholders})`, roles);
+    return result.rows.map(row => ({ idUsuario: row.id_usuario }));
+}

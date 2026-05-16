@@ -22,3 +22,14 @@ export const eliminarNotificacion = async (idNotificacion: number) => {
     const response = await api.delete(`/notificacion/${idNotificacion}`);
     return response.data;
 };
+
+//crear denuncia
+export const crearDenuncia = async (idUsuarioEmisor: number, tipo: string, idReferencia: number, mensaje: string) => {
+    const response = await api.post("/notificacion/denuncia", {
+        idUsuarioEmisor,
+        idReferencia,
+        mensaje,
+        tipo
+    });
+    return response.data;
+}

@@ -34,6 +34,9 @@ router.put('/', authMiddleware, upload.array('imagen'),UsuarioController.updateU
 //eliminar un usuario
 router.delete('/', authMiddleware, UsuarioController.deleteUsuario);
 
+//banear usuario Cambia su rol a baneado //post para
+router.put('/baneo/:idUsuario', authMiddleware, UsuarioController.banearUsuario);
+
 /*
 export const buscarUsuarios = async (nombre: string): Promise<any> => {
     const response = await api.get(`/usuario?nombre=${encodeURIComponent(nombre)}`);

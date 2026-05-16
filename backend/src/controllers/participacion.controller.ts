@@ -94,6 +94,12 @@ export const createParticipacion = async (req: Request, res: Response) => {
         return res.status(404).json({message: 'La actividad no existe'});
     }
 
+    //comprueba que la actividad está activa
+    const estadoActividad = await ActividadService.getEstadoActividad(req.body.idActividad);
+    if (estadoActividad !== 'activa') {
+        return res.status(400).json({message: 'No se pueden unir a una actividad que no está activa'});
+    }
+
     //comprueba que el usuario no es ya participante
     const esParticipante = await ActividadService.esUsuarioParticipante(req.body.idActividad, req.userId!);
     if (esParticipante) {
@@ -257,11 +263,11 @@ export const getParticipacionesAceptadasPorActividad = async (req: Request, res:
     }
 
     //si la actividad es privada y no soy participante no puedo ver las participaciones aceptadas
-    const esParticipante = await ActividadService.esUsuarioParticipante(Number(idActividad), req.userId!);
+ /*   const esParticipante = await ActividadService.esUsuarioParticipante(Number(idActividad), req.userId!);
     const actividad = await ActividadService.getActividadPorId(Number(idActividad));
     if (actividad && !actividad.publica && !esParticipante) {
         return res.status(403).json({message: 'No tienes permiso para ver las participaciones de esta actividad'});
-    }
+    }*/
 
     try {
         const participacions = await ParticipacionModel.getParticipacionesAceptadasPorActividad(Number(idActividad));

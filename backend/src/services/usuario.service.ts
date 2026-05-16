@@ -123,12 +123,18 @@ export class UsuarioService {
     }
 
     //obtenerDatosMinimosUsuarioPorId
-    static async obtenerDatosMinimosUsuarioPorId(idUsuario: number): Promise<{ idUsuario: number, nombreUsuario: string, imagen: string | undefined } | null> {
+    static async obtenerDatosMinimosUsuarioPorId(idUsuario: number): Promise<{ idUsuario: number, nombreUsuario: string, imagen: string | undefined , rol:string } | null> {
         const usuario = await UsuarioModel.getUsuarioPorId(idUsuario);
         if (usuario) {
-            return { idUsuario: usuario.idUsuario, nombreUsuario: usuario.nombreUsuario, imagen: usuario.imagen };
+            return { idUsuario: usuario.idUsuario, nombreUsuario: usuario.nombreUsuario, imagen: usuario.imagen, rol: usuario.rol };
         }
         return null;
+    }
+
+    //obtiene una lista de id de los usuarios por rol
+    static async obtenerUsuariosPorRol(roles: string[]): Promise<{ idUsuario: number }[]> {
+        const usuarios = await UsuarioModel.obtenerIdUsuariosPorRol(roles);
+        return usuarios.map((usuario) => ({ idUsuario: usuario.idUsuario }));
     }
 
     //busqueda de usuarios por nombreUsuario que contenga la cadena enviada, devuelve un array de idUsuario

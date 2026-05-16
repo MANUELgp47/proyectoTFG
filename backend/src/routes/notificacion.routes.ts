@@ -17,6 +17,11 @@ router.get('/:idNotificacion', authMiddleware, NotificaciónController.getNotifi
 //Crear una nueva notificación TODO: ver si es necesario
 router.post('/', NotificaciónController.createNotificacion);
 
+
+//crear una Denuncia
+router.post('/denuncia', authMiddleware, NotificaciónController.createDenuncia);
+
+
 //Actualizar una notificación por id
 router.put('/:idNotificacion',authMiddleware, NotificaciónController.updateNotificacion);
 

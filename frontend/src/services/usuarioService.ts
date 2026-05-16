@@ -40,3 +40,25 @@ export const actualizarUltimaConexion = async (): Promise<any> => {
 };
 
 
+///////ADMINISTRADOR///////
+
+//banear usuario
+export const banearUsuario = async (idUsuario: number): Promise<any> => {
+    const response = await api.put(
+        `/usuario/baneo/${idUsuario}`,
+        JSON.stringify({ action: "add" }),
+        { headers: { "Content-Type": "application/json" } }
+    );
+    return response.data;
+};
+//desbanear usuario
+export const desbanearUsuario = async (idUsuario: number ): Promise<any> => {
+    const response = await api.put(
+        `/usuario/baneo/${idUsuario}`,
+        JSON.stringify({ action: "remove" }),
+        { headers: { "Content-Type": "application/json" } }
+    );
+    return response.data;
+};
+
+

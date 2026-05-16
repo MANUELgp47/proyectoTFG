@@ -42,9 +42,7 @@ export const finalizarActividad = async (id: number) => {
 export const getActividadesQueParticipo = async () => {
     //obtengo mis participaciones
     const response = await api.get("/actividad/misActividades");
-
-
-    return response.data;
+return response.data;
 };
 
 //obtener numero de actividades creadas por un usuario

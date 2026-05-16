@@ -58,6 +58,7 @@ export default function Home() {
     const [chatsIndividuales, setChatsIndividuales] = useState<any[]>([]);
     const [ultimosMensajes, setUltimosMensajes] = useState<{ [key: number]: string }>({});
     const [participaciones, setParticipaciones] = useState<Record<number, number>>({}); // Mapa de idActividad a número de participantes
+
     //const [misIdTags, setMisIdTags] = useState<number[]>([]); // IDs de los tags que tengo en settigs
 
     //datos minimos de actividad para mostrar en la home: id y nombre
@@ -87,6 +88,7 @@ export default function Home() {
     //vuelvo a obtener las actividades por ser mas sencillo
     const [actividadesMinimas, setActividadesMinimas] = useState<Record<number, {
         idActividad: number;
+        imagen: string | undefined;
         titulo: string
     }>>({});
 
@@ -321,7 +323,7 @@ export default function Home() {
 
     useEffect(() => {
         const fetchActividadesMinimas = async () => {
-            const actividadesMap: Record<number, { idActividad: number; titulo: string }> = {};
+            const actividadesMap: Record<number, { idActividad: number; titulo: string; imagen : string }> = {};
 
             for (const chat of chatsActividad) {
                 if (!actividadesMap[chat.idActividad]) {
@@ -329,7 +331,8 @@ export default function Home() {
                     if (datosBasicos) {
                         actividadesMap[chat.idChatActividad] = {
                             idActividad: chat.idActividad,
-                            titulo: datosBasicos.titulo
+                            titulo: datosBasicos.titulo,
+                            imagen: datosBasicos.imagen
                         };
                     }
                 }
@@ -616,14 +619,9 @@ export default function Home() {
                                         </h3>
                                         <div className="space-y-2">
                                             {chatsActividad.map((chat) => {
-                                                const actividad = actividades.find(
-                                                    (a: any) => a.idActividad === chat?.idActividad,
-                                                );
-                                                const imagen = actividad?.imagenes
-                                                    ? Array.isArray(actividad.imagenes)
-                                                        ? actividad.imagenes[0]
-                                                        : actividad.imagenes
-                                                    : null;
+                                                const actividad = actividadesMinimas[chat.idChatActividad];
+                                                const imagen = actividad?.imagen ?? null;
+
                                                 return (
                                                     <Link
                                                         key={chat?.idChatActividad}

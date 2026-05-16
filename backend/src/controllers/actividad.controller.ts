@@ -10,6 +10,8 @@ import * as ActividadService from '../services/actividad.service.js';
 import {UsuarioService} from "../services/usuario.service.js";
 import {AmistadService} from "../services/amistad.service.js";
 import {cancelarActividad} from "../models/actividad.model.js";
+import {RecuerdoService} from "../services/recuerdo.service.js";
+
 
 
 /*
@@ -301,6 +303,25 @@ export const updateActividad = async (req: Request, res: Response) => {
 
             res.json(resultadoCancelacion);
 
+            //notificación de cancelación de actividad
+           //obtiene los participantes de la actividad para enviarles una notificación de cancelación
+            const participantes = await ActividadService.ActividadService.getUsuariosParticipantes(idActividad);
+            const nombreEditor = await UsuarioService.getNombreUsuarioPorId(Number(req.userId));
+            const nombreActividad = await ActividadService.ActividadService.getNombreActividad(idActividad);
+
+            for (const participante of participantes) {
+                const notificacion: CrearNotificacion = {
+                    idUsuarioReceptor: participante,
+                    tipo: 'otro',
+                    mensaje: `La actividad con nombre ${nombreActividad} ha sido cancelada por ${nombreEditor}`,
+                    idUsuarioEmisor: req.userId!,
+                    idReferencia: idActividad,
+                };
+
+               await NotificacionModel.crearNotificacion(notificacion);
+            }
+
+
             //termina la ejecución de la función para que no intente actualizar la actividad después de cancelarla
             return;
         }
@@ -487,13 +508,31 @@ export const deleteActividad = async (req: Request, res: Response) => {
         //si no es la sesión del creador no puede eliminar la actividad
         const esCreador: boolean = await ActividadService.ActividadService.esCreadorActividad(idActividad, req.userId!);
         if (esCreador == false && rol !== 'admin' && rol !== 'mod') {
-            return res.status(400).json({menssage: 'No eres el creador de la actividad'});
+            return res.status(400).json({menssage: 'No tienes permiso para eliminar esta actividad'});
         }
 
 
+        const nombreActividad = await ActividadService.ActividadService.getNombreActividad(idActividad);
         eliminado = await ActividadModel.eliminarActividad(idActividad);
         if (eliminado) {// si se elimino correctamente
             res.json({message: 'Actividad eliminada correctamente'});
+
+            if (!esCreador) {
+
+                const notificacionMensaje = `Tu actividad ${nombreActividad}, ha sido eliminado por un encargado de la plataforma `;
+
+
+                const notificacion: CrearNotificacion = {
+                    idUsuarioReceptor: actividad_eliminar.idCreador,
+                    tipo: 'otro',
+                    mensaje: notificacionMensaje,
+                    idUsuarioEmisor: req.userId,
+                    idReferencia: idActividad,
+                };
+
+                await NotificacionModel.crearNotificacion(notificacion);
+            }
+
         } else {
             res.status(404).json({message: 'Actividad no encontrada'});
         }

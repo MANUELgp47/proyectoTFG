@@ -2,6 +2,8 @@ import type {Request, Response} from 'express';
 import * as ComentarioModel from '../models/comentario.model.js';
 import {RecuerdoService} from "../services/recuerdo.service.js";
 import {UsuarioService} from "../services/usuario.service.js";
+import * as NotificacionModel from '../models/notificacion.model.js';
+import type {CrearNotificacion} from "../types/notificacion.js";
 
 export const getComentarios = async (req: Request, res: Response) => {
     try {
@@ -100,9 +102,9 @@ export const deleteComentario = async (req: Request, res: Response) => {
     }
 
 
-    //verificar que el usuario es el creador del comentario o es admin o mod
+    //verificar que el usuario es el creador del comentario o es admin o mod o soy el creador del comentario
     const rol =await  UsuarioService.getRolPorIdUsuario(idUsuario);
-    if (comentario.idUsuario !== idUsuario && (rol !== 'admin' && rol !== 'mod')) {
+    if (comentario.idUsuario !== idUsuario && (rol !== 'admin' && rol !== 'mod' && comentario.idUsuario !== idUsuario)) {
         return res.status(403).json({message: 'No tienes permiso para eliminar este comentario'});
     }
 
@@ -110,6 +112,25 @@ export const deleteComentario = async (req: Request, res: Response) => {
         const eliminado = await ComentarioModel.eliminarComentario(idComentario);
         if (eliminado) {
             res.json({message: 'Comentario eliminado correctamente'});
+
+            //notifica al dueño del comentario que su comentario ha sido eliminado por el creador o por un admin o mod
+            if (comentario.idUsuario !== idUsuario) {
+
+                const nombreRecuerdo = await RecuerdoService.getTituloRecuerdoPorId(comentario.idRecuerdo);
+                const notificacionMensaje = `Tu comentario "${comentario.mensaje}" del recuerdo ${nombreRecuerdo}, ha sido eliminado por un encargado de la plataforma `;
+
+
+                const notificacion: CrearNotificacion = {
+                    idUsuarioReceptor: comentario.idUsuario,
+                    tipo: 'otro',
+                    mensaje: notificacionMensaje,
+                    idUsuarioEmisor: req.userId!,
+                    idReferencia: idUsuario,
+                };
+
+               await NotificacionModel.crearNotificacion(notificacion);
+            }
+
         } else {
             res.status(404).json({message: 'Comentario no encontrado'});
         }

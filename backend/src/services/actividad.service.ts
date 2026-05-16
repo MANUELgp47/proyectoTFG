@@ -3,6 +3,10 @@ import * as ActividadModel from '../models/actividad.model.js';
 import db from '../db.js';
 import * as ParticipacionModel from "../models/participacion.model.js";
 import {mapearActividad} from "../utils/mappers.js";
+import {
+    getParticipacionesAceptadasPorActividad,
+    getParticipacionesAceptadasPorUsuario
+} from "../models/participacion.model.js";
 
 
 interface FilterParams {
@@ -106,24 +110,33 @@ export class ActividadService {
         return actividades;
     }
 
-    //actividades en las que participa un usuario
+    //actividades en las que participa un usuario y filtra para que no haya repetidas
     static async getActividadesQueParticipo(idUsuario: number): Promise<CreaActividad[]> {
-        const actividades = await ParticipacionModel.getParticipacionesPorUsuario(idUsuario);
+        const actividades = await ParticipacionModel.getParticipacionesAceptadasPorUsuario(idUsuario);
         const actividadesParticipadas = actividades.map(participacion => participacion.idActividad);
+
+        //comprueba que no haya actividades repetidas
+      //  const actividadesParticipadasUnicas = Array.from(new Set(actividadesParticipadas));
+
+
         const actividadesParticipadasDetalles = [];
         for (const idActividad of actividadesParticipadas) {
             const actividad = await ActividadModel.getActividadPorId(idActividad);
             if (actividad) {
                 actividadesParticipadasDetalles.push(actividad);
             }
+
+            //
         }
         return actividadesParticipadasDetalles;
     }
     //id actividades en las que participa un usuario
     static async getIdActividadesQueParticipo(idUsuario: number): Promise<number[]> {
-        const actividades = await ParticipacionModel.getParticipacionesPorUsuario(idUsuario);
+        const actividades = await ParticipacionModel.getParticipacionesAceptadasPorUsuario(idUsuario);
         const actividadesParticipadas = actividades.map(participacion => participacion.idActividad);
-        return actividadesParticipadas;
+        //comprueba que no haya actividades repetidas
+        const actividadesParticipadasUnicas = Array.from(new Set(actividadesParticipadas));
+        return actividadesParticipadasUnicas;
     }
 
 

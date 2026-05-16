@@ -48,6 +48,12 @@ export class RecuerdoService {
         return recuerdo !== null;
     }
 
+    //devuelve el titulo del recuerdo por su id
+    static async getTituloRecuerdoPorId(idRecuerdo: number) : Promise<string | null> {
+        const recuerdo = await RecuerdoModel.getRecuerdoPorId(idRecuerdo);
+        return recuerdo ? recuerdo.titulo : null;
+    }
+
 
     //funcion que valida los datos (id usuario e id actividad) devuelve un boolean y un mensaje de error en caso de que no sea valido
     static async validarDatosRecuerdo(idUsuario: number, idActividad: number) : Promise<{valido: boolean, mensaje?: string}> {

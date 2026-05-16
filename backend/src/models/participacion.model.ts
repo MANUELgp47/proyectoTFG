@@ -37,6 +37,12 @@ export const getParticipacionesPorUsuario = async (idUsuario: number): Promise<P
     return result.rows.map(mapearParticipacion);
 };
 
+//get todas las participaciones aceptadas de un usuario
+export const getParticipacionesAceptadasPorUsuario = async (idUsuario: number): Promise<Participacion[]> => {
+    const result = await pool.query("SELECT * FROM participacion WHERE id_usuario = $1 AND aceptada = true", [idUsuario]);
+    return result.rows.map(mapearParticipacion);
+};
+
 export const crearParticipacion = async (participacion: Crearparticipacion): Promise<Participacion> => {
     let {
         idUsuario,

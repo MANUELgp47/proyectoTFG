@@ -7,6 +7,8 @@ import {ActividadService} from "../services/actividad.service.js";
 import {RecuerdoService} from '../services/recuerdo.service.js';
 import {UsuarioService} from "../services/usuario.service.js";
 import {AmistadService} from "../services/amistad.service.js";
+import type {CrearNotificacion} from "../types/notificacion.js";
+import * as NotificacionModel from "../models/notificacion.model.js";
 
 export const getRecuerdos = async (req: Request, res: Response) => {
     try {
@@ -34,7 +36,7 @@ export const getRecuerdoPorId = async (req: Request, res: Response) => {
         if (perfilPublico && !perfilPublico.perfilPublico && !esAmigo && idUsuario !== idCreadorRecuerdo) {
             return res.status(403).json({message: 'No tienes permiso para ver este recuerdo'});
         }
-    }else{
+    } else {
         return res.status(404).json({message: 'Recuerdo no encontrado'});
     }
 
@@ -146,7 +148,6 @@ export const createRecuerdo = async (req: Request, res: Response) => {
     req.body.idUsuario = req.userId; // Asegura que el recuerdo se asocie al usuario autenticado
 
 
-
     //imagenes
     //Cloudinary
     // 1. Casteamos a 'any' o al tipo específico de Cloudinary para evitar errores de TS
@@ -162,22 +163,22 @@ export const createRecuerdo = async (req: Request, res: Response) => {
     console.log('Imágenes procesadas para el recuerdo:', todasLasImagenes, 'Archivos originales:', req.files);
 
     if (todoCorrecto) {
-    try {
-        const recuerdo = await RecuerdoModel.crearRecuerdo(req.body);
-        res.status(201).json(recuerdo);
-    } catch (error) {
-        console.error('Error al crear recuerdo:', error);
-        res.status(500).json({message: 'Error del servidor'});
+        try {
+            const recuerdo = await RecuerdoModel.crearRecuerdo(req.body);
+            res.status(201).json(recuerdo);
+        } catch (error) {
+            console.error('Error al crear recuerdo:', error);
+            res.status(500).json({message: 'Error del servidor'});
+        }
     }
-}
     //Notifica la creacion del recuerdo a los usuarios participantes de la actividad
 
     let tipoNot: 'creacion_recuerdo' = 'creacion_recuerdo';
     //get nombre actividad
-    const actividad  = await ActividadModel.getActividadPorId(req.body.idActividad);
+    const actividad = await ActividadModel.getActividadPorId(req.body.idActividad);
     const nombreActividad = actividad ? actividad.titulo : 'desconocida';
     //nombre usuario que crea el recuerdo
-    const usuario = await UsuarioModel.getUsuarioPorId(req.body.idUsuario) ;
+    const usuario = await UsuarioModel.getUsuarioPorId(req.body.idUsuario);
     const nomUsuario = usuario ? usuario.nombreUsuario : 'desconocido';
 
     //obtener participantes
@@ -213,7 +214,7 @@ export const deleteRecuerdoPorId = async (req: Request, res: Response) => {
     if (!idUsuario) {
         return res.status(401).json({message: 'No autorizado'});
     }
-    const rol =await UsuarioService.getRolPorIdUsuario(idUsuario);
+    const rol = await UsuarioService.getRolPorIdUsuario(idUsuario);
 
     const idRecuerdo = req.params.id ? parseInt(req.params.id, 10) : NaN;
     if (isNaN(idRecuerdo)) {
@@ -233,9 +234,29 @@ export const deleteRecuerdoPorId = async (req: Request, res: Response) => {
     }
 
     try {
+        const nombreRecuerdo = await RecuerdoService.getTituloRecuerdoPorId(idRecuerdo);
         const deleted = await RecuerdoModel.deleteRecuerdoPorId(idRecuerdo);
         if (deleted) {
             res.json({message: 'Recuerdo eliminado correctamente'});
+
+
+            if (idCreador !== idUsuario) {
+
+
+                const notificacionMensaje = `Tu recuerdo ${nombreRecuerdo}, ha sido eliminado por un encargado de la plataforma `;
+
+
+                const notificacion: CrearNotificacion = {
+                    idUsuarioReceptor: idCreador,
+                    tipo: 'otro',
+                    mensaje: notificacionMensaje,
+                    idUsuarioEmisor: idUsuario,
+                    idReferencia: idRecuerdo,
+                };
+
+                await NotificacionModel.crearNotificacion(notificacion);
+            }
+
         } else {
             res.status(404).json({message: 'Recuerdo no encontrado'});
         }
@@ -244,7 +265,6 @@ export const deleteRecuerdoPorId = async (req: Request, res: Response) => {
         res.status(500).json({message: 'Error del servidor'});
     }
 };
-
 
 
 //TODO: actualizar recuerdo (Pensar primero si dar esa funcionalidad)

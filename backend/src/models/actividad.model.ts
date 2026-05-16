@@ -114,9 +114,9 @@ export const eliminarActividad = async (idActividad: number): Promise<boolean> =
 export const addAdminActividad = async (idActividad: number, idAdmin: number): Promise<void> => {
     await pool.query(
         `UPDATE Actividad
-         SET admins = array_append(admins, $2)
+         SET admins = array_append(COALESCE(admins, ARRAY[]::integer[]), $2)
          WHERE id_actividad = $1
-           AND NOT ($2 = ANY(admins))`, // Evita duplicados: solo añade si no está ya en la lista
+           AND NOT ($2 = ANY(COALESCE(admins, ARRAY[]::integer[])))`, // Evita duplicados: solo añade si no está ya en la lista
         [idActividad, idAdmin]
     );
 };
@@ -134,9 +134,9 @@ export const removeAdminActividad = async (idActividad: number, idAdmin: number)
 export const addExpulsadoActividad = async (idActividad: number, idUsuario: number): Promise<void> => {
     await pool.query(
         `UPDATE Actividad
-         SET expulsados = array_append(expulsados, $2)
+         SET expulsados = array_append(COALESCE(expulsados, ARRAY[]::integer[]), $2)
          WHERE id_actividad = $1
-           AND NOT ($2 = ANY(expulsados))`, // Evita duplicados: solo añade si no está ya en la lista
+           AND NOT ($2 = ANY(COALESCE(expulsados, ARRAY[]::integer[])))`, // Evita duplicados: solo añade si no está ya en la lista
         [idActividad, idUsuario]
     );
 };

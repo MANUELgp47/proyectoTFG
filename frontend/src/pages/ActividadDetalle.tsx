@@ -25,10 +25,11 @@ import {
     Trash2,
     Users,
     Zap,
-    Lock
+    Lock, ShieldBan
 } from "lucide-react";
 
 import TopBar from "../components/ui/TopBar.tsx";
+import {crearDenuncia} from "@/services/notificacionService.ts";
 
 
 //estilo
@@ -203,6 +204,14 @@ export function ActividadDetalle() {
             window.location.href = "/";
         }
     };
+
+    const handleDenunciaActividad = async () => {
+        const mensaje = prompt("Por favor, proporciona una razón para denunciar esta actividad:");
+        if (mensaje) {
+            await crearDenuncia(idUsuario!, "denuncia_actividad", Number(id), mensaje);
+            alert("Gracias por tu denuncia. Nuestro equipo revisará la actividad.");
+        }
+    }
 
 
     const heroImg = actividad.imagenes ?? null;
@@ -493,7 +502,7 @@ export function ActividadDetalle() {
                                         </Link>
                                     )}
                                 </>
-                            ) : hayPlazas ? (
+                            ) : hayPlazas && actividad.estado === 'activa' ? (
                                 <button
                                     onClick={handleParticipar}
                                     className="w-full py-4 rounded-full bg-primary text-white font-bold text-base hover:bg-primary-600 transition flex items-center justify-center gap-2 shadow-lg shadow-primary/20"
@@ -501,12 +510,14 @@ export function ActividadDetalle() {
                                     Unirme a la actividad
                                     <Zap className="w-4 h-4 fill-white"/>
                                 </button>
-                            ) : (
+                            ) :  actividad.estado === 'activa' && (
                                 <div
                                     className="w-full py-3.5 rounded-full bg-neutral-light text-neutral font-semibold text-sm text-center">
                                     No hay plazas disponibles
                                 </div>
                             )}
+
+
 
                             {/* Ver participantes */}
                             <Link to={`/participantes/${id}`}>
@@ -516,36 +527,21 @@ export function ActividadDetalle() {
                                     Ver participantes
                                 </button>
                             </Link>
+
+                            {/*no soy admin ni mod*/}
+                            {rol !== "admin" && rol !== "mod" && (
+                                <div> <button
+                                    onClick={() => handleDenunciaActividad()}
+                                    className="ml-auto inline-flex items-center gap-2 px-3 py-2 rounded-lg text-red-600 text-xs font-semibold hover:bg-red-50 transition"
+                                >
+                                    <ShieldBan className="w-3.5 h-3.5"/>
+                                    Denunciar
+                                </button></div>
+                            )}
+
                         </div>
 
-                        {/* Avatars apilados (placeholder) */}
-                        {numeroParticipantes > 0 && (
-                            <div className="pt-4 flex flex-col items-center">
-                                <div className="flex -space-x-2">
-                                    {Array.from({length: Math.min(3, numeroParticipantes)}).map(
-                                        (_, i) => (
-                                            <div
-                                                key={i}
-                                                className="w-9 h-9 rounded-full bg-secondary ring-2 ring-white flex items-center justify-center text-white text-xs font-bold"
-                                            >
-                                                {String.fromCharCode(65 + i)}
-                                            </div>
-                                        ),
-                                    )}
-                                    {numeroParticipantes > 3 && (
-                                        <div
-                                            className="w-9 h-9 rounded-full bg-primary ring-2 ring-white flex items-center justify-center text-white text-xs font-bold">
-                                            +{numeroParticipantes - 3}
-                                        </div>
-                                    )}
-                                </div>
-                                <span className="mt-2 text-xs text-neutral">
-                {numeroParticipantes}{" "}
-                                    {numeroParticipantes === 1 ? "persona" : "personas"} ya se
-                                    {numeroParticipantes === 1 ? " ha unido" : " han unido"}
-              </span>
-                            </div>
-                        )}
+
 
                         {/* Acciones de moderación */}
                         {(rol === "admin" || rol === "mod") && (

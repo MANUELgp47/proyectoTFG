@@ -115,6 +115,26 @@ export default function VistaNotificacion() {
         year: "numeric",
     }) : "Fecha desconocida";
 
+    const handleIrADenuncia = () => {
+        const idRef = notificacion.idReferencia;
+        if (!idRef) return;
+        let base = '';
+        switch (notificacion.tipo) {
+            case 'denuncia_usuario':
+                base = 'usuario';
+                break;
+            case 'denuncia_actividad':
+                base = 'actividad';
+                break;
+            case 'denuncia_recuerdo':
+            case 'denuncia_comentario':
+                base = 'Recuerdo';
+                break;
+            default:
+                return;
+        }
+        navigate(`/${base}/${idRef}`);
+    };
 
     return (
         <div className="min-h-screen bg-slate-50 p-4 md:p-8 flex flex-col items-center">
@@ -192,6 +212,15 @@ export default function VistaNotificacion() {
                                     Crear un recuerdo ahora
                                 </button>
                             )}
+                        {notificacion.tipo && notificacion.tipo.startsWith('denuncia_') && (
+                            <div className="mt-6">
+                                <button
+                                    onClick={handleIrADenuncia}
+                                    className="w-full flex items-center justify-center gap-2 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold transition-all"
+                                >
+                                    Ir a la denuncia
+                                </button>
+                            </div>)}
                     </div>
                 </div>
             </div>

@@ -108,7 +108,7 @@ export const createUsuario = async (req: Request, res: Response) => {
         //imagen sola
         const nuevoArchivo = (req.file as any) ?? ((req.files as any[])?.[0]) ?? null;
         const rutaImg = nuevoArchivo?.path ?? "";
-       // console.log("Ruta imagen ", rutaImg);
+        // console.log("Ruta imagen ", rutaImg);
         if (rutaImg) {
             req.body.imagen = rutaImg;
         } else {
@@ -123,7 +123,7 @@ export const createUsuario = async (req: Request, res: Response) => {
         //muestra el body del error en la consola del servidor
         console.log(req.body)
         const msg = extractErrorMessage(error);
-        res.status(400).json({ message: msg });
+        res.status(400).json({message: msg});
     }
 };
 
@@ -141,15 +141,11 @@ export const actualizarUltimaConexion = async (req: Request, res: Response) => {
         } else {
             res.status(404).json({message: 'Usuario no encontrado'});
         }
-    }
-    catch (error) {
+    } catch (error) {
         console.error('Error al actualizar última conexión:', error);
         res.status(500).json({message: 'Error del servidor'});
     }
 };
-
-
-
 
 
 //actualizar usuario
@@ -170,6 +166,15 @@ export const updateUsuario = async (req: Request, res: Response) => {
             req.body.contrasena = hash;
             console.log(req.body.contrasena);
         }
+
+        //si quiere cambiar su nombre de usuario, verifica que el nuevo nombre de usuario no esté ya en uso por otro usuario
+        if (req.body.nombreUsuario) {
+            const usuarioConNombre = await UsuarioModel.getUsuarioPorNombreUsuario(req.body.nombreUsuario);
+            if (usuarioConNombre && usuarioConNombre.idUsuario !== req.userId) {//si el nombre de usuario ya está en uso por otro usuario que no soy yo, devuelve un error
+                throw new Error('El nombre de usuario ya está en uso');
+            }
+        }
+
 
         //imagen sola
         const nuevoArchivo = (req.file as any) ?? ((req.files as any[])?.[0]) ?? null;
@@ -193,8 +198,8 @@ export const updateUsuario = async (req: Request, res: Response) => {
             res.status(404).json({message: 'Usuario no encontrado'});
         }
     } catch (error) {
-        console.error('Error al actualizar usuario:', error);
-        res.status(500).json({message: 'Error del servidor'});
+        const msg = extractErrorMessage(error);
+        res.status(400).json({message: msg});
     }
 };
 
@@ -229,8 +234,7 @@ export const buscarUsuariosNombre = async (req: Request, res: Response) => {
         //soy un usuario existente
         const idUsuario = req.userId;
         const usuarioExistente = await UsuarioService.UsuarioService.obtenerUsuarioPorId(Number(idUsuario));
-        if (!usuarioExistente)
-        {
+        if (!usuarioExistente) {
             return res.status(404).json({message: 'Usuario no encontrado'});
         }
 
@@ -242,8 +246,7 @@ export const buscarUsuariosNombre = async (req: Request, res: Response) => {
         const usuarios = await UsuarioService.UsuarioService.buscarUsuariosPorNombre(nombre);
         res.json(usuarios);
 
-    }
-    catch (error) {
+    } catch (error) {
         console.error('Error al buscar usuarios por nombre:', error);
         res.status(500).json({message: 'Error del servidor'});
     }
@@ -282,20 +285,20 @@ export const banearUsuario = async (req: Request, res: Response) => {
 
 //Comprueba si quiere banear(req.body.action= add) o desbanear(*=remove) al usuario.
 
-            const action = req.body.action;
+        const action = req.body.action;
 
         //realiza la acción de banear o desbanear al usuario si el usuario no tiene ya el rol de baneado o user respectivamente
         const rolUser = await UsuarioService.UsuarioService.getRolPorIdUsuario(idParam);
         let exito = false;
         if (action === 'add' && rolUser !== 'baneado') {
-           const  respuesta = await UsuarioModel.cambiarRolUsuario(idParam, 'baneado');
-           if (respuesta) {
-               exito = true;
-           }
+            const respuesta = await UsuarioModel.cambiarRolUsuario(idParam, 'baneado');
+            if (respuesta) {
+                exito = true;
+            }
             res.json({message: 'Usuario baneado correctamente'});
 
         } else if (action === 'remove' && rolUser === 'baneado') {
-            const  respuesta= await UsuarioModel.cambiarRolUsuario(idParam, 'user');
+            const respuesta = await UsuarioModel.cambiarRolUsuario(idParam, 'user');
             if (respuesta) {
                 exito = true;
             }
@@ -307,9 +310,10 @@ export const banearUsuario = async (req: Request, res: Response) => {
         // si se hace el cambio de rol, notifica al usuario que ha sido baneado o desbaneado
         if (exito) {
             //TODO añadir nuvo tipo de notificación. Uso solicitud_amistad por el momento
-           await NotificacionService.creaNotificacionPorParametros(idParam, 'otro', action === 'add' ? 'Has sido baneado por un administrador' : 'Has sido desbaneado por un administrador', 0);
+            await NotificacionService.creaNotificacionPorParametros(idParam, 'otro', action === 'add' ? 'Has sido baneado por un administrador' : 'Has sido desbaneado por un administrador', 0);
         }
 
-    }catch (error) {
-    console.error('Error al banear/desbanear usuario:', error);}
+    } catch (error) {
+        console.error('Error al banear/desbanear usuario:', error);
+    }
 }

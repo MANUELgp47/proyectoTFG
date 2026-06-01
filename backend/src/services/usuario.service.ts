@@ -50,6 +50,8 @@ export class UsuarioService {
         return hash;
     }
 
+
+
     static async obtenerUsuarioPorId(idUsuario: number): Promise<CrearUsuario | null> {
         const usuario = await UsuarioModel.getUsuarioPorId(idUsuario);
         return usuario;

@@ -12,6 +12,7 @@ import * as ServicioChatActividad from "../services/chatActividad.service.js";
 import {marcarMensajeLeidoPorChatIndividual} from "../models/mensaje.model.js";
 import * as SettingsService from "../services/settingsService.js";
 import * as ServicioChatIndividual from "../services/chatIndividual.service.js";
+import * as UsuarioService from "../services/usuario.service.js";
 
 export const getMensajes = async (req: Request, res: Response) => {
     try {
@@ -169,6 +170,14 @@ export const createMensaje = async (req: Request, res: Response) => {
             return res.status(400).json({message: 'Datos inválidos: emisor o chat no encontrado'});
         }
 
+
+        //el usuario no está baneado
+        const estaBaneado = await UsuarioService.UsuarioService.getRolPorIdUsuario(idEmisor);
+        if (estaBaneado === 'baneado') {
+            return res.status(403).json({message: 'El usuario está baneado y mandar mensajes no está permitido'});
+        }
+
+
         //valida contenido no vacío
         if (req.body.contenido == null || req.body.contenido.trim() === '') {
             return res.status(400).json({message: 'El contenido del mensaje no puede estar vacío'});
@@ -177,7 +186,16 @@ export const createMensaje = async (req: Request, res: Response) => {
 
         //es chat individual? Compruebo que no hay bloqueo entre los usuarios
         if (req.body.idChatIndividual) {
+
+
             const usuariosChat = await ServicioChatIndividual.ChatIndividualService.getUsuariosPorIdChatIndividual(req.body.idChatIndividual);
+
+            //ninguno está baneado?
+            const rolUsuario1 = await UsuarioService.UsuarioService.getRolPorIdUsuario(usuariosChat!.idUsuario1);
+            const rolUsuario2 = await UsuarioService.UsuarioService.getRolPorIdUsuario(usuariosChat!.idUsuario2);
+            if (rolUsuario1 === 'baneado' || rolUsuario2 === 'baneado') {
+                return res.status(403).json({message: 'Uno de los usuarios del chat está baneado y mandar mensajes no está permitido'});
+            }
 
             //permiso? Compruebo (en caso de ser chat individual) que no hay bloqueo por ninguno de los usuarios
             const bloqueo = await SettingsService.SettingsService.hayBloqueoEntreUsuarios(usuariosChat!.idUsuario1, usuariosChat!.idUsuario2);

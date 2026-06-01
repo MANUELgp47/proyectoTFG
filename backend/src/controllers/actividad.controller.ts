@@ -160,10 +160,16 @@ export const getActividadesCreadasPorUsuario = async (req: Request, res: Respons
 export const createActividad = async (req: Request, res: Response) => {
     let actividad;
     try {
-        console.log("Valor de req.userId en createActividad:", req.userId, "y req.body:", req.body);
+       // console.log("Valor de req.userId en createActividad:", req.userId, "y req.body:", req.body);
         req.body.idCreador = req.userId;//asigna el id del usuario logueado como creador de la actividad
         if (!req.body.idCreador) {
             return res.status(400).json({message: 'ID del creador es requerido'});
+        }
+
+        //el usuario no está baneado
+        const estaBaneado = await UsuarioService.getRolPorIdUsuario(req.userId!);
+        if (estaBaneado === 'baneado') {
+            return res.status(403).json({message: 'El usuario está baneado y no puede crear la actividades'});
         }
 
         //imagenes
@@ -451,8 +457,8 @@ export const finalizarActividad = async (req: Request, res: Response) => {
         const esCreador: boolean = await ActividadService.ActividadService.esCreadorActividad(idActividad, req.userId!) || await UsuarioService.getRolPorIdUsuario(Number(req.userId)) === 'admin';
         const esAdminActividad: boolean = await ActividadService.ActividadService.esAdminActividad(idActividad, req.userId!);
 
-        if (esCreador == false && esAdminActividad) {
-            return res.status(400).json({menssage: 'No eres el creador de la actividad'});
+        if (esCreador == false && esAdminActividad == false) {
+            return res.status(403).json({message: 'No tienes permisos para finalizar esta actividad'});
         }
 
         const finalizada = await ActividadJob.finalizarActividadesCaducadas([idActividad]);
@@ -513,6 +519,7 @@ export const deleteActividad = async (req: Request, res: Response) => {
 
 
         const nombreActividad = await ActividadService.ActividadService.getNombreActividad(idActividad);
+        const creadorActividad = await ActividadService.ActividadService.getIdCreadorActividad(idActividad);
         eliminado = await ActividadModel.eliminarActividad(idActividad);
         if (eliminado) {// si se elimino correctamente
             res.json({message: 'Actividad eliminada correctamente'});
@@ -523,10 +530,10 @@ export const deleteActividad = async (req: Request, res: Response) => {
 
 
                 const notificacion: CrearNotificacion = {
-                    idUsuarioReceptor: actividad_eliminar.idCreador,
+                    idUsuarioReceptor: Number(creadorActividad),
                     tipo: 'otro',
                     mensaje: notificacionMensaje,
-                    idUsuarioEmisor: req.userId,
+                    idUsuarioEmisor: Number(req.userId),
                     idReferencia: idActividad,
                 };
 

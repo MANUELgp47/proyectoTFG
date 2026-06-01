@@ -23,9 +23,14 @@ import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 export default function PrivateRoute() {
-    const { isAuthenticated, loading } = useAuth();
+    const { isAuthenticated, loading, rol } = useAuth();
 
     if (loading) return <p>Cargando...</p>;
+
+    if (rol === 'baneado') {
+        return <Navigate to="/banned" replace />;//Si el usuario está baneado, redirige a la pantalla de baneo
+    }
+
 
     return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;//Si el usuario está autenticado, muestra las rutas hijas (Outlet), de lo contrario redirige a login
 }

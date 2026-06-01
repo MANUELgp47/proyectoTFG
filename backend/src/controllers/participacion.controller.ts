@@ -100,6 +100,12 @@ export const createParticipacion = async (req: Request, res: Response) => {
         return res.status(400).json({message: 'No se pueden unir a una actividad que no está activa'});
     }
 
+    //el usuario no está baneado
+    const estaBaneado = await UsuarioService.UsuarioService.getRolPorIdUsuario(req.userId!);
+    if (estaBaneado === 'baneado') {
+        return res.status(403).json({message: 'El usuario está baneado y no puede unirse a actividades'});
+    }
+
     //comprueba que el usuario no es ya participante
     const esParticipante = await ActividadService.esUsuarioParticipante(req.body.idActividad, req.userId!);
     if (esParticipante) {

@@ -22,7 +22,7 @@ export default function CrearActividad() {
     const [ubicacion, setUbicacion] = useState("");
     const [publica, setPublica] = useState(true);
     const [participantesmax, setParticipantesmax] = useState<number>(0);
-    const [imagenUrl, setImagenUrl] = useState <string | null>(null);
+    const [imagenUrl, setImagenUrl] = useState<string | null>(null);
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
 
@@ -75,8 +75,7 @@ export default function CrearActividad() {
                       });*/
 
 
-
-                console.log("Datos a enviar:", titulo, archivo );
+                console.log("Datos a enviar:", titulo, archivo);
 
                 formData.append('titulo', titulo);
                 formData.append('descripcion', descripcion);
@@ -96,7 +95,7 @@ export default function CrearActividad() {
                 const nuevaActividad = await createActividad(formData);
 
                 console.log("nueva actividad", nuevaActividad);
-                // Asignar tags uno a uno si se seleccionaron
+                // Asignar tags uno a uno si se seleccionaron esto vale para
                 if (selectedTags && selectedTags.length > 0 && nuevaActividad && nuevaActividad.idActividad) {
                     try {
                         await Promise.all(
@@ -108,8 +107,11 @@ export default function CrearActividad() {
                         setError(prev => prev ? prev + ' | Error asignando tags' : 'Error asignando tags');
                     }
                 }
+//navega la nueva actividad
+                if (nuevaActividad && nuevaActividad.idActividad) {
+                    navigate(`/actividad/${nuevaActividad.idActividad}`);
+                }
 
-                navigate("/");
             } catch
                 (err) {
                 console.error(err);
@@ -126,7 +128,7 @@ export default function CrearActividad() {
     const handleFile = (file: File) => {
         setArchivo(file);
         if (file && file.type.startsWith('image/')) {// Solo aceptamos imágenes
-          //  setArchivo(file);
+            //  setArchivo(file);
             // Creamos una URL temporal para ver la previsualización local
             setImagenUrl(URL.createObjectURL(file));
         }
@@ -177,7 +179,7 @@ export default function CrearActividad() {
 
                         <div>
                             <label className="text-[10px] font-bold tracking-[0.18em] text-neutral uppercase">
-                                La historia
+                                Descripción de la actividad
                             </label>
                             <textarea
                                 placeholder="Describe el ambiente, los objetivos y qué pueden esperar los invitados..."

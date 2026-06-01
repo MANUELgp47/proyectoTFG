@@ -64,8 +64,14 @@ export default function EditarPerfilUsuario() {
             // await fetch(`/api/usuarios/${idUsuario}`, { method: 'PUT', body: formData });
 
              navigate(`/usuario/${idUsuario}`);
-        } catch (error) {
+        } catch (error:any) {
             console.error(error);
+
+
+            const mensajeError = error.response?.data?.message || "Error al registrar";
+
+           // console.log("MENSAJE DEL BACK:", mensajeError);
+            alert(mensajeError);
         }
     };
 

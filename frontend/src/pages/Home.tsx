@@ -448,7 +448,7 @@ export default function Home() {
 
                                 <div>
                                     <label className="text-xs font-semibold text-neutral uppercase tracking-wider">
-                                        Máx participantes
+                                        Participantes máximos
                                     </label>
                                     <input
                                         type="number"

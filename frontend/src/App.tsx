@@ -24,12 +24,15 @@ import VistaRecuerdo from "./pages/VistaRecuerdo.tsx";
 import {VistaParticipantes} from "./pages/VistaParticipantes.tsx";
 import VistaVerificaCodigo from "./pages/VistaVerificaCodigo.tsx";
 import BuscarUsuario from "./pages/BuscarUsuario.tsx";
+import BannedPage from "./pages/BannedPage.tsx";
+
 
 //import Registro from "./pages/Registro";
 
 
 
 export default function App() {
+
     return (
 
         <Routes>
@@ -37,6 +40,7 @@ export default function App() {
             <Route path="/" element={<Home/>}/>
             <Route path="/login" element={<Login/>}/>
             <Route path="/registro" element={<Register/>}/>
+            <Route path="/banned" element={<BannedPage/>}/>
 
 
             {/* Rutas privadas */}

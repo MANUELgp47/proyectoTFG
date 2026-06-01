@@ -54,9 +54,14 @@ export const getComentariosPorUsuario = async (req: Request, res: Response) => {
 }
 export const createComentario = async (req: Request, res: Response) => {
     try {
-
-
         req.body.idUsuario = req.userId;
+
+        //el usuario no está baneado
+        const estaBaneado = await UsuarioService.getRolPorIdUsuario(req.userId!);
+        if (estaBaneado === 'baneado') {
+            return res.status(403).json({message: 'El usuario está baneado y no puede crear comentarios'});
+        }
+
 
         //validar que el contenido no esté vacío
         if (!req.body.mensaje || req.body.mensaje.trim() === '') {
@@ -73,7 +78,6 @@ export const createComentario = async (req: Request, res: Response) => {
 
             return res.status(404).json({message: 'El recuerdo al que se quiere comentar no existe'});
         }
-
 
 
         const comentario = await ComentarioModel.crearComentario(req.body);
@@ -103,7 +107,7 @@ export const deleteComentario = async (req: Request, res: Response) => {
 
 
     //verificar que el usuario es el creador del comentario o es admin o mod o soy el creador del comentario
-    const rol =await  UsuarioService.getRolPorIdUsuario(idUsuario);
+    const rol = await UsuarioService.getRolPorIdUsuario(idUsuario);
     if (comentario.idUsuario !== idUsuario && (rol !== 'admin' && rol !== 'mod' && comentario.idUsuario !== idUsuario)) {
         return res.status(403).json({message: 'No tienes permiso para eliminar este comentario'});
     }
@@ -128,7 +132,7 @@ export const deleteComentario = async (req: Request, res: Response) => {
                     idReferencia: idUsuario,
                 };
 
-               await NotificacionModel.crearNotificacion(notificacion);
+                await NotificacionModel.crearNotificacion(notificacion);
             }
 
         } else {

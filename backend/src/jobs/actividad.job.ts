@@ -49,7 +49,7 @@ export const finalizarActividadesCaducadas = async (actividades: number[]): Prom
                 await NotificacionService.creaNotificacionPorParametros(
                     participanteId,
                     'posibilidad_recuerdo',
-                    `La actividad con llamada ${tituloActividad} ha sido finalizada. Y tiene la posibilidad de crear un recuerdo sobre ella.`,
+                    `La actividad llamada ${tituloActividad} ha sido finalizada. Y tiene la posibilidad de crear un recuerdo sobre ella.`,
                     actividadID
                 );
             }));

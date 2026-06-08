@@ -46,12 +46,13 @@ export default function VistaVerificaCodigo() {
 
 
     return (
-        <div className="min-h-screen bg-slate-50 p-4 md:p-8 flex justify-center items-start">
-            <TopBar/>
-            <div
-                className="w-full max-w-lg bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/60 overflow-hidden border border-slate-100">
+        <div className="min-h-screen bg-slate-50 p-4 md:p-8 flex flex-col items-center gap-6">
+            <div className="w-full">
+                <TopBar/>
+            </div>
 
-                {/* Header con botón Volver */}
+            <div className="w-full max-w-lg bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/60 overflow-hidden border border-slate-100">
+
                 <div className="p-6 border-b border-slate-50 flex items-center gap-4">
                     <button
                         onClick={() => navigate(-1)}
@@ -65,7 +66,6 @@ export default function VistaVerificaCodigo() {
                     </h1>
                 </div>
 
-                {/* Cuerpo: input para código y botón */}
                 <div className="p-6">
                     <form
                         onSubmit={(e) => {

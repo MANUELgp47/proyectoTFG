@@ -293,7 +293,7 @@ export default function PerfilUsuario() {
 
 
 
-            setUsuario(prev => prev ? { ...prev, rol: 'baneado' } : prev);
+            setUsuario((prev: any) => prev ? { ...prev, rol: 'baneado' } : prev);
             alert('Usuario baneado');
             //refrescar
            // window.location.reload();
@@ -312,7 +312,7 @@ export default function PerfilUsuario() {
              await desbanearUsuario(Number(idUsuarios));
 
 
-            setUsuario(prev => prev ? { ...prev, rol: 'user' } : prev);
+            setUsuario((prev: any) => prev ? { ...prev, rol: 'user' } : prev);
             alert('Usuario desbaneado');
             //refrescar
            // window.location.reload();

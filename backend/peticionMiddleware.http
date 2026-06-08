@@ -293,8 +293,8 @@ POST http://localhost:3000/api/auth/login/
 Content-Type: application/json
 
 {
-  "nombre_email": "manuel",
-  "contrasena": "hoalpass"
+  "nombre_email": "Antonio12",
+  "contrasena": "123"
 }
 
 ###manuel eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsImlhdCI6MTc3Mzc0NzYxNiwiZXhwIjoxNzc0NjExNjE2fQ.8f606nSL4Jdg_WEpi8Yvby0KJY81BR0dg7FHmZ9fdPc
@@ -370,3 +370,8 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsI
 ####get numero actividades creadas
 GET http://localhost:3000/api/actividad/numero/3/creadas
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsImlhdCI6MTc3ODU5NzQ5MSwiZXhwIjoxNzc5NDYxNDkxfQ.dvt364UKQacUeHrWrLrP6jTtQXxGZoiPatkKP8E2kZQ
+
+
+### get actividad con id 12
+GET http://localhost:3000/api/actividad/9
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsImlhdCI6MTc4MDM5MzQ4OSwiZXhwIjoxNzgxMjU3NDg5fQ.uARkjdTB02B86FOFFrcfRpRqaPwsLsF0RO_qSkZLqu8

@@ -247,7 +247,7 @@ export const deleteRecuerdoPorId = async (req: Request, res: Response) => {
 
 
                 const notificacion: CrearNotificacion = {
-                    idUsuarioReceptor: idCreador,
+                    idUsuarioReceptor: Number(idCreador),
                     tipo: 'otro',
                     mensaje: notificacionMensaje,
                     idUsuarioEmisor: idUsuario,

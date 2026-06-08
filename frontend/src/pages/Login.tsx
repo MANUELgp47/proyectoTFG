@@ -72,7 +72,7 @@ const Login = () => {
                         <div className="flex items-center gap-2 text-xl font-extrabold">
                             <CheckCircle2 className="w-6 h-6" />
                             <span style={{ fontFamily: "'Manrope', sans-serif" }}>
-              Tu plataforma
+              Memora
             </span>
                         </div>
 

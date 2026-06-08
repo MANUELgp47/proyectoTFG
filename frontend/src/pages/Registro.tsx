@@ -200,7 +200,7 @@ const Register = () => {
                         <div className="flex items-center gap-2 text-xl font-extrabold">
                             <CheckCircle2 className="w-6 h-6" />
                             <span style={{ fontFamily: "'Manrope', sans-serif" }}>
-              Tu plataforma
+              Memora
             </span>
                         </div>
 
@@ -220,16 +220,16 @@ const Register = () => {
 
                     <div className="relative bg-white/10 backdrop-blur-md rounded-2xl p-5 mt-8">
                         <p className="text-sm italic text-white/90 leading-relaxed">
-                            "Escribir algo aquí para llenar el espacio"
+                            "Publicar un plan aquí es tan fácil como vender una bici, pero en lugar de dinero, ganas experiencias. Creas el anuncio y la magia ocurre sola."
                         </p>
                         <div className="mt-4 flex items-center gap-3">
                             <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center text-white text-xs font-bold">
-                                MT
+                                LM
                             </div>
                             <div>
-                                <div className="text-sm font-bold">Nombre</div>
+                                <div className="text-sm font-bold">Lucas Martín</div>
                                 <div className="text-[10px] tracking-wider text-white/70 uppercase">
-                                    Empresa - Cargo
+                                    Creador de comunidad
                                 </div>
                             </div>
                         </div>

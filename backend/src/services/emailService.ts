@@ -13,7 +13,8 @@ const resend = new Resend("re_65kgNMB9_NgkpeaoLLP6AFEJkWcf4m9bW");
 export const enviarCodigoVerificacion = async (emailDestino: string, codigo: string) => {
     try {
         const { data, error } = await resend.emails.send({
-            from: 'onboarding@resend.dev', // Dominio de prueba gratuito
+            //from: 'onboarding@resend.dev', // Dominio de prueba gratuito
+            from: 'no-reply@memora-tfg.es', //Memora TFG <no-reply@memora-tfg.es>
             to: emailDestino,
             subject: 'Tu código de verificación ',
             html: `

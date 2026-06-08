@@ -124,7 +124,7 @@ export const getMisChatsIndividual = async (req: Request, res: Response) => {
         const chatsIndividualesFiltrados = [];
         for (const chat of chatsIndividuales) {
             const idOtroUsuario = chat.idUsuario1 === idUsuario ? chat.idUsuario2 : chat.idUsuario1;
-            const sonAmigos = await AmistadService.existeAmistad(idUsuario, idOtroUsuario);
+            const sonAmigos = await AmistadService.existeAmistad(Number(idUsuario), idOtroUsuario);
             if (sonAmigos) {
                 chatsIndividualesFiltrados.push(chat);
             }

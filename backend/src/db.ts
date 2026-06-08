@@ -1,10 +1,6 @@
+import './loadEnv.js';
 import { Pool } from 'pg';
-import dotenv from 'dotenv';
 
-// Solo busca el archivo si NO estás en Railway (entorno local)
-if (process.env.NODE_ENV !== 'production') {
-    dotenv.config({ path: '../ini.env' });
-}
 
 const pool = new Pool({
 

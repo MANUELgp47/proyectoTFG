@@ -1,3 +1,4 @@
+import './loadEnv.js';
 import express, {type Request, type Response} from 'express';
 import cors from 'cors';
 import path from 'path';
@@ -18,9 +19,7 @@ import authRoutes from "./auth/auth.routes.js";
 import tagRoutes from "./routes/tag.routes.js";
 import actividadTagRoutes from "./routes/actividadTag.routes.js";
 import settingRoutes from "./routes/settings.routes.js";
-import dotenv from 'dotenv';
 
-dotenv.config({ path: '../ini.env' });
 
 //imagenes
 import { fileURLToPath } from 'url';

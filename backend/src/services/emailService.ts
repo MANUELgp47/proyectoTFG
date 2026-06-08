@@ -1,15 +1,16 @@
+import '../loadEnv.js';
 import { Resend } from 'resend';
 import dotenv from 'dotenv';
 
 
 // Solo busca el archivo si NO estás en Railway (entorno local)
-if (process.env.NODE_ENV !== 'production') {
+/*if (process.env.NODE_ENV !== 'production') {
     dotenv.config({ path: '../ini.env' });
 }
 
-//const resend = new Resend(process.env.RESEND_API_KEY);
-const resend = new Resend("re_65kgNMB9_NgkpeaoLLP6AFEJkWcf4m9bW");
-
+//
+const resend = new Resend("re_65kgNMB9_NgkpeaoLLP6AFEJkWcf4m9bW");*/
+const resend = new Resend(process.env.RESEND_API_KEY);
 export const enviarCodigoVerificacion = async (emailDestino: string, codigo: string) => {
     try {
         const { data, error } = await resend.emails.send({

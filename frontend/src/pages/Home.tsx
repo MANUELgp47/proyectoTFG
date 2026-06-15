@@ -147,7 +147,7 @@ export default function Home() {
             const response = await getActividadesFiltro(params.toString())
 
             const data = await response;
-            console.log(data);
+
             setActividades(data);
         };
         const timeout = setTimeout(() => { // Agrega un retraso de 300ms para evitar llamadas excesivas
@@ -243,7 +243,6 @@ export default function Home() {
                 }
 
                 if (!cancelled) setUltimosMensajes(mensajesMap);
-                console.log('mensajesMap', mensajesMap);
             } catch (err) {
                 console.error('fetchUltimosMensajes error', err);
             }
@@ -297,7 +296,6 @@ export default function Home() {
                     })
                 );
 
-                console.log('usuariosMap', usuariosMap);
                 if (!cancelled) setUsuariosMinimos(usuariosMap);
             } catch (e) {
                 console.error('fetchUsuariosMinimos error', e);

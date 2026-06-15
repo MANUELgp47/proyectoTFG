@@ -176,7 +176,7 @@ export default function VistaChatActividad() {
                     {/* --- Cabecera del chat (actividad) --- */}
                     <header className="flex items-center gap-3 px-5 py-4 border-b border-slate-100">
                         <Link
-                            to="/misActividades"
+                            to="/"
                             className="sm:hidden w-9 h-9 rounded-full flex items-center justify-center text-neutral hover:bg-neutral-light transition"
                             aria-label="Volver"
                         >

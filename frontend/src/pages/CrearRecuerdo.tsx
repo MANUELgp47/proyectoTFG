@@ -126,7 +126,7 @@ export default function CrearRecuerdo() {
             }
 
             const respuesta = await crearRecuerdo(formData);
-            console.log("respuesta ", respuesta);
+
             alert("Recuerdo creado exitosamente");
             navigate(-1);
         } catch (error) {

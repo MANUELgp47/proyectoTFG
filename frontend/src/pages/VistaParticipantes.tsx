@@ -1,8 +1,4 @@
-//Muestra los participantes de un evento, con su nombre, enlace a su perfil, Y en caso de ser Actividad.admins, un botón para expulsar al participante de la actividad y otro de convertir en admin al participante
-//Si el usuario es admin, también mostrar un botón para quitar a un admin de la actividad
-//tambien se mostrará al final una lista de expulsados solo visible para admins
-//si la actividad es pública, no mostrar participantes con privacidad actividadPublica=false, pero mostrar una sección aparte de participantes privados solo a admins/creador
-//si la actividad no es pública, mostrar a todos los participantes sin filtrar por privacidad
+
 import {useEffect, useState} from 'react';
 import {useParams} from 'react-router-dom';
 import {getActividadPorId, addAdmin, removeAdmin, addExpulsado, removeExpulsado} from '../services/actividadService';
@@ -79,11 +75,10 @@ export function VistaParticipantes() {
         const fetchData = async () => {
             try {
 
-                console.log('Cargando participantes para actividad id:', idActividad);
 
                 if (idActividad != undefined && idActividad != null) {
 
-                    console.log('Cargando id:', idActividad);
+
                     const participantesData = await getParticipacionesAceptadasPorActividad(Number(idActividad));
 
                     //crea un mapa de los usuarios participantes con su idUsuario como clave y el objeto Usuario como valor| no constante para poder modificarlo luego
@@ -109,7 +104,7 @@ export function VistaParticipantes() {
   */
                     //recorre participantesData y si su privacidad es actividadPublica false, lo mete en participantesPrivados, si no en participantes
                     if (actividad && actividad.publica === true) {
-                        console.log("Actividad es pública, filtrando participantes según su privacidad");
+
                         const privados: Usuario[] = [];
                         const publicos: Usuario[] = [];
                         for (const p of participantesData) {
@@ -121,12 +116,12 @@ export function VistaParticipantes() {
                                 publicos.push(usuario);
                             }
                         }
-                        console.log("Participantes públicos:", publicos, "Participantes privados:", privados);
+
                         setParticipantes(publicos);
                         setParticipantesPrivados(privados);
 
                     } else if (actividad) {
-                        console.log("Actividad no es pública, mostrando todos los participantes sin filtrar por privacidad");
+
                         const usuarios: Usuario[] = participantesData.map((p: any) => p.usuario ? p.usuario : p);
                         setParticipantes(usuarios);
                     }
@@ -138,7 +133,7 @@ export function VistaParticipantes() {
                     } else {
                         setExpulsados([]);
                     }
-                    //    console.log('Participantes cargados:', usuarios);
+
                 }
             } catch (error) {
                 console.error(error);

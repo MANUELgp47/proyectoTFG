@@ -96,7 +96,7 @@ export default function VistaSettings() {
         setError("");
         setSaving(true);
 
-        console.log("Datos a enviar" + settings.preferencias)
+
 
         try {
             await updateSettings(settings);

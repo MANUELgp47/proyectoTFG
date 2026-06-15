@@ -66,7 +66,7 @@ export default function PerfilUsuario() {
                                setSomosAmigos(false);
                            }*/
 
-                    console.log("Fetch Usuario");
+
                     const data = await getPerfilUsuario(Number(idUsuarios));
                     setUsuario(data);
 
@@ -79,11 +79,6 @@ export default function PerfilUsuario() {
                     } else if (data.nombre) {
                         setPerfilPublico(true);
                     }
-
-                    /*  const perfilData = await getPerfilUsuario(Number(idUsuarios));
-                      setPerfil(perfilData);
-                      console.log("perfil", perfilData);*/
-                    //      }
 
                     //numero de amistades
                     const numeroAmistadesData = await getNumeroAmistades(Number(idUsuarios));
@@ -142,12 +137,9 @@ export default function PerfilUsuario() {
             const fetchedSolicitud = await getSolicitudAmistad(Number(idUsuarios));
             setSolicitud(fetchedSolicitud);
             const fetchedAmistad = await getAmistadEntreUsuarios(idSesion, Number(idUsuarios));
-            //  console.log("Amistad entre usuarios", idSesion, idUsuario, fetchedAmistad);
+
             setAmistad(fetchedAmistad);
-            /* console.log("id usuario perfil", idUsuarios, "id sesion", idSesion, "amistad", fetchedAmistad, "solicitud", fetchedSolicitud);
-             const recuerdos = await getRecuerdosPorUsuario(Number(idUsuarios));
-             console.log("recuerdos", recuerdos);
-             setRecuerdos(recuerdos);*/
+
 
             //existe chat entre nosotros?
             const existe = await existeChatConmigo(Number(idUsuarios));
@@ -191,7 +183,7 @@ export default function PerfilUsuario() {
         return;
     }
     const handleEnviarSolicitudAmistad = () => {
-        console.log("solicitud" + solicitud)
+
         CrearSolicitud(usuario.idUsuario);
         alert("Solicitud de amistad enviada");
         //refrescar la página para actualizar el estado de solicitud
@@ -201,28 +193,6 @@ export default function PerfilUsuario() {
     const handleChatear = async () => {
         // Redirige al chat individual con este usuario. Si no existe, pregunta y lo crea.
         try {
-
-            /*  console.log("Chatear el usuario", usuario.idUsuario ,"con el usuario", idSesion);
-
-              const chatExistente = await getChatIndividualPorUsuario(Number(idUsuarios));
-              console.log("char", chatExistente);
-
-
-              if (!chatExistente) {
-                  const confirmar = window.confirm("¿Quieres iniciar un chat con este usuario?");
-                  if (confirmar) {
-
-                      const nuevoChat = await crearChatIndividual(usuario.idUsuario);
-
-
-                      alert("Chat creado");
-                      // redirigir al chat creado
-                      window.location.href = `/chatIndividual/${nuevoChat.idChatIndividual}`;
-                  }
-              } else {
-                  // redirigir al chat existente
-                  window.location.href = `/chatIndividual/${chatExistente.idChatIndividual}`;
-              }*/
 
             if (existeChat) {
                 const chatExistente = await getChatIndividualPorUsuario(Number(idUsuarios));

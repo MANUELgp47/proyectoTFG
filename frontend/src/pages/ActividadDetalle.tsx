@@ -66,7 +66,7 @@ export function ActividadDetalle() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                console.log("Cargando detalles de la actividad con id:", id);
+
                 if (id) {
                     const data = await getActividadPorId(Number(id));
                     setActividad(data);
@@ -79,7 +79,7 @@ export function ActividadDetalle() {
 
                     //si participo en la actividad, cargar el chat de la actividad para marcar los mensajes como leídos
                     if (miParticipacion && miParticipacion.aceptada) {
-                        //   console.log("Cargando chat de la actividad para marcar mensajes como leídos, miParticipacion", miParticipacion);
+
                         const chat = await getChatActividad(Number(id));
 
                         // Comprobamos que chat no sea false ni un booleano antes de acceder a sus propiedades
@@ -92,7 +92,6 @@ export function ActividadDetalle() {
                         }
 
 
-                        // console.log(chat.idChatActividad);
                     }
 
                 }
@@ -128,7 +127,7 @@ export function ActividadDetalle() {
                     const tags = await getTagsActividad(actividad.idActividad);
                     setImagenTag(tags[0]?.imagen ?? ""); // Si el primer tag tiene imagen, la usamos; si no, dejamos vacío
                     setTags(tags.map((tag: Tag) => tag.nombre));
-                    console.log("Tags de la actividad:", tags);
+
                 } catch (error) {
                     console.error("Error al cargar tags de la actividad:", error);
                 }
@@ -167,7 +166,7 @@ export function ActividadDetalle() {
         try {
             // llama a tu endpoint participar
             await participarEnActividad(actividad.idActividad);
-            console.log("Participar");
+
             // Recargar la página para actualizar el estado de participación
             window.location.reload();
         } catch (error) {
@@ -195,7 +194,7 @@ export function ActividadDetalle() {
             eliminarParticipacion(idSesion, actividad.idActividad);
 
             window.location.reload();
-            console.log("Dejar participar");
+
         } catch (error) {
             console.error(error);
         }
@@ -275,7 +274,7 @@ export function ActividadDetalle() {
             actividad.estado === "activa" ? "bg-tertiary text-secondary" : "bg-white/20 backdrop-blur text-white"
         }`}
     >
-        {(actividad.estado ?? "ACTIVA").toUpperCase()}
+        {(actividad.estado ?? "activa").toUpperCase()}{/*  */}
     </span>
                         <span className="px-3 py-1 rounded-full bg-white/20 backdrop-blur text-white text-xs font-bold tracking-wider">
         {esPublica ? "ACTIVIDAD PÚBLICA" : "ACTIVIDAD PRIVADA"}
@@ -290,21 +289,7 @@ export function ActividadDetalle() {
                             {actividad.titulo}
                         </h1>
                     </div>
-                    {/* Badges para móvil: fuera del HERO y en el flujo normal */}
-                    <div className="mt-3 flex flex-wrap gap-2 sm:hidden">
-    <span
-        className={`px-3 py-1 rounded-full text-xs font-bold tracking-wider ${
-            actividad.estado === "activa"
-                ? "bg-secondary text-white"
-                : "bg-neutral-light text-secondary"
-        }`}
-    >
-        {(actividad.estado ?? "ACTIVA").toUpperCase()}
-    </span>
-                        <span className="px-3 py-1 rounded-full bg-white/20 text-secondary text-xs font-bold tracking-wider">
-        {esPublica ? "ACTIVIDAD PÚBLICA" : "ACTIVIDAD PRIVADA"}
-    </span>
-                    </div>
+
                 </div>
 
                 {/* Badges para móvil: debajo del hero, solo visibles en móvil */}

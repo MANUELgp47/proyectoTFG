@@ -20,7 +20,7 @@ const Login = () => {
         setLoading(true);
 
         try {
-            //console.log('Intentando login con', { nombre_email, contrasena });
+
             const response = await loginApi({
                 nombre_email,
                 contrasena,
@@ -29,7 +29,7 @@ const Login = () => {
             // Guardar token en contexto global
             login(response);
 
-            console.log('Login correcto');
+
             navigate('/');
         } catch (err: any) {
             console.error(err);

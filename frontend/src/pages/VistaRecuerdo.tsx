@@ -54,7 +54,7 @@ export default function VistaRecuerdo() {
                 setRecuerdo(data);
 
                 const participantesData = await getParticipacionesAceptadasPorActividad(data.idActividad);
-                console.log("participaciones", participantesData);
+
                 const participantesList = await Promise.all(participantesData.map(async (participacion: {
                     idUsuario: number
                 }) => {
@@ -99,8 +99,7 @@ export default function VistaRecuerdo() {
                 } else {
                     setHayImagenes(false);
                 }
-                console.log(actividadData);
-                console.log(actividadData + " hay imagenes: " + hayImagenes);
+
 
 
             } catch (err) {

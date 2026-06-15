@@ -148,7 +148,7 @@ const Register = () => {
 
             const mensajeError = err.response?.data?.message || "Error al registrar";
 
-            console.log("MENSAJE DEL BACK:", mensajeError);
+
             alert(mensajeError);
 
         } finally {

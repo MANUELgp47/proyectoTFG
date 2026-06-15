@@ -19,7 +19,7 @@ export default function EditarPerfilUsuario() {
         const fetchUsuario = async () => {
             try {
                 if (idUsuario == null) return;
-                console.log("Obteniendo datos del usuario...");
+
                 const response = await getUsuario(Number(idUsuario));
                 setUsuario(response);
             } catch (error) {
@@ -70,7 +70,7 @@ export default function EditarPerfilUsuario() {
 
             const mensajeError = error.response?.data?.message || "Error al registrar";
 
-           // console.log("MENSAJE DEL BACK:", mensajeError);
+
             alert(mensajeError);
         }
     };
@@ -93,7 +93,7 @@ export default function EditarPerfilUsuario() {
         // guardar el archivo real para enviarlo en el formulario
         setArchivos(file);
 
-        console.log("Foto seleccionada (preview):", file.name);
+
     };
 
     return (

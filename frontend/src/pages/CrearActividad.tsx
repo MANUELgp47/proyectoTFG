@@ -75,8 +75,6 @@ export default function CrearActividad() {
                       });*/
 
 
-                console.log("Datos a enviar:", titulo, archivo);
-
                 formData.append('titulo', titulo);
                 formData.append('descripcion', descripcion);
                 formData.append('fechaInicio', new Date(fechaInicio).toISOString());
@@ -94,7 +92,6 @@ export default function CrearActividad() {
 
                 const nuevaActividad = await createActividad(formData);
 
-                console.log("nueva actividad", nuevaActividad);
                 // Asignar tags uno a uno si se seleccionaron esto vale para
                 if (selectedTags && selectedTags.length > 0 && nuevaActividad && nuevaActividad.idActividad) {
                     try {

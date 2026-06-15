@@ -125,7 +125,7 @@ export default function CrearRecuerdo() {
                 items.forEach((it) => formData.append("imagenes", it.file));
             }
 
-            const respuesta = await crearRecuerdo(formData);
+            await crearRecuerdo(formData);
 
             alert("Recuerdo creado exitosamente");
             navigate(-1);

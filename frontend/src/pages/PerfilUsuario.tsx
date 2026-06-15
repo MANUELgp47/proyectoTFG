@@ -252,11 +252,22 @@ export default function PerfilUsuario() {
     const handlebloquear = async () => {
 
         const confirmar = window.confirm("¿Estás seguro de que quieres bloquear a este usuario? No podrás ver su perfil ni sus recuerdos, y él no podrá ver tu perfil ni tus recuerdos.");
-        if (confirmar) {
-            await bloquear(Number(idUsuarios));
-            setLoHeBloqueado(true);
-            alert("Usuario bloqueado");
+        try {
+            if (confirmar) {
+                await bloquear(Number(idUsuarios));
+                setLoHeBloqueado(true);
+                alert("Usuario bloqueado");
+            }
+
+        }catch (error: any) {
+            //si da error 405. Es porque el usuario es admin o moderador y no se puede bloquear
+            if (error.response.status === 405) {
+                alert("No puedes bloquear a este usuario porque es un administrador o moderador.");
+            }
+
         }
+
+
         //actualizar la página para que no se vea el perfil ni los recuerdos
         window.location.reload();
 
@@ -346,7 +357,7 @@ export default function PerfilUsuario() {
                 </div>
 
 
-                {perfilPublico && (<Link
+                {(perfilPublico || rol==='mod' || rol==='admin') &&(<Link
                     to={`/amistad/${idUsuarios}`}
                     className="mt-5 block text-center py-2.5 rounded-xl bg-neutral-light text-primary text-sm font-semibold hover:bg-slate-200 transition"
                 >
@@ -367,13 +378,13 @@ export default function PerfilUsuario() {
                 <Link
                     to={`/usuario/${idUsuarios}/actividadesCreadas`}
                     onClick={(e) => {
-                        if (!perfilPublico) {
+                        if (!perfilPublico && rol!=='mod' && rol!=='admin') {
                             e.preventDefault();
                             alert('Este perfil es privado');
                         }
                     }}
-                    aria-disabled={!perfilPublico}
-                    className={`flex items-center gap-3 p-4 rounded-2xl bg-neutral-light hover:bg-slate-200 transition ${!perfilPublico ? 'opacity-60 cursor-not-allowed' : ''}`}
+                    aria-disabled={!perfilPublico && rol!=='mod' && rol!=='admin'}//si el perfil es privado y no soy mod ni admin, no tengo acceso a las actividades creadas
+                    className={`flex items-center gap-3 p-4 rounded-2xl bg-neutral-light hover:bg-slate-200 transition ${!perfilPublico && rol!=='mod' && rol!=='admin' ? 'opacity-60 cursor-not-allowed' : ''}`}
                 >
                     <div className="w-11 h-11 rounded-xl bg-white flex items-center justify-center">
                         <Calendar className="w-5 h-5 text-primary" />
@@ -482,7 +493,7 @@ export default function PerfilUsuario() {
                                                 </Link>
                                             )}
 
-                                            {/* Ya somos amigos → Eliminar + Chatear */}
+                                            {/* Ya somos amigos -> Eliminar + Chatear */}
                                             {amistad && (
                                                 <>
                                                     <button
@@ -579,7 +590,7 @@ export default function PerfilUsuario() {
                             </h2>
 
 
-                            {recuerdos.length === 0 || !perfilPublico && !amistad && Number(idSesion) !== Number(idUsuarios) ? (
+                            {recuerdos.length === 0 || !perfilPublico && !amistad && Number(idSesion) !== Number(idUsuarios) && rol!=='admin' && rol!=='mod' ? (
                                 <div
                                     className="bg-white rounded-3xl p-12 text-center text-neutral">{recuerdos.length === 0 ? (" No ha creado ningún recuerdo aún.") : ("Perfil privado")}
 
@@ -651,7 +662,7 @@ export default function PerfilUsuario() {
                             <button
                                 type="button"
                                 className="lg:hidden fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-primary text-white shadow-lg flex items-center justify-center hover:bg-primary-600 transition active:scale-95"
-                                aria-label="Ver amigos y estadísticas"
+                                aria-label="Ver amigos y actividades"
                             >
                                 <Users className="w-6 h-6"/>
                             </button>
@@ -665,7 +676,7 @@ export default function PerfilUsuario() {
                                     className="text-xl font-extrabold text-secondary"
                                     style={{fontFamily: "'Manrope', sans-serif"}}
                                 >
-                                    Amigos y estadísticas
+                                    Amigos y actividades
                                 </SheetTitle>
                             </SheetHeader>
                             {sidebarContent}

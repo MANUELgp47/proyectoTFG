@@ -8,6 +8,7 @@ import * as UsuarioService from '../services/usuario.service.js';
 import * as SolicitudAmistadService from '../services/solicitudAmistad.service.js';
 import * as SettingsService from '../services/settingsService.js';
 
+
 export const getAllSolicitudesAmistad = async (req: Request, res: Response) => {
     try {
         const solicitudes = await SolicitudAmistadModel.getAllSolicitudesAmistad();
@@ -60,6 +61,12 @@ export const crearSolicitudAmistad = async (req: Request, res: Response) => {
         const usuarioReceptor = await UsuarioService.UsuarioService.existeUsuarioPorId(idReceptor);
         if (!usuarioEmisorEx || !usuarioReceptor) {
             return res.status(404).json({message: 'Uno o ambos usuarios no existen'});
+        }
+
+        //el usuario no está baneado
+        const estaBaneado = await UsuarioService.UsuarioService.getRolPorIdUsuario(req.userId!);
+        if (estaBaneado === 'baneado') {
+            return res.status(403).json({message: 'El usuario está baneado y no puede realizar esta acción'});
         }
 
         // Validar que el emisor y receptor no sean el mismo usuario
@@ -161,7 +168,8 @@ export const actualizarEstadoSolicitudAmistad = async (req: Request, res: Respon
             const receptor = await UsuarioService.UsuarioService.obtenerUsuarioPorId(idActualizador);
             const usuarioRe =  receptor ? receptor.nombreUsuario : 'Usuario desconocido';
 
-            await NotificacionService.NotificacionService.creaNotificacionPorParametros(
+            await NotificacionService.NotificacionService.creaNotificacionPorParametrosConEmisor(
+                idActualizador,
                 Number(idEmisor),
                 'solicitud_amistad',
                 `Tu solicitud de amistad ha sido aceptada por el usuario ${usuarioRe}`,

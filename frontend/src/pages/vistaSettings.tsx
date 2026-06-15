@@ -278,7 +278,8 @@ export default function VistaSettings() {
                         />
                         <SettingRow
                             title="Actividades públicas"
-                            subtitle="Comparte tu asistencia a eventos en tiempo real"
+                            subtitle="Comparte tu asistencia a eventos en tiempo real
+                            (Si la desactivas, tu perfil no será mostrado a los usuarios de las actividades públicas)"
                             checked={!!settings?.actividadPublica}
                             onChange={(v) => handleFieldChange("actividadPublica", v)}
                         />

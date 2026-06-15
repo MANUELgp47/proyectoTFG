@@ -182,7 +182,8 @@ export default function VistaNotificacion() {
                     </div>
 
                     <div className="mt-10 pt-6 border-t-2 border-dashed border-slate-100">
-                        {((notificacion.tipo === 'solicitud_union_actividad' || notificacion.tipo === 'solicitud_amistad')) &&
+                        {((notificacion.tipo === 'solicitud_union_actividad' && Number(notificacion.idUsuarioEmisor) !== idUsuarioSesion)
+                                || (notificacion.tipo === 'solicitud_amistad' && Number(notificacion.idUsuarioEmisor) === 0)) &&
                             Number(notificacion.idUsuarioEmisor) !== idUsuarioSesion && (
                                 <div className="grid grid-cols-2 gap-4">
                                     <button

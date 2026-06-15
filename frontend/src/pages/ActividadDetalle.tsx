@@ -42,6 +42,10 @@ interface Participacion {
     esCreador?: boolean;
     aceptada?: boolean;
 }
+interface UsuarioMinimo {
+    imagen?: string;
+    nombreUsuario?: string;
+}
 
 export function ActividadDetalle() {
     const {id} = useParams();
@@ -50,11 +54,11 @@ export function ActividadDetalle() {
     const [numeroParticipantes, setNumeroParticipantes] = useState(0);
     const [miParticipacion, setParticipacion] = useState<Participacion | null>(null);
     const [idChatActividad, setIdChatActividad] = useState<number | null>(null);
-    const {idUsuario, rol, } = useAuth();
+    const {idUsuario, rol,} = useAuth();
     const idSesion = Number(idUsuario);
     //Es admin de la actividad?
     const [isAdminActividad, setIsAdminActividad] = useState(false);
-    const [usuarioMinimo, setUsuarioMinimo] = useState<any>(null);
+    const [usuarioMinimo, setUsuarioMinimo] = useState<UsuarioMinimo | null>(null);
     const [tags, setTags] = useState<string[]>([]);
     const [imagenTag, setImagenTag] = useState<string>("");
 
@@ -157,7 +161,7 @@ export function ActividadDetalle() {
     if (loading) return <p>Cargando...</p>;
     if (!actividad) return <p>Actividad no encontrada.</p>;
 
-   // const participantesPublica = actividad.publica ? "Esta actividad es pública." : `Participantes: ${numeroParticipantes} / ${actividad.participantesmax}`;
+    // const participantesPublica = actividad.publica ? "Esta actividad es pública." : `Participantes: ${numeroParticipantes} / ${actividad.participantesmax}`;
 
     const handleParticipar = async () => {
         try {
@@ -213,8 +217,19 @@ export function ActividadDetalle() {
         }
     }
 
+    const getFirstImage = (imagenes?: string | string[] | null): string | null => {
+        if (!imagenes) return null;
+        if (Array.isArray(imagenes)) {
+            for (const im of imagenes) {
+                if (typeof im === "string" && im.trim() !== "") return im;
+            }
+            return null;
+        }
+        return typeof imagenes === "string" && imagenes.trim() !== "" ? imagenes : null;
+    };
 
-    const heroImg = actividad.imagenes ?? null;
+    const heroImg: string | null = getFirstImage(actividad.imagenes);
+    const hasHero = Boolean(heroImg || imagenTag);
     const fechaInicio = new Date(actividad.fechaInicio);
     const fechaFin = new Date(actividad.fechaFin);
     const cupoMax = Number(actividad.participantesmax);
@@ -228,55 +243,84 @@ export function ActividadDetalle() {
                 <TopBar/>
 
                 {/* ============ HERO ============ */}
-                <div className="relative w-full aspect-[16/7] rounded-3xl overflow-hidden bg-black shadow-lg">
-                    {heroImg ? (
-                        <img
-                            src={heroImg[0]}
-                            alt={actividad.titulo}
-                            className="absolute inset-0 w-full h-full object-cover"
-                            onError={(e) =>
-                                ((e.currentTarget as HTMLImageElement).style.display = "none")
-                            }
-                        />
-                    ):(
-                        <img
-                            src={imagenTag}
-                            alt={actividad.titulo}
-                            className="absolute inset-0 w-full h-full object-cover"
-                            onError={(e) =>
-                                ((e.currentTarget as HTMLImageElement).style.display = "none")
-                            }
-                        />
-                        )}
-                    {/* Gradiente para legibilidad del título */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent"/>
+                <div
+                    className={`relative w-full ${hasHero ? 'aspect-[16/7]' : 'aspect-[4/1]'} rounded-3xl overflow-hidden bg-blue-100 shadow-lg`}
+                >
+                    {hasHero ? (
+                        <>
+                            {heroImg ? (
+                                <img
+                                    src={heroImg}
+                                    alt={actividad.titulo}
+                                    className="absolute inset-0 w-full h-full object-cover"
+                                    onError={(e) => ((e.currentTarget as HTMLImageElement).style.display = "none")}
+                                />
+                            ) : imagenTag ? (
+                                <img
+                                    src={imagenTag}
+                                    alt={actividad.titulo}
+                                    className="absolute inset-0 w-full h-full object-cover"
+                                    onError={(e) => ((e.currentTarget as HTMLImageElement).style.display = "none")}
+                                />
+                            ) : null}
+                        </>
+                    ) : null}
 
-                    {/* Badges */}
-                    <div className="absolute top-6 left-6 flex flex-wrap gap-2">
-          <span
-              className={`px-3 py-1 rounded-full text-xs font-bold tracking-wider ${
-                  actividad.estado === "activa"
-                      ? "bg-tertiary text-secondary"
-                      : "bg-white/20 backdrop-blur text-white"
-              }`}
-          >
-            {(actividad.estado ?? "ACTIVA").toUpperCase()}
-          </span>
-                        <span
-                            className="px-3 py-1 rounded-full bg-white/20 backdrop-blur text-white text-xs font-bold tracking-wider">
-            {esPublica ? "ACTIVIDAD PÚBLICA" : "ACTIVIDAD PRIVADA"}
-          </span>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
+
+                    {/* Badges (escritorio dentro del hero) */}
+                    <div className="absolute top-6 left-6 flex flex-wrap gap-2 z-30 hidden sm:flex">
+    <span
+        className={`px-3 py-1 rounded-full text-xs font-bold tracking-wider ${
+            actividad.estado === "activa" ? "bg-tertiary text-secondary" : "bg-white/20 backdrop-blur text-white"
+        }`}
+    >
+        {(actividad.estado ?? "ACTIVA").toUpperCase()}
+    </span>
+                        <span className="px-3 py-1 rounded-full bg-white/20 backdrop-blur text-white text-xs font-bold tracking-wider">
+        {esPublica ? "ACTIVIDAD PÚBLICA" : "ACTIVIDAD PRIVADA"}
+    </span>
                     </div>
-
                     {/* Título */}
-                    <div className="absolute bottom-6 left-6 right-6 sm:bottom-10 sm:left-10 sm:right-10">
+                    <div className="absolute bottom-6 left-6 right-6 sm:bottom-10 sm:left-10 sm:right-10 z-10 max-h-[6rem] sm:max-h-none overflow-hidden">
                         <h1
                             className="text-white text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.05] drop-shadow-lg"
-                            style={{fontFamily: "'Manrope', sans-serif"}}
+                            style={{ fontFamily: "'Manrope', sans-serif" }}
                         >
                             {actividad.titulo}
                         </h1>
                     </div>
+                    {/* Badges para móvil: fuera del HERO y en el flujo normal */}
+                    <div className="mt-3 flex flex-wrap gap-2 sm:hidden">
+    <span
+        className={`px-3 py-1 rounded-full text-xs font-bold tracking-wider ${
+            actividad.estado === "activa"
+                ? "bg-secondary text-white"
+                : "bg-neutral-light text-secondary"
+        }`}
+    >
+        {(actividad.estado ?? "ACTIVA").toUpperCase()}
+    </span>
+                        <span className="px-3 py-1 rounded-full bg-white/20 text-secondary text-xs font-bold tracking-wider">
+        {esPublica ? "ACTIVIDAD PÚBLICA" : "ACTIVIDAD PRIVADA"}
+    </span>
+                    </div>
+                </div>
+
+                {/* Badges para móvil: debajo del hero, solo visibles en móvil */}
+                <div className="mt-3 flex flex-wrap gap-2 sm:hidden">
+                    <span
+                        className={`px-3 py-1 rounded-full text-xs font-bold tracking-wider ${
+                            actividad.estado === "activa"
+                                ? "bg-tertiary text-secondary"
+                                : "bg-neutral-light text-secondary"
+                        }`}
+                    >
+                        {(actividad.estado ?? "ACTIVA").toUpperCase()}
+                    </span>
+                    <span className="px-3 py-1 rounded-full bg-neutral-light text-secondary text-xs font-bold tracking-wider">
+                        {esPublica ? "ACTIVIDAD PÚBLICA" : "ACTIVIDAD PRIVADA"}
+                    </span>
                 </div>
 
                 {/* ============ CUERPO ============ */}
@@ -481,7 +525,7 @@ export function ActividadDetalle() {
                                     )}
 
                                     {/* Dejar de participar */}
-                                    {miParticipacion.aceptada && actividad.estado === "activa" && actividad.idCreador !==idSesion &&(
+                                    {miParticipacion.aceptada && actividad.estado === "activa" && actividad.idCreador !== idSesion && (
                                         <button
                                             onClick={handleDejarParticipar}
                                             className="w-full py-3.5 rounded-full bg-white text-red-600 border border-red-200 font-bold text-sm hover:bg-red-50 transition flex items-center justify-center gap-2"
@@ -510,13 +554,12 @@ export function ActividadDetalle() {
                                     Unirme a la actividad
                                     <Zap className="w-4 h-4 fill-white"/>
                                 </button>
-                            ) :  actividad.estado === 'activa' && (
+                            ) : actividad.estado === 'activa' && (
                                 <div
                                     className="w-full py-3.5 rounded-full bg-neutral-light text-neutral font-semibold text-sm text-center">
                                     No hay plazas disponibles
                                 </div>
                             )}
-
 
 
                             {/* Ver participantes */}
@@ -530,17 +573,18 @@ export function ActividadDetalle() {
 
                             {/*no soy admin ni mod*/}
                             {rol !== "admin" && rol !== "mod" && (
-                                <div> <button
-                                    onClick={() => handleDenunciaActividad()}
-                                    className="ml-auto inline-flex items-center gap-2 px-3 py-2 rounded-lg text-red-600 text-xs font-semibold hover:bg-red-50 transition"
-                                >
-                                    <ShieldBan className="w-3.5 h-3.5"/>
-                                    Denunciar
-                                </button></div>
+                                <div>
+                                    <button
+                                        onClick={() => handleDenunciaActividad()}
+                                        className="ml-auto inline-flex items-center gap-2 px-3 py-2 rounded-lg text-red-600 text-xs font-semibold hover:bg-red-50 transition"
+                                    >
+                                        <ShieldBan className="w-3.5 h-3.5"/>
+                                        Denunciar
+                                    </button>
+                                </div>
                             )}
 
                         </div>
-
 
 
                         {/* Acciones de moderación */}

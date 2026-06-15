@@ -105,7 +105,7 @@ export default function ActividadesCreadas() {
                 to={`/actividad/${act.idActividad}`}
                 className="group bg-white rounded-3xl shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition flex flex-col overflow-hidden no-underline"
             >
-                <div className="relative w-full aspect-[4/3] bg-black overflow-hidden">
+                <div className="relative w-full aspect-[4/3] bg-blue-100 overflow-hidden">
                     {act.imagenes && (
                         <img
                             src={act.imagenes}

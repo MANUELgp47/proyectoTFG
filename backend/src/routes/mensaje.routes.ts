@@ -5,8 +5,8 @@ import {getMensajesPorChatActividad} from "../controllers/mensaje.controller.js"
 
 const router = Router();
 
-// ver todos los mensajes
-router.get('/', MensajeController.getMensajes);
+// ver todos los mensajes dev
+//router.get('/', MensajeController.getMensajes);
 
 //crear un mensaje
 router.post('/', authMiddleware, MensajeController.createMensaje);

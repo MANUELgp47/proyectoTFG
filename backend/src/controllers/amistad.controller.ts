@@ -63,12 +63,11 @@ export const getNumeroAmistadesPorUsuario = async (req: Request, res: Response) 
 export const getAmistadesPorUsuario = async (req: Request, res: Response) => {
     const {idUsuario} = req.params;
 
-    //tengo permiso? TODO hacer cuando todos los users tengan settings
+    //tengo permiso?
     const permiso = await AmistadService.tengoPermisoParaVerPerfil(Number(req.userId), Number(idUsuario));
         if (!permiso) {
             return res.status(403).json({ message: 'No tienes permiso para ver las amistades de este usuario' });
         }
-
 
     try {
         const amistades = await AmistadModel.getAmistadesPorUsuario(Number(idUsuario));

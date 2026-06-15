@@ -6,8 +6,8 @@ const router = Router();
 
 //TODO en principio los usuarios no tendran acceso a esas rutas así que no se añade el middleware de autenticación
 
-// Obtener todos los chats de actividad de la base de datos
-router.get('/', ChatActividadController.getChatsActividad);
+// Obtener todos los chats de actividad de la base de datos dev
+//router.get('/', ChatActividadController.getChatsActividad);
 
 //Obtiene el chat de actividad por id de actividad
 router.get('/actividad/:idActividad', authMiddleware, ChatActividadController.getChatPorActividad);

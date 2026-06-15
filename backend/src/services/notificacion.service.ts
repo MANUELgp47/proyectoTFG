@@ -34,6 +34,17 @@ export class NotificacionService {
         NotificacionModel.crearNotificacion(notificacion);
     }
 
+    static creaNotificacionPorParametrosConEmisor(idUsuarioEmisor :number,idUsuarioReceptor: number, tipo: CrearNotificacion['tipo'], mensaje: string, idReferencia: number) {
+        const notificacion: CrearNotificacion = {
+            idUsuarioEmisor,
+            idUsuarioReceptor,
+            tipo,
+            mensaje,
+            idReferencia,
+        };
+        NotificacionModel.crearNotificacion(notificacion);
+    }
+
     //notificación chat mensaje
     static async crearNotificacionNuevoMensaje(body: any) {
         const NombreEmisor = await UsuarioService.getNombreUsuarioPorId(body.idEmisor);

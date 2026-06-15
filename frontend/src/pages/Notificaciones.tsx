@@ -15,7 +15,7 @@ export default function Notificaciones() {
         union_actividad: "Actividades",
         actualizacion_actividad: "Cambios en Actividades",
         posibilidad_recuerdo: "Recuerdos",
-        // TODO añadir mas tipos
+
     };
 
     useEffect(() => {

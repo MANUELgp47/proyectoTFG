@@ -5,8 +5,8 @@ import {upload} from "../cloudinaryConfig.js";
 
 const router = Router();
 
-//Obtener todos los recuerdos
-router.get('/', RercuerdoController.getRecuerdos);
+//Obtener todos los recuerdos dev
+//router.get('/', RercuerdoController.getRecuerdos);
 
 //Obtener un recuerdo por ID
 router.get('/:id', authMiddleware, RercuerdoController.getRecuerdoPorId);

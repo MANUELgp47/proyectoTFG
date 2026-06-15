@@ -156,7 +156,7 @@ const comprobarEmisorChat = async (idEmisor: number, idChatIndividual?: number, 
 //crear mensaje
 export const createMensaje = async (req: Request, res: Response) => {
     try {
-        //TODO: Funciona? : comprobar que exsite el chat y que existe el emisor (hace una función)
+
 
         const idEmisor = req.userId;
         //valida idEmisor

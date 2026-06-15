@@ -24,7 +24,7 @@ export default function CrearRecuerdo() {
     const [items, setItems] = useState<ImageItem[]>([]);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-    // cleanup on unmount: revoke all object URLs
+    // Limpiar URLs de objetos cuando el componente se desmonte o cuando los items cambien
     useEffect(() => {
         return () => {
             items.forEach((it) => URL.revokeObjectURL(it.url));

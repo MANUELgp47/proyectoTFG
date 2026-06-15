@@ -12,8 +12,8 @@ router.get('/buscar', authMiddleware, UsuarioController.buscarUsuariosNombre);
 //Obtener un usuario por id
 router.get('/:idUsuario', authMiddleware, UsuarioController.getUsuarioID);
 
-//Obtener todos los usuarios
-router.get('/', UsuarioController.getUsuarios);
+//Obtener todos los usuarios dev
+//router.get('/', UsuarioController.getUsuarios);
 
 //Crear un nuevo usuario
 router.post('/', upload.array('imagen'), UsuarioController.createUsuario);

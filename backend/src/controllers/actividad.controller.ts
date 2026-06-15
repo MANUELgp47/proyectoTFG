@@ -278,6 +278,12 @@ export const updateActividad = async (req: Request, res: Response) => {
             return res.status(400).json({message: 'ID inválido'});
         }
 
+        //el usuario no está baneado
+        const estaBaneado = await UsuarioService.getRolPorIdUsuario(req.userId!);
+        if (estaBaneado === 'baneado') {
+            return res.status(403).json({message: 'El usuario está baneado y no puede realizar esta acción'});
+        }
+
         //creador o admin
         const esCreador: boolean = await ActividadService.ActividadService.esCreadorActividad(idActividad, req.userId!) || await UsuarioService.getRolPorIdUsuario(Number(req.userId)) === 'admin';
         const esAdminActividad: boolean = await ActividadService.ActividadService.esAdminActividad(idActividad, req.userId!);

@@ -65,10 +65,18 @@ export class AmistadService {
 
 
     }
-    //tengo permiso? TODO hacer cuando todos los users tengan settings
+
+    
+    //tengo permiso?
     static async tengoPermisoParaVerPerfil(yo: number, idUsuario2: number) : Promise<boolean> {
         //soy yo mismo, tengo permiso
         if (yo === idUsuario2) {
+            return true;
+        }
+
+        //si soy  admin o moderador, tengo permiso
+        const miRol = await UsuarioService.getRolPorIdUsuario(yo);
+        if (miRol=== 'admin' || miRol === 'moderador') {
             return true;
         }
 

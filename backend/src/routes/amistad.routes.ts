@@ -5,8 +5,8 @@ import {getAmistadPorUsuarios} from "../controllers/amistad.controller.js";
 
 const router = Router();
 
-// Obtener todas las amistades
-router.get('/', AmistadController.getAmistades);
+// Obtener todas las amistades dev
+//router.get('/', AmistadController.getAmistades);
 
 // Obtener amistades de un usuario
 router.get('/usuario/:idUsuario', authMiddleware, AmistadController.getAmistadesPorUsuario);

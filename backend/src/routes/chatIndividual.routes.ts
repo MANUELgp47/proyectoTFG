@@ -4,8 +4,8 @@ import {authMiddleware} from "../middleware/auth.middleware.js";
 
 const router = Router();
 
-// Obtener todos los chats individuales de la base de datos
-router.get('/', ChatIndividualController.getChatsIndividual);
+// Obtener todos los chats individuales de la base de datos dev
+//router.get('/', ChatIndividualController.getChatsIndividual);
 
 
 // Obtener un chat individual por id emisor o receptor

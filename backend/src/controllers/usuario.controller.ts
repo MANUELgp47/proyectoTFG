@@ -62,7 +62,14 @@ export const getPerfilUsuarioID = async (req: Request, res: Response) => {
 
         const settings = await SettingsModel.getSettings(idUsuario);
 
-        if (settings?.perfilPublico || req.userId === idUsuario) {
+        //el consultor es admin o mod
+        let consultorPrivilegiado = false;
+        const rolConsultor = await UsuarioService.UsuarioService.getRolPorIdUsuario(Number(req.userId));
+        if (rolConsultor === 'admin' || rolConsultor === 'mod') {
+            consultorPrivilegiado = true;
+        }
+
+        if (settings?.perfilPublico || req.userId === idUsuario || consultorPrivilegiado ) {
             const perfil = await UsuarioService.UsuarioService.obtenerUsuarioPorId(idUsuario);
             res.json(perfil);
         } else if (settings) {

@@ -82,7 +82,7 @@ export const actualizarSettings = async (req: Request, res: Response) => {
         return res.status(404).json({message: "User not found"});
     }
 
-    //compruebo que no bloqueo 2 veces al mismo usuario y que no me bloqueo a mi mismo
+    //compruebo que no bloqueo 2 veces al mismo usuario y que no me bloqueo a mi mismo| No puedo bloquear a un admin ni a un mod
     if (settingsData.usuariosBloqueados) {
         const uniqueBloqueados = Array.from(new Set(settingsData.usuariosBloqueados));
         if (uniqueBloqueados.length !== settingsData.usuariosBloqueados.length) {
@@ -90,6 +90,13 @@ export const actualizarSettings = async (req: Request, res: Response) => {
         }
         if (settingsData.usuariosBloqueados.includes(idUsuario)) {
             return res.status(400).json({message: "no puedes bloquearte a ti mismo"});
+        }
+        //No es admin ni mod
+        for (const idBloqueado of settingsData.usuariosBloqueados) {
+            const rol = await UsuarioService.getRolPorIdUsuario(idBloqueado);
+            if (rol === 'admin' || rol === 'mod') {
+                return res.status(405).json({message: "no puedes bloquear a un admin ni a un mod"});
+            }
         }
     }
 

@@ -3,7 +3,6 @@ import {Routes, Route} from "react-router-dom";
 import ActividadesCreadas from "./pages/ActividadesCreadas";
 import CrearActividad from "./pages/CrearActividad";
 import EditarActividad from "./pages/EditarActividad.tsx";
-import MisActividades from "./pages/MisActividades";
 import {ActividadDetalle} from "./pages/ActividadDetalle";
 import Notificaciones from "./pages/Notificaciones";
 import VistaNotificacion from "./pages/VistaNotificacion.tsx";
@@ -60,10 +59,7 @@ export default function App() {
                     path="actividad/crear"
                     element={<CrearActividad/>}
                 />
-                <Route
-                    path="misActividades"
-                    element={<MisActividades/>}
-                />
+
                 <Route
                     path="/ActualizarActividad/:id"
                     element={<EditarActividad/>}

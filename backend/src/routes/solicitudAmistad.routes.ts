@@ -5,10 +5,10 @@ import {getSolicitudAmistad} from "../controllers/solicitudAmistad.controller.js
 
 const router = Router();
 
-// Obtener todas las solicitudes de amistad
-router.get('/', SolicitudAmistadController.getAllSolicitudesAmistad);
+// Obtener todas las solicitudes de amistad dev
+//router.get('/', SolicitudAmistadController.getAllSolicitudesAmistad);
 
-//Obtener una solicitud de amistad por receptor TODO: borrar esto o cambiarlo a authMiddleware
+//Obtener una solicitud de amistad por receptor
 router.get('/receptor/:idReceptor', SolicitudAmistadController.getSolicitudesPorReceptor);
 
 //comprueba si ya he mandado solicitud al usuario

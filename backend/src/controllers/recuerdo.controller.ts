@@ -26,6 +26,13 @@ export const getRecuerdoPorId = async (req: Request, res: Response) => {
         return res.status(400).json({message: 'ID inválido'});
     }
 
+    //soy moderador o admin?
+    const miRol = await UsuarioService.getRolPorIdUsuario(Number(req.userId));
+    let tengoPrivilegios = false;
+    if (miRol=== 'admin' || miRol === 'moderador') {
+        tengoPrivilegios = true;
+    }
+
 
     //si el usuario tiene perfil privado, y no soy su amigo, no puedo ver el recuerdo (si el recuerdo es de un usuario con perfil privado)
     const idUsuario = req.userId;
@@ -33,7 +40,7 @@ export const getRecuerdoPorId = async (req: Request, res: Response) => {
     if (idCreadorRecuerdo) {
         const esAmigo = await AmistadService.existeAmistad(Number(idUsuario), idCreadorRecuerdo);
         const perfilPublico = await UsuarioService.obtenerPrivacidadPorId(idCreadorRecuerdo);
-        if (perfilPublico && !perfilPublico.perfilPublico && !esAmigo && idUsuario !== idCreadorRecuerdo) {
+        if (perfilPublico && !perfilPublico.perfilPublico && !esAmigo && idUsuario !== idCreadorRecuerdo && !tengoPrivilegios) {
             return res.status(403).json({message: 'No tienes permiso para ver este recuerdo'});
         }
     } else {
@@ -227,7 +234,7 @@ export const deleteRecuerdoPorId = async (req: Request, res: Response) => {
         return res.status(404).json({message: 'Recuerdo no encontrado'});
     }
 
-    //comprobar que el recuerdo pertenece al usuario (esCreador)
+    //comprobar que el recuerdo pertenece al usuario (esCreador) o que el usuario es admin o mod
     const idCreador = await RecuerdoService.getIdCreadorRecuerdo(idRecuerdo);
     if (idCreador !== idUsuario && (rol !== 'admin' && rol !== 'mod')) {
         return res.status(403).json({message: 'No tienes permiso para eliminar este recuerdo'});

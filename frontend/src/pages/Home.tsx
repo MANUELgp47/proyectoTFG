@@ -159,14 +159,6 @@ export default function Home() {
     }, [filtros]);
 
 
-    //logica para mostrar lista de chats
-    //1. obtener todos los chats del usuario una lista de chat individual y otra de chat actividad
-    //2. obtener el ultimo mensaje de cada chat
-    //3. mostrar en el dropdown del usuario los chats ordenados por fecha del ultimo mensaje, mostrando el nombre del chat (nombre de la actividad o del otro usuario) y el ultimo mensaje
-    //4. obtener el nombre, id e imagen(en un futuro imgen de perfil) del otro usuario para los chats
-    //5. obtener el nombre, id e imagen(en un futuro imgen de perfil) de la actividad para los chats de actividad
-
-
     //carga los chat actividad y los chats individuales del usuario
     useEffect(() => {
         const fetchChats = async () => {
@@ -392,6 +384,19 @@ export default function Home() {
 
         fetchParticipantes();
     }, [actividades]);
+    const getFirstImage = (imagenes: any): string | null => {
+        if (!imagenes) return null;
+        if (Array.isArray(imagenes)) {
+            for (const im of imagenes) {
+                if (typeof im === "string" && im.trim() !== "") return im;
+            }
+            return null;
+        }
+        if (typeof imagenes === "string") {
+            return imagenes.trim() === "" ? null : imagenes;
+        }
+        return null;
+    };
 
     return (
         <div
@@ -401,9 +406,9 @@ export default function Home() {
         >
             <div className="max-w-[1200px] mx-auto px-6 py-6">
                 {/* ========== TOP BAR ========== */}
-                <header className="flex items-center gap-3">
+                <header className="flex flex-wrap items-center gap-3">
                     {/* Buscador */}
-                    <div className="flex-1 max-w-md relative">
+                    <div className="order-last w-full sm:order-first sm:flex-1 sm:max-w-md relative">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral"/>
                         <input
                             type="text"
@@ -760,10 +765,11 @@ export default function Home() {
                 {/* ========== LISTA DE ACTIVIDADES ========== */}
                 <section className="mt-10">
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+
                         {actividades.map((act) => {
-                            const imagenUrl: string | null = act.imagenes ?? null;
+                            const imagenUrl: string | null = getFirstImage(act.imagenes);
                             const creadorNombre: string =
-                                usuariosMinimosActividad[act.idCreador]?.nombreUsuario ?? "Nombre creador";
+                                usuariosMinimosActividad[act.idCreador]?.nombreUsuario ?? "Usuario desconocido";
                             const creadorFoto: string | null = usuariosMinimosActividad[act.idCreador]?.imagen ?? null;
                             const fecha = new Date(act.fechaInicio).toLocaleDateString() ?? "No determinada";
                             const ubicacion: string = act.ubicacion ?? "Ubicación de ejemplo";
@@ -774,25 +780,26 @@ export default function Home() {
                                 <Link
                                     key={act.idActividad}
                                     to={`/actividad/${act.idActividad}`}
-                                    className="group rounded-3xl bg-white shadow-[0_2px_20px_rgba(15,23,42,0.06)] p-4 flex flex-col transition hover:shadow-[0_12px_30px_rgba(15,23,42,0.10)] hover:-translate-y-0.5 no-underline"
+                                    className={`group self-start rounded-3xl bg-white shadow-[0_2px_20px_rgba(15,23,42,0.06)] ${imagenUrl ? 'p-4' : 'p-3'} flex flex-col transition hover:shadow-[0_12px_30px_rgba(15,23,42,0.10)] hover:-translate-y-0.5 no-underline`}
+                                    //className={`group rounded-3xl bg-white shadow-[0_2px_20px_rgba(15,23,42,0.06)] ${imagenUrl ? 'p-4' : 'p-3'} flex flex-col transition hover:shadow-[0_12px_30px_rgba(15,23,42,0.10)] hover:-translate-y-0.5 no-underline`}
+
                                 >
                                     {/* Imagen con fallback negro */}
-                                    <div className="relative w-full aspect-[5/3] rounded-2xl bg-black overflow-hidden">
-                                        {imagenUrl && (
+                                    {imagenUrl && (
+                                        <div className="relative w-full aspect-[5/3] rounded-2xl bg-terciary overflow-hidden">
                                             <img
                                                 src={imagenUrl}
                                                 alt={act.titulo}
                                                 className="absolute inset-0 w-full h-full object-cover"
                                                 onError={(e) => {
-                                                    (e.currentTarget as HTMLImageElement).style.display =
-                                                        "none";
+                                                    (e.currentTarget as HTMLImageElement).style.display = "none";
                                                 }}
                                             />
-                                        )}
-                                    </div>
+                                        </div>
+                                    )}
 
                                     {/* Contenido */}
-                                    <div className="px-2 pt-5 pb-2 flex flex-col flex-1">
+                                    <div className={`px-2 ${imagenUrl ? 'pt-5' : 'pt-2'} pb-2 flex flex-col flex-1`}>
                                         <h3
                                             className="text-[19px] font-extrabold text-secondary leading-snug tracking-tight group-hover:text-primary transition"
                                             style={{fontFamily: "'Manrope', sans-serif"}}

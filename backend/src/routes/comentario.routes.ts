@@ -4,8 +4,8 @@ import {authMiddleware} from "../middleware/auth.middleware.js";
 
 const router = Router();
 
-// Obtener todos los comentarios
-router.get('/', ComentarioController.getComentarios);
+// Obtener todos los comentarios dev
+//router.get('/', ComentarioController.getComentarios);
 
 // Obtener comentarios de un usuario
 router.get('/usuario/:idUsuario', ComentarioController.getComentariosPorUsuario);

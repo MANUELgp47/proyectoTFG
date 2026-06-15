@@ -4,8 +4,8 @@ import {authMiddleware} from "../middleware/auth.middleware.js";
 
 const router = Router();
 
-//Obtener todas las notificaciones
-router.get('/', NotificaciónController.getNotificaciones);
+//Obtener todas las notificaciones dev
+//router.get('/', NotificaciónController.getNotificaciones);
 
 //Obtener notificaciones por id de usuario
 //http://localhost:3000/api/notificacion/usuario/1

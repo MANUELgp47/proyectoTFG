@@ -5,8 +5,8 @@ import {getNumeroParticipantesActividad} from "../controllers/participacion.cont
 
 const router = Router();
 
-//Obtener todas las participaciones
-router.get('/', ParticipaciónController.getParticipaciones);
+//Obtener todas las participaciones dev
+//router.get('/', ParticipaciónController.getParticipaciones);
 
 //Obtener participaciones por usuario
 //router.get('/misParticipaciones/', authMiddleware, ParticipaciónController.getParticipacionesPorUsuario);

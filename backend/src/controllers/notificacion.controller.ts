@@ -69,6 +69,7 @@ export const createNotificacion = async (req: Request, res: Response) => {
 //denuncia
 export const createDenuncia = async (req: Request, res: Response) => {
     try {
+        console.log("Creando denuncia ");
         const idDenunciante = Number(req.userId);
         const idReferencia = Number(req.body.idReferencia);
         console.log("Body de la denuncia:", req.body);

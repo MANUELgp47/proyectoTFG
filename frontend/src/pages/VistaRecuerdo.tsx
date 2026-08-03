@@ -222,7 +222,7 @@ export default function VistaRecuerdo() {
         const mensajeCompleto = `Comentario con id: ${idComentario}. Razón: ${mensaje}`;
 
         if (mensaje) {
-            await crearDenuncia(idUsuario!, "denuncia_comentario", Number(idRecuerdo), mensajeCompleto);
+            await crearDenuncia(idUsuario!, "denuncia_comentario", Number(idComentario), mensajeCompleto);
             alert("Gracias por tu denuncia. Nuestro equipo revisará el comentario.");
         }
     }

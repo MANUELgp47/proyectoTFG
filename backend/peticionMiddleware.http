@@ -373,5 +373,5 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsI
 
 
 ### get actividad con id 12
-GET http://localhost:3000/api/actividad/9
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjYsImlhdCI6MTc4MDM5MzQ4OSwiZXhwIjoxNzgxMjU3NDg5fQ.uARkjdTB02B86FOFFrcfRpRqaPwsLsF0RO_qSkZLqu8
+GET https://www.memora-tfg.es/api/actividad/9
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzdWFyaW8iOjksImlhdCI6MTc4MjY0NjQwNiwiZXhwIjoxNzgzNTEwNDA2fQ.RXQwDfWEvBVJsOvh7t3gI3tZfPT_TNqepsegNvopKyI

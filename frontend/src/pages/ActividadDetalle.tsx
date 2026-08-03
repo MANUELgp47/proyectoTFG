@@ -96,7 +96,7 @@ export function ActividadDetalle() {
 
                 }
             } catch (error) {
-                console.error(error);
+               console.error(error);
             } finally {
                 setLoading(false);
             }
